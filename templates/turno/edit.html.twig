@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edición de Turno{% endblock %}
+
+{% block body %}
+    <h1>Edición de Turno</h1>
+
+    {{ include('turno/_form.html.twig', {'button_label': 'Grabar Cambios'}) }}
+
+    <a href="{{ path('turno_index') }}">Volver a la Lista</a>
+
+    {{ include('turno/_delete_form.html.twig') }}
+{% endblock %}

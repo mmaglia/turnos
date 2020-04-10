@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Lista de Localidades{% endblock %}
+
+{% block body %}
+    <h1>Lista de Localidades</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Localidad</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for localidad in localidads %}
+            <tr>
+                <td>{{ localidad.id }}</td>
+                <td>{{ localidad.localidad }}</td>
+                <td>
+                    <a href="{{ path('localidad_show', {'id': localidad.id}) }}">Ver</a>
+                    <a href="{{ path('localidad_edit', {'id': localidad.id}) }}">Editar</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="3">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('localidad_new') }}">Crear nueva Localidad</a>
+{% endblock %}

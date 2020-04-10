@@ -19,6 +19,32 @@ class TurnoRepository extends ServiceEntityRepository
         parent::__construct($registry, Turno::class);
     }
 
+    public function findUltimoTurnoByOficina($value)
+    {
+        $result = $this->getEntityManager()
+        ->createQuery('
+            SELECT t
+            FROM App\Entity\Turno t
+            WHERE t.oficina = :val and t.fechaHora in (SELECT max(t2.fechaHora) FROM App\Entity\Turno t2 WHERE t2.oficina = :val)
+            '
+        )
+        ->setParameter(':val', $value)
+        ->getResult();
+        
+        return $result;
+
+/*        return $this->createQueryBuilder('t')
+            ->select('MAX(t.fechaHora) AS ultimoTurno')
+            ->andWhere('t.oficina = :val')
+            ->setParameter('val', $value)
+            ->setMaxResults(1)
+            ->orderBy('ultimoTurno', 'DESC')
+            ->getQuery()
+        ;
+*/        
+    }
+
+
     // /**
     //  * @return Turno[] Returns an array of Turno objects
     //  */

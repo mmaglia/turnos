@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Oficina index{% endblock %}
+
+{% block body %}
+    <h1>Lista de Oficinas</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Oficina</th>
+                <th>Localidad</th>
+                <th>Hora Inicio Atencion</th>
+                <th>Hora Fin Atencion</th>
+                <th>Frecuencia Atencion (minutos)</th>
+                <th>Ultimo Turno</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for oficina in oficinas %}
+            <tr>
+                <td>{{ oficina.id }}</td>
+                <td>{{ oficina.oficina }}</td>
+                <td>{{ oficina.localidad }}</td>
+                <td>{{ oficina.horaInicioAtencion ? oficina.horaInicioAtencion|date('H:i') : '' }}</td>
+                <td>{{ oficina.horaFinAtencion ? oficina.horaFinAtencion|date('H:i') : '' }}</td>
+                <td>{{ oficina.frecuenciaAtencion }}</td>
+                <td>{{ oficina.ultimoTurno ? oficina.ultimoTurno|date('Y-m-d H:i') : '' }}</td>
+                <td>
+                    <a href="{{ path('oficina_show', {'id': oficina.id}) }}">Ver</a>
+                    <a href="{{ path('oficina_edit', {'id': oficina.id}) }}">Editar</a>
+                    <a href="{{ path('oficina_addTurnos', {'id': oficina.id}) }}">Crear Nuevos Turnos</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="6">no hay registros</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('oficina_new') }}">Crear Nueva Oficina</a>
+{% endblock %}

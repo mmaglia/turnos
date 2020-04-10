@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nueva Localidad{% endblock %}
+
+{% block body %}
+    <h1>Crear nueva Localidad</h1>
+
+    {{ include('localidad/_form.html.twig') }}
+
+    <a href="{{ path('localidad_index') }}">Volver a la Lista</a>
+{% endblock %}

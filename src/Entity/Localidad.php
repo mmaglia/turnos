@@ -21,7 +21,7 @@ class Localidad
     /**
      * @ORM\Column(type="string", length=80)
      */
-    private $Localidad;
+    private $localidad;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Oficina", mappedBy="localidad")
@@ -40,12 +40,12 @@ class Localidad
 
     public function getLocalidad(): ?string
     {
-        return $this->Localidad;
+        return $this->localidad;
     }
 
-    public function setLocalidad(string $Localidad): self
+    public function setLocalidad(string $localidad): self
     {
-        $this->Localidad = $Localidad;
+        $this->localidad = $localidad;
 
         return $this;
     }
@@ -79,5 +79,10 @@ class Localidad
         }
 
         return $this;
+    }
+
+    public function __toString()
+    {
+        return $this->localidad;
     }
 }

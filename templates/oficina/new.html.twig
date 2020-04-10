@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nueva Oficina{% endblock %}
+
+{% block body %}
+    <h1>Crear Nueva Oficina</h1>
+
+    {{ include('oficina/_form.html.twig') }}
+
+    <a href="{{ path('oficina_index') }}">Volver a la lista</a>
+{% endblock %}

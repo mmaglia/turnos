@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nuevo Turno{% endblock %}
+
+{% block body %}
+    <h1>Creación de Nuevo Turno</h1>
+
+    {{ include('turno/_form.html.twig') }}
+
+    <a href="{{ path('turno_index') }}">Volver a la Lista</a>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(function() {
+
+            $('.js-datepicker').datepicker({
+                format: 'yyyy-mm-dd'
+            });
+                        
+            var $form = $(this).closest('form')
+
+            var data = {}
+
+            data[$token.attr('name')] = $token.val()
+            data[$turno_localidad.attr('name')] = $turno_localidad.val()
+
+            $.post($form.attr('action'), data).then(function (response)
+            {
+                $("#turno_organismo").replaceWith(
+                    $(response).find("#turno_organismo")
+                )
+            })
+            
+        });
+    </script>  
+
+{% endblock %}     

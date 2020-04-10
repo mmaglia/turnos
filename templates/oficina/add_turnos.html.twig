@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Editar Oficina{% endblock %}
+
+{% block body %}
+    <h1>Nuevos Turnos para {{ oficina.oficina }} ({{ oficina.localidad }})</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Oficina</th>
+                <td>{{ oficina.oficina }} ({{ oficina.localidad }})</td>
+            </tr>
+            <tr>
+                <th>Hora Inicio Atencion</th>
+                <td>{{ oficina.horaInicioAtencion ? oficina.horaInicioAtencion|date('H:i') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Hora Fin Atencion</th>
+                <td>{{ oficina.horaFinAtencion ? oficina.horaFinAtencion|date('H:i') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Frecuencia Atencion</th>
+                <td>{{ oficina.frecuenciaAtencion }}</td>
+            </tr>
+            <tr>
+                <th>Ultimo Turno</th>
+                <td>{{ fechaHoraUltimoTurno ? fechaHoraUltimoTurno|date('Y-m-d H:i') : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    Este proceso creará automáticamente turnos nuevos para: {{ oficina.oficina }} ({{ oficina.localidad }}). 
+    <br>
+    Los turnos se crearán a partir del último existente ({{ fechaHoraUltimoTurno ? fechaHoraUltimoTurno|date('Y-m-d H:i') : '' }}) y por la cantidad de días que usted indique a continuación.
+    <br>
+    Se crearán para todos los días de lunes a viernes (no considera feriados).
+
+    <br><br>
+
+    {{ include('oficina/_form.html.twig', {'button_label': 'Generar Turnos'}) }}
+
+    <a href="{{ path('oficina_index') }}">Volver a la  lista</a>
+
+{% endblock %}

@@ -1,0 +1,5 @@
+<form method="post" action="{{ path('localidad_delete', {'id': localidad.id}) }}" onsubmit="return confirm('¿Está usted seguro de borrar esta localidad?');">
+    <input type="hidden" name="_method" value="DELETE">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ localidad.id) }}">
+    <button class="btn">Borrar Localidad</button>
+</form>
