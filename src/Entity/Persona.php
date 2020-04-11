@@ -131,4 +131,10 @@ class Persona
 
         return $this;
     }
+
+    public function __toString()
+    {
+        return $this->getApellido() . ', ' . $this->getNombre();
+    }
+
 }

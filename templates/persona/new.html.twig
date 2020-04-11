@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Solicitud de Turnos{% endblock %}
+
+{% block body %}
+    <h1>Solicitud de Turnos</h1>
+    <h2>Datos del Solicitante</h2>
+    <h6 class="float-right">Paso 1/4</h6>
+
+    {{ include('persona/_form.html.twig') }}
+
+{% endblock %}

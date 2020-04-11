@@ -4,8 +4,13 @@ namespace App\Controller;
 
 use App\Entity\Turno;
 use App\Form\TurnoType;
+use App\Form\Turno3Type;
+use App\Form\Turno4Type;
+use App\Form\Turno5Type;
 use App\Repository\TurnoRepository;
-use App\Entity\Oficina;
+use App\Entity\Persona;
+use App\Form\PersonaType;
+
 use App\Repository\LocalidadRepository;
 use App\Repository\OficinaRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -13,6 +18,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * @Route("/turno")
@@ -39,17 +46,132 @@ class TurnoController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /*
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($turno);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('turno_index');
-            */
         }
 
         return $this->render('turno/new.html.twig', [
             'turno' => $turno,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route("/new2", name="turno_new2", methods={"GET","POST"})
+     */
+    public function new2(Request $request, SessionInterface $session): Response
+    {
+        $session->start();
+
+        $persona = new Persona();
+        $form = $this->createForm(PersonaType::class, $persona);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($persona);
+            $session->set('persona', $persona);
+            return $this->redirectToRoute('turno_new3');
+        }
+
+        return $this->render('persona/new.html.twig', [
+            'persona' => $persona,
+            'form' => $form->createView(),
+        ]);
+    }    
+
+    /**
+     * @Route("/new3", name="turno_new3")
+     */
+    public function new3(SessionInterface $session, Request $request): Response
+    {
+        $persona = $session->get('persona');
+        $turno = new Turno();
+        $turno->setPersona($persona);
+        $form = $this->createForm(Turno3Type::class, $turno);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($turno);
+            $session->set('turno', $turno);
+            return $this->redirectToRoute('turno_new4');
+        }
+
+        return $this->render('turno/new3.html.twig', [
+            'turno' => $turno,
+            'persona' => $persona,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route("/new4", name="turno_new4", methods={"GET","POST"})
+     */
+    public function new4(SessionInterface $session, Request $request, TurnoRepository $turnoRepository): Response
+    {
+        $persona = $session->get('persona');
+        $turno = $session->get('turno');
+
+        $oficinaId = $turno->getOficina()->getId();
+        $diaActual = date('d/m/Y');      
+        $ultimoDiaDisponible = $turnoRepository->findUltimoDiaDisponibleByOficina($oficinaId);
+        
+        $form = $this->createForm(Turno4Type::class, $turno);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($turno);
+            $entityManager->persist($persona);
+
+            $session->set('turno', $persona);
+            $session->set('turno', $turno);
+
+            return $this->redirectToRoute('turno_new5');            
+        }
+
+        return $this->render('turno/new4.html.twig', [
+            'turno' => $turno,
+            'persona' => $persona,
+            'oficinaID' => $oficinaId,
+            'diaActual' => $diaActual,
+            'ultimoDiaDisponible' => $ultimoDiaDisponible,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route("/new5", name="turno_new5", methods={"GET","POST"})
+     */
+    public function new5(SessionInterface $session, Request $request, TurnoRepository $turnoRepository): Response
+    {
+        $persona = $session->get('persona');
+        $turno = $session->get('turno');
+       
+        $form = $this->createForm(Turno5Type::class, $turno);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            $turnoActualizar = $turnoRepository->findTurno($turno->getOficina()->getId(), $turno->getFechaHora());
+
+            $turnoActualizar->setMotivo($turno->getMotivo());
+            $turnoActualizar->setPersona($persona);
+
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->merge($turnoActualizar);
+            $entityManager->persist($persona);
+
+            $entityManager->flush();
+
+            //TODO ver como borrar de session las variables utilizadas 
+
+            return $this->redirectToRoute('turno_new2');
+            
+        }
+
+        return $this->render('turno/new5.html.twig', [
+            'turno' => $turno,
+            'persona' => $persona,
             'form' => $form->createView(),
         ]);
     }
@@ -98,19 +220,48 @@ class TurnoController extends AbstractController
         return $this->redirectToRoute('turno_index');
     }
 
-
     /**
-     * @Route("/oficina_localidad", name="oficinas_by_localidad", condition="request.headers.get('X-Requested-With') == 'XMLHttRequest'")
+     * @Route("/oficina_localidad/{localidad_id}", name="oficinas_by_localidad", requirements = {"localidad_id" = "\d+"}, methods={"POST"})
      */
-    /*
-    public function oficinasByLocalidad(Request $request, OficinaRepository $oficinaRepository) {
-
-//        $em = $this->getDoctrine()->getManager();
-        $localidad_id = $request->request->get('localidad_id');
+    public function oficinasByLocalidad($localidad_id, OficinaRepository $oficinaRepository) {
+        $em = $this->getDoctrine()->getManager();
         $oficinas = $oficinaRepository->findOficinaByLocalidad($localidad_id);
 
         return new JsonResponse($oficinas);
+    }
+
+    /**
+     * @Route("/turnoslibres_oficina/{oficina_id}", name="turnoslibres_by_localidad", requirements = {"oficina_id" = "\d+"}, methods={"GET", "POST"})
+     */
+    public function diasLibresByOficina(TurnoRepository $turnoRepository, $oficina_id) {
+
+        $turnosLibres = $turnoRepository->findDiasDisponiblesByOficina($oficina_id);
+
+        return new JsonResponse($turnosLibres);
 
     }
-    */
+
+    /**
+     * @Route("/diasOcupadosOficina/{oficina_id}", name="diasOcupadosOficina", requirements = {"oficina_id" = "\d+"}, methods={"GET", "POST"})
+     */
+    public function diasOcupadosByOficina(TurnoRepository $turnoRepository, $oficina_id) {
+
+        $diasOcupados = $turnoRepository->findDiasOcupadosByOficina($oficina_id);
+        
+        return new JsonResponse($diasOcupados);
+
+    }
+
+    /**
+     * @Route("/horariosDisponiblesOficinaFecha/{oficina_id}/{fecha}", name="horarisDisponibles", methods={"GET", "POST"})
+     */
+    public function horariosDisponiblesByOficinaByFecha(TurnoRepository $turnoRepository, $oficina_id, $fecha) {
+
+        $horariosDisponibles = $turnoRepository->findHorariosDisponiblesByOficinaByFecha($oficina_id, $fecha);
+                
+        return new JsonResponse($horariosDisponibles);
+        
+    }
+        
+        
 }

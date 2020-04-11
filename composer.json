@@ -16,13 +16,13 @@
         "symfony/security-csrf": "5.0.*",
         "symfony/twig-bundle": "5.0.*",
         "symfony/validator": "5.0.*",
+        "symfony/var-dumper": "5.0.*",
         "symfony/web-profiler-bundle": "5.0.*",
         "symfony/webpack-encore-bundle": "^1.7",
         "symfony/yaml": "5.0.*"
     },
     "require-dev": {
-        "symfony/maker-bundle": "^1.15",
-        "symfony/var-dumper": "5.0.*"
+        "symfony/maker-bundle": "^1.15"
     },
     "config": {
         "preferred-install": {

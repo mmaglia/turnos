@@ -112,8 +112,8 @@ class OficinaController extends AbstractController
                     $turno = new Turno();
                     $turno->setFechaHora($nuevoTurno);
                     $turno->setOficina($oficina);
-                    $entityManager->persist($turno);
-        
+                    $entityManager->persist($turno);       
+                    $this->getDoctrine()->getManager()->flush();
 
                     if ($nuevoTurno > $ultimoTurnoDelDia) {
                         break;
@@ -121,9 +121,6 @@ class OficinaController extends AbstractController
 
                 }               
             }
-
-            // Impacta los cambios en BD
-            $this->getDoctrine()->getManager()->flush();
 
             // TODO ver de notificar la cantidad de turnos creados
             return $this->redirectToRoute('oficina_index');

@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nuevo Turno{% endblock %}
+
+{% block body %}
+    <h1>Solicitud de Turnos</h1>
+    <h2>Selección de Organismo</h2>
+    <h6 class="float-right">Paso 2/4</h6>
+
+    {{ include('turno/_form.html.twig') }}
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(function() {
+            var textoListaLocalidadVacia = '<option value="" disabled selected>Seleccione una Localidad</option>';
+            var textoListaOficinaVacia = '<option value="" disabled selected>Seleccione una Oficina</option>';
+
+            $('#turno3_localidad').change(function() {
+                var localidad_id = $(this).val();
+                if (localidad_id != '') {
+                    $.ajax({
+                        url:"/turno/oficina_localidad/" + localidad_id,
+                        method: "POST",
+                        dataType: "json",
+                        success: function(data) {
+                            $('#turno3_oficina').html('');
+                            $('#turno3_oficina').append(textoListaOficinaVacia);
+                            $.each(data,function(key, registro) {
+                                $("#turno3_oficina").append('<option value='+registro.id+'>'+registro.oficina+'</option>');
+                            });   
+                        }
+                    })
+                } else {
+                    $('#turno3_oficina').html('');
+                }
+            });
+            
+            $('#turno3_oficina').html(textoListaOficinaVacia);
+
+        });
+    </script>  
+
+{% endblock %}     

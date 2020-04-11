@@ -17,5 +17,13 @@
         "dev": "encore dev",
         "watch": "encore dev --watch",
         "build": "encore production --progress"
+    },
+    "dependencies": {
+        "@types/bootstrap-datepicker": "^0.0.14",
+        "bootstrap-datepicker": "^1.9.0",
+        "font-awesome": "^4.7.0",
+        "moment": "^2.24.0",
+        "tempusdominus-bootstrap-4": "^5.1.2",
+        "typeface-roboto": "^0.0.75"
     }
 }

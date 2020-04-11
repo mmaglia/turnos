@@ -33,8 +33,9 @@ class OficinaRepository extends ServiceEntityRepository
 
     public function findOficinaByLocalidad($localidad_id)
     {
-        return $this->createQueryBuilder('oficina')
-            ->andWhere('oficina.localidad_id = :val')
+        return $this->createQueryBuilder('o')
+            ->select('o.id, o.oficina as oficina')
+            ->andWhere('o.localidad = :val')
             ->setParameter('val', $localidad_id)
             ->orderBy('oficina')
             ->getQuery()

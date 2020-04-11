@@ -6,6 +6,7 @@ use App\Entity\Turno;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+
 /**
  * @method Turno|null find($id, $lockMode = null, $lockVersion = null)
  * @method Turno|null findOneBy(array $criteria, array $orderBy = null)
@@ -19,6 +20,15 @@ class TurnoRepository extends ServiceEntityRepository
         parent::__construct($registry, Turno::class);
     }
 
+    public function findAll()
+    {
+        $result = $this->getEntityManager()
+        ->createQuery('SELECT t FROM App\Entity\Turno t ORDER BY t.oficina, t.fechaHora')
+        ->getResult();
+        
+        return $result;
+    }
+    
     public function findUltimoTurnoByOficina($value)
     {
         $result = $this->getEntityManager()
@@ -32,45 +42,112 @@ class TurnoRepository extends ServiceEntityRepository
         ->getResult();
         
         return $result;
-
-/*        return $this->createQueryBuilder('t')
-            ->select('MAX(t.fechaHora) AS ultimoTurno')
-            ->andWhere('t.oficina = :val')
-            ->setParameter('val', $value)
-            ->setMaxResults(1)
-            ->orderBy('ultimoTurno', 'DESC')
-            ->getQuery()
-        ;
-*/        
     }
 
-
-    // /**
-    //  * @return Turno[] Returns an array of Turno objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function findUltimoDiaDisponibleByOficina($oficina_id)
     {
-        return $this->createQueryBuilder('t')
-            ->andWhere('t.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('t.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+        $sql = "SELECT to_char(date(max(fecha_hora)), 'dd/mm/yyyy') as UltimoDiaDisponible FROM turno WHERE persona_id is null AND oficina_id = :oficina_id AND fecha_hora > now()";
+        
+        $em = $this->getEntityManager();
+        $statement = $em->getConnection()->prepare($sql);
+        $statement->bindValue('oficina_id', $oficina_id);
+        $statement->execute();
+        $result = $statement->fetchAll();
 
-    /*
-    public function findOneBySomeField($value): ?Turno
+        $ultimoDiaDisponible = $result[0]['ultimodiadisponible'];
+
+        return $ultimoDiaDisponible;
+    }    
+
+    public function findDiasDisponiblesByOficina($oficina_id)
     {
-        return $this->createQueryBuilder('t')
-            ->andWhere('t.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        // Obtengo días (futuros) con turnos disponibles para una oficina en particular
+        $sql = "SELECT DISTINCT to_char(date(fecha_hora), 'dd/mm/yyyy') as DiaDisponible FROM turno WHERE persona_id is null AND oficina_id = :oficina_id AND fecha_hora >= now() ORDER BY 1";
+
+        $em = $this->getEntityManager();
+        $statement = $em->getConnection()->prepare($sql);
+        $statement->bindValue('oficina_id', $oficina_id);
+        $statement->execute();
+        $result = $statement->fetchAll();
+
+        // Convierto arreglo multi asociativo a un asociativo simple (Doctrine retorna un array por cada registro)
+        $diasDisponibles = array();
+        foreach($result as $item) {
+            $diasDisponibles[] = $item['diadisponible'];
+        }
+
+        return $diasDisponibles;
+    }    
+
+    public function findDiasOcupadosByOficina($oficina_id)
+    {
+
+        // Obtengo todos los días futuros de atención programada para una oficina en particular
+        $sql = "SELECT DISTINCT to_char(date(fecha_hora), 'dd/mm/yyyy') as DiasPosibles FROM turno WHERE oficina_id = :oficina_id AND fecha_hora >= now() ORDER BY 1";
+
+        $em = $this->getEntityManager();
+        $statement = $em->getConnection()->prepare($sql);
+        $statement->bindValue('oficina_id', $oficina_id);
+        $statement->execute();
+        $result = $statement->fetchAll();
+
+        // Convierto arreglo multi asociativo a un asociativo simple (Doctrine retorna un array por cada registro)
+        $diasPosibles = array();
+        foreach($result as $item) {
+            $diasPosibles[] = $item['diasposibles'];
+        }
+
+        // Obtengo días (futuros) con turnos disponibles para una oficina en particular
+        $diasDisponibles = $this->findDiasDisponiblesByOficina($oficina_id);
+
+        // Obtengo la diferencia
+        $diferencia = array_diff($diasPosibles, $diasDisponibles);
+
+        // Proceso la diferencia para obtener en un arreglo asociativo simple 
+        // los días completamente ocupados para una oficina en particular
+        $diasOcupados = array();
+        foreach($diferencia as $item) {
+            $diasOcupados[] = $item;
+        }
+
+        return $diasOcupados;
+    } 
+
+    public function findHorariosDisponiblesByOficinaByFecha($oficina_id, $fecha)
+    {
+        // Obtengo días (futuros) con turnos disponibles para una oficina en particular
+        $sql = "SELECT to_char(fecha_hora, 'HH24:MI') as hora FROM turno WHERE persona_id is null AND oficina_id = :oficina_id AND to_char(date(fecha_hora), 'dd-mm-yyyy') = :fecha order by fecha_hora";
+
+        $em = $this->getEntityManager();
+        $statement = $em->getConnection()->prepare($sql);
+        $statement->bindValue('oficina_id', $oficina_id);
+        $statement->bindValue('fecha', $fecha);
+        $statement->execute();
+        $result = $statement->fetchAll();
+
+        // Convierto arreglo multi asociativo a un asociativo simple (Doctrine retorna un array por cada registro)
+        $horariosDisponibles = array();
+        foreach($result as $item) {
+            $horariosDisponibles[] = $item['hora'];
+        }
+
+        return $horariosDisponibles;
+    }    
+
+
+    public function findTurno($oficina_id, $fecha_hora)
+    {
+        $result = $this->getEntityManager()
+        ->createQuery('
+            SELECT t
+            FROM App\Entity\Turno t
+            WHERE t.oficina = :oficina_id and t.fechaHora = :fecha_hora
+            '
+        )
+        ->setParameter(':oficina_id', $oficina_id)
+        ->setParameter(':fecha_hora', $fecha_hora)
+        ->getSingleResult();
+        
+        return $result;
     }
-    */
 }

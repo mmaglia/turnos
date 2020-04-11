@@ -1,6 +1,89 @@
 // customize some Bootstrap variables
-$dark: darken(#373, 5%);
+$blue: darken(#295f2F, 5%);
 
 // the ~ allows you to reference things in node_modules
 @import '~bootstrap/scss/bootstrap';
+@import '~tempusdominus-bootstrap-4/build/css/tempusdominus-bootstrap-4.min.css';
+@import '~font-awesome/css/font-awesome.min.css';
+@import '~bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css';
 
+body {
+    font-family: Helvetica Neue,sans-serif;
+}
+
+h1 {
+    margin-top: .5rem;
+    font-size: 1.8rem;
+    text-align: center;
+}
+
+h2 {
+    font-size: 1.2rem;
+    color: #295f2F;
+    font-weight: lighter;
+    text-align: center;
+    border-bottom: 1.5px solid #295f2F;
+}
+
+h6 {
+    font-size: .75rem;
+    color: #295f2F;
+    font-weight: bold;
+}
+
+label {
+    font-weight: normal;
+    color: #295f2F;
+    font-size: .9rem;
+    margin-bottom: 0;
+    margin-left: .2rem;
+}
+
+// Datepicker
+.datepicker {
+    font-family: Helvetica Neue,sans-serif !important;
+    font-weight: lighter;
+}
+
+
+// .datepicker table tr td.highlighted {
+//     background: inherit;
+// 	color: #F00;
+// 	border-radius: 0;
+// }
+
+
+// .datepicker table tr td {
+//     background-color: #EEE;
+//     color: #000;
+ 
+// 	width: 20px;
+// 	height: 20px;
+// 	-webkit-border-radius: 4px;
+// 	-moz-border-radius: 4px;
+// 	border-radius: 4px;
+// 	border: none;
+// }
+
+// .datepicker table tr td.active.active, .datepicker table tr td.active.disabled, .datepicker table tr td.active.disabled.active, .datepicker table tr td.active.disabled.disabled, .datepicker table tr td.active.disabled:active, .datepicker table tr td.active.disabled:hover, .datepicker table tr td.active.disabled:hover.active, .datepicker table tr td.active.disabled:hover.disabled, .datepicker table tr td.active.disabled:hover:active, .datepicker table tr td.active.disabled:hover:hover, .datepicker table tr td.active.disabled:hover[disabled], .datepicker table tr td.active.disabled[disabled], .datepicker table tr td.active:active, .datepicker table tr td.active:hover, .datepicker table tr td.active:hover.active, .datepicker table tr td.active:hover.disabled, .datepicker table tr td.active:hover:active, .datepicker table tr td.active:hover:hover, .datepicker table tr td.active:hover[disabled], .datepicker table tr td.active[disabled] {
+// 	background-color: #295f2F;
+//     color: #FFF;
+//     font-weight: bolder;
+// }
+
+// .datepicker table tr td.active, .datepicker table tr td.active.disabled, .datepicker table tr td.active.disabled:hover, .datepicker table tr td.active:hover {
+// 	background-color: #006dcc;
+// 	background-image: -moz-linear-gradient(to bottom,#3a5f29,#295f2F);
+// 	background-image: -ms-linear-gradient(to bottom,#3a5f29,#295f2F);
+// 	background-image: -webkit-gradient(linear,0 0,0 100%,from(#3a5f29),to(#295f2F));
+// 	background-image: -webkit-linear-gradient(to bottom,#3a5f29,#295f2F);
+// 	background-image: -o-linear-gradient(to bottom,#3a5f29,#295f2F);
+// 	background-image: linear-gradient(to bottom,#3a5f29,#295f2F);
+// 	background-repeat: repeat-x;
+// 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#3a5f29', endColorstr='#0044cc', GradientType=0);
+// 	border-color: #295f2F #295f2F #002a80;
+// 	border-color: rgba(0,0,0,.1) rgba(0,0,0,.1) rgba(0,0,0,.25);
+// 	filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
+// 	color: #fff;
+// 	text-shadow: 0 -1px 0 rgba(0,0,0,.25);
+// }

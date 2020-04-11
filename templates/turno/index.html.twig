@@ -11,6 +11,7 @@
                 <th>Id</th>
                 <th>Oficina</th>
                 <th>FechaHora</th>
+                <th>Persona</th>
                 <th>Motivo</th>
                 <th>Acciones</th>
             </tr>
@@ -21,6 +22,10 @@
                 <td>{{ turno.id }}</td>
                 <td>{{ turno.oficina }} ({{ turno.oficina.localidad }})</td>
                 <td>{{ turno.fechaHora ? turno.fechaHora|date('Y-m-d H:i:s') : '' }}</td>
+                <td>
+
+                    {{ turno.persona is null or turno.persona == '' ? '' : turno.persona.apellido ~ ', ' ~ turno.persona.nombre}}
+                </td>
                 <td>{{ turno.motivo }}</td>
                 <td>
                     <a href="{{ path('turno_show', {'id': turno.id}) }}">Ver</a>
