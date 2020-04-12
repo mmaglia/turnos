@@ -27,7 +27,7 @@
     <div class="card border-primary mb-3">
         <div class="card-header">Datos del Turno</div>
         <div class="card-body text-primary">
-            <p class="card-text">El turno seleccionado es para el día <strong>{{ turno.fechaHora |date('Y-m-d') }}</strong> a las <strong>{{ turno.fechaHora |date('H:i')}}hs</strong>.</p>
+            <p class="card-text">El turno seleccionado es para el día <strong>{{ turno.fechaHora |date('d/m/Y') }}</strong> a las <strong>{{ turno.fechaHora |date('H:i')}}hs</strong>.</p>
         </div>
     </div>
 

@@ -3,8 +3,6 @@ $blue: darken(#295f2F, 5%);
 
 // the ~ allows you to reference things in node_modules
 @import '~bootstrap/scss/bootstrap';
-@import '~tempusdominus-bootstrap-4/build/css/tempusdominus-bootstrap-4.min.css';
-@import '~font-awesome/css/font-awesome.min.css';
 @import '~bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css';
 
 body {
@@ -53,10 +51,11 @@ label {
 // }
 
 
-// .datepicker table tr td {
-//     background-color: #EEE;
-//     color: #000;
- 
+ .datepicker table tr td {
+     color: #295f2F;
+     font-weight: normal;
+}
+
 // 	width: 20px;
 // 	height: 20px;
 // 	-webkit-border-radius: 4px;

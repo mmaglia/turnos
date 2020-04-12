@@ -21,13 +21,10 @@ use Symfony\Component\Routing\Annotation\Route;
 
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-/**
- * @Route("/turno")
- */
 class TurnoController extends AbstractController
 {
     /**
-     * @Route("/", name="turno_index", methods={"GET"})
+     * @Route("/turno", name="turno_index", methods={"GET"})
      */
     public function index(TurnoRepository $turnoRepository): Response
     {
@@ -37,7 +34,7 @@ class TurnoController extends AbstractController
     }
 
     /**
-     * @Route("/new", name="turno_new", methods={"GET","POST"})
+     * @Route("/turno/new", name="turno_new", methods={"GET","POST"})
      */
     public function new(Request $request, LocalidadRepository $localidadRepository): Response
     {
@@ -55,7 +52,7 @@ class TurnoController extends AbstractController
     }
 
     /**
-     * @Route("/new2", name="turno_new2", methods={"GET","POST"})
+     * @Route("/TurnosWeb/solicitante", name="turno_new2", methods={"GET","POST"})
      */
     public function new2(Request $request, SessionInterface $session): Response
     {
@@ -79,7 +76,7 @@ class TurnoController extends AbstractController
     }    
 
     /**
-     * @Route("/new3", name="turno_new3")
+     * @Route("/TurnosWeb/oficina", name="turno_new3", methods={"GET","POST"})
      */
     public function new3(SessionInterface $session, Request $request): Response
     {
@@ -104,7 +101,7 @@ class TurnoController extends AbstractController
     }
 
     /**
-     * @Route("/new4", name="turno_new4", methods={"GET","POST"})
+     * @Route("/TurnosWeb/fechaHora", name="turno_new4", methods={"GET","POST"})
      */
     public function new4(SessionInterface $session, Request $request, TurnoRepository $turnoRepository): Response
     {
@@ -140,7 +137,7 @@ class TurnoController extends AbstractController
     }
 
     /**
-     * @Route("/new5", name="turno_new5", methods={"GET","POST"})
+     * @Route("/TurnosWeb/confirmacion", name="turno_new5", methods={"GET","POST"})
      */
     public function new5(SessionInterface $session, Request $request, TurnoRepository $turnoRepository): Response
     {
@@ -177,7 +174,7 @@ class TurnoController extends AbstractController
     }
 
     /**
-     * @Route("/{id}", name="turno_show", methods={"GET"})
+     * @Route("/turno/{id}", name="turno_show", methods={"GET"})
      */
     public function show(Turno $turno): Response
     {
@@ -187,7 +184,7 @@ class TurnoController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/edit", name="turno_edit", methods={"GET","POST"})
+     * @Route("/turno/{id}/edit", name="turno_edit", methods={"GET","POST"})
      */
     public function edit(Request $request, Turno $turno): Response
     {
@@ -207,7 +204,7 @@ class TurnoController extends AbstractController
     }
 
     /**
-     * @Route("/{id}", name="turno_delete", methods={"DELETE"})
+     * @Route("/turno/{id}", name="turno_delete", methods={"DELETE"})
      */
     public function delete(Request $request, Turno $turno): Response
     {
@@ -221,7 +218,7 @@ class TurnoController extends AbstractController
     }
 
     /**
-     * @Route("/oficina_localidad/{localidad_id}", name="oficinas_by_localidad", requirements = {"localidad_id" = "\d+"}, methods={"POST"})
+     * @Route("/turno/oficina_localidad/{localidad_id}", name="oficinas_by_localidad", requirements = {"localidad_id" = "\d+"}, methods={"POST"})
      */
     public function oficinasByLocalidad($localidad_id, OficinaRepository $oficinaRepository) {
         $em = $this->getDoctrine()->getManager();
@@ -231,29 +228,27 @@ class TurnoController extends AbstractController
     }
 
     /**
-     * @Route("/turnoslibres_oficina/{oficina_id}", name="turnoslibres_by_localidad", requirements = {"oficina_id" = "\d+"}, methods={"GET", "POST"})
+     * @Route("/turno/turnoslibres_oficina/{oficina_id}", name="turnoslibres_by_localidad", requirements = {"oficina_id" = "\d+"}, methods={"POST"})
      */
     public function diasLibresByOficina(TurnoRepository $turnoRepository, $oficina_id) {
 
         $turnosLibres = $turnoRepository->findDiasDisponiblesByOficina($oficina_id);
 
         return new JsonResponse($turnosLibres);
-
     }
 
     /**
-     * @Route("/diasOcupadosOficina/{oficina_id}", name="diasOcupadosOficina", requirements = {"oficina_id" = "\d+"}, methods={"GET", "POST"})
+     * @Route("/turno/diasOcupadosOficina/{oficina_id}", name="diasOcupadosOficina", requirements = {"oficina_id" = "\d+"}, methods={"POST"})
      */
     public function diasOcupadosByOficina(TurnoRepository $turnoRepository, $oficina_id) {
 
         $diasOcupados = $turnoRepository->findDiasOcupadosByOficina($oficina_id);
         
         return new JsonResponse($diasOcupados);
-
     }
 
     /**
-     * @Route("/horariosDisponiblesOficinaFecha/{oficina_id}/{fecha}", name="horarisDisponibles", methods={"GET", "POST"})
+     * @Route("/turno/horariosDisponiblesOficinaFecha/{oficina_id}/{fecha}", name="horarisDisponibles", methods={"POST"})
      */
     public function horariosDisponiblesByOficinaByFecha(TurnoRepository $turnoRepository, $oficina_id, $fecha) {
 
@@ -262,6 +257,4 @@ class TurnoController extends AbstractController
         return new JsonResponse($horariosDisponibles);
         
     }
-        
-        
 }

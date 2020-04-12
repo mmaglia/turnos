@@ -14,12 +14,6 @@
         {% block javascripts %}
             {{ encore_entry_script_tags('js/app') }}
             <script src="{{ asset('js/locales/bootstrap-datepicker.es.min.js') }}" type="text/javascript"></script>
-{#
-    Si se quita hay que desintalar los componetes que se intentaron configurar. Ver el global.scss
-            <script src="{{ asset('js/moment.min.js') }}" type="text/javascript"></script>
-            <script src="{{ asset('js/tempusdominus-bootstrap-4.min.js') }}" type="text/javascript"></script>
-#}
-
         {% endblock %}
     </body>
 </html>
