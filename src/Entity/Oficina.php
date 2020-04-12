@@ -48,9 +48,15 @@ class Oficina
      */
     private $turnos;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Usuario", mappedBy="oficina")
+     */
+    private $usuarios;
+
     public function __construct()
     {
         $this->turnos = new ArrayCollection();
+        $this->usuarios = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -152,5 +158,36 @@ class Oficina
     public function __toString()
     {
         return $this->oficina;
+    }
+
+    /**
+     * @return Collection|Usuario[]
+     */
+    public function getUsuarios(): Collection
+    {
+        return $this->usuarios;
+    }
+
+    public function addUsuario(Usuario $usuario): self
+    {
+        if (!$this->usuarios->contains($usuario)) {
+            $this->usuarios[] = $usuario;
+            $usuario->setOficina($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUsuario(Usuario $usuario): self
+    {
+        if ($this->usuarios->contains($usuario)) {
+            $this->usuarios->removeElement($usuario);
+            // set the owning side to null (unless already changed)
+            if ($usuario->getOficina() === $this) {
+                $usuario->setOficina(null);
+            }
+        }
+
+        return $this;
     }
 }

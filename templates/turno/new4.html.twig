@@ -3,6 +3,11 @@
 {% block title %}Nuevo Turno{% endblock %}
 
 {% block body %}
+    <div class="col-2">
+        <img src="{{asset('images/escudo.gif')}}" class="rounded float-left" alt="Poder Judicial" height="85">
+    </div>
+    <br>
+
     <h1>Solicitud de Turnos</h1>
     <h2>Selección de Fecha y Hora</h2>
     <h6 class="float-right">Paso 3/4</h6>
@@ -55,7 +60,7 @@
                 }
 
                 $.ajax({
-                    url:"/turno/horariosDisponiblesOficinaFecha/" + oficinaID + "/" + fechaSeleccionada,
+                    url:"/TurnosWeb/horariosDisponiblesOficinaFecha/" + oficinaID + "/" + fechaSeleccionada,
                     method: "POST",
                     dataType: "json",
                     success: function(data) {
@@ -85,7 +90,7 @@
                 // Arma el calendario con fecha de inicio, final y días 
                 // con turnos disponibles (deshabilitando los demás)                                     
                 $.ajax({
-                    url:"/turno/diasOcupadosOficina/" + oficinaID,
+                    url:"/TurnosWeb/diasOcupadosOficina/" + oficinaID,
                     method: "POST",
                     dataType: "json",
                     success: function(data) {

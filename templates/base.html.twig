@@ -2,13 +2,102 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>{% block title %}TurnosWeb!{% endblock %}</title>
+        <title>{% block title %}Turnos Web{% endblock %}</title>
         {% block stylesheets %}
             {{ encore_entry_link_tags('css/app') }}
         {% endblock %}
     </head>
     <body>
         <div class="container">
+            {%  set url = app.request.pathInfo|split('/') %}
+            {%  set lastStringUrl = url|last %}
+
+            {# Muestra la barra de menu siempre que:
+                    Esté logeado
+                    Que no esté viendo, editando o borrando
+                    Que no esté generando un alta} #}
+            {% if   is_granted('IS_AUTHENTICATED_FULLY') 
+                    and not app.request.get('id') 
+            %}
+
+{# Se eliminar estar condiciones adicionales
+                    and not lastStringUrl == 'new'
+                    and not lastStringUrl == 'open'
+#}
+
+                <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary border border-light text-white" >
+                    {% set current_path = app.request.get('_route') %}
+                    {% if app.request.get('_route') != 'main' %}
+                            <a class="navbar-brand" href="{{ path('main') }}"><img src="{{asset('images/escudo.gif')}}" class="rounded float-left" alt="Poder Judicial" height="35"></a>
+                    {%endif %}
+                    <button class="navbar-toggler d-lg-none" type="button" data-toggle="collapse" data-target="#collapsibleNavId" aria-controls="collapsibleNavId"
+                        aria-expanded="false" aria-label="Toggle navigation"></button>
+                    <div class="collapse navbar-collapse" id="collapsibleNavId">
+                        <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                            <li class="nav-item">
+                                <a class="nav-link text-light" href="{{ path('turno_index') }}">Gestionar Turnos</a>
+                            </li>
+                            {% if is_granted('ROLE_ADMIN') %}
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle text-light" href="#" id="dropdownId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Administrar</a>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownId">
+                                        <a class="dropdown-item" href="{{ path('localidad_index') }}">Localidades</a>
+                                        <a class="dropdown-item" href="{{ path('oficina_index') }}">Oficinas</a>
+                                        <a class="dropdown-item" href="{{ path('usuario_index') }}">Gestionar Usuarios</a>
+                                    </div>
+                                </li>
+                            {% endif %}
+
+                            <li class="nav-item float-right">
+                                <a class="nav-link text-light" href="{{ path('app_logout') }}">Salir</a>
+                            </li>
+                        </ul>
+                    </div>
+                    {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                        <div class="float-lg-right">
+                            {{ app.user.getApellido()}}
+                            {% if app.user.getNombre() %}
+                                , {{ app.user.getNombre() }}
+                            {% endif %}
+                        </div>                   
+                    {% endif %}
+                </nav>
+                
+            </br></br></br>
+            {% endif %}
+
+            {% if   is_granted('IS_AUTHENTICATED_FULLY') 
+                    and (app.request.get('id') 
+                    or lastStringUrl == 'new'
+                    or lastStringUrl == 'open')
+            %}
+                <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary border border-light text-white" >
+                    {% set current_path = app.request.get('_route') %}
+                    {% if app.request.get('_route') != 'main' %}
+                            <a class="navbar-brand" href="{{ path('main') }}"><img src="{{asset('images/escudo.gif')}}" class="rounded float-left" alt="Poder Judicial" height="35"></a>
+                    {%endif %}
+                    <button class="navbar-toggler d-lg-none" type="button" data-toggle="collapse" data-target="#collapsibleNavId" aria-controls="collapsibleNavId"
+                        aria-expanded="false" aria-label="Toggle navigation"></button>
+                    <div class="collapse navbar-collapse" id="collapsibleNavId">
+                        <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                            <li class="nav-item">
+                                <a class="nav-link text-light" href="#" onclick="history.back(); return false;">Volver</a>
+                            </li>
+                        </ul>
+                    </div>
+                    {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                        <div class="float-lg-right">
+                            {{ app.user.getApellido()}}
+                            {% if app.user.getNombre() %}
+                                , {{ app.user.getNombre() }}
+                            {% endif %}
+                        </div>                   
+                    {% endif %}
+                </nav>
+            </br></br></br>
+            {% endif %}
+
+            
             {% block body %}{% endblock %}            
         </div>
         {% block javascripts %}

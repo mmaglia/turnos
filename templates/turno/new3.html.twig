@@ -3,6 +3,11 @@
 {% block title %}Nuevo Turno{% endblock %}
 
 {% block body %}
+    <div class="col-2">
+        <img src="{{asset('images/escudo.gif')}}" class="rounded float-left" alt="Poder Judicial" height="85">
+    </div>
+    <br>
+
     <h1>Solicitud de Turnos</h1>
     <h2>Selección de Organismo</h2>
     <h6 class="float-right">Paso 2/4</h6>
@@ -22,7 +27,7 @@
                 var localidad_id = $(this).val();
                 if (localidad_id != '') {
                     $.ajax({
-                        url:"/turno/oficina_localidad/" + localidad_id,
+                        url:"/TurnosWeb/oficina_localidad/" + localidad_id,
                         method: "POST",
                         dataType: "json",
                         success: function(data) {

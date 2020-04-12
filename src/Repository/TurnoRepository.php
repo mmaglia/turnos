@@ -28,6 +28,37 @@ class TurnoRepository extends ServiceEntityRepository
         
         return $result;
     }
+
+    public function findAllOtorgados()
+    {
+        $result = $this->getEntityManager()
+        ->createQuery('SELECT t FROM App\Entity\Turno t WHERE t.persona IS NOT NULL ORDER BY t.oficina, t.fechaHora')
+        ->getResult();
+        
+        return $result;
+    }
+
+    public function findAllByOficina($oficina)
+    {
+        $result = $this->getEntityManager()
+        ->createQuery('SELECT t FROM App\Entity\Turno t WHERE t.oficina = :oficina ORDER BY t.oficina, t.fechaHora')
+        ->setParameter(':oficina', $oficina)
+        ->getResult();
+        
+        return $result;
+    }    
+
+    public function findAllOtorgadosByOficina($oficina)
+    {
+        $result = $this->getEntityManager()
+        ->createQuery('SELECT t FROM App\Entity\Turno t WHERE t.oficina = :oficina and t.persona IS NOT NULL ORDER BY t.oficina, t.fechaHora')
+        ->setParameter(':oficina', $oficina)
+        ->getResult();
+        
+        return $result;
+    }    
+
+        
     
     public function findUltimoTurnoByOficina($value)
     {

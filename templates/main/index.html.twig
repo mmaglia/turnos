@@ -1,0 +1,102 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Demo Symfony PJ{% endblock %}
+
+{% block body %}
+<div class="jumbotron mt-1 rounded-lg border border-secondary">
+    <div class="row">
+        <div class="col-2">
+            <img src="{{asset('images/escudo.gif')}}" class="rounded float-left" alt="Poder Judicial" height="160">
+        </div>
+        <div class="col">
+            <h1 class="display-4">Solicitud de Turnos</h1>
+            <p class="lead">Servicio previsto por .....</p>
+            <hr class="my-4">
+            <p>En el marco de la Pandemia COVID-19.....</p>            <a class="btn btn-primary btn-lg" href="{{ path('turno_new2') }}" role="button">Solicitar Turno</a>
+        </div>
+    </div>
+</div>
+
+<div class="row text-justify ">
+    <div class="col">
+        <div class="card border-primary mb-3">
+            <div class="card-body text-primary">
+                <h3 class="card-title">¿Se necesita algo más?</h3>
+                <p class="card-text lead text-center mt-5">«Dejo por si se necesita colocar aquí algo de información»</p>
+                <div class="row mt-5">
+                    <div class="col">
+                        <h5>Framework Symfony</h5>
+                        <p class="card-text">El Framework PHP líder para crear sitios y aplicaciones web. Construido sobre los componentes de Symfony.</p>
+                    </div>
+                    <div class="col">
+                        <h5>Componentes de Symfony</h5>
+                        <p class="card-text">Un conjunto de componentes desacoplados y reutilizables sobre los que se construyen las mejores aplicaciones PHP, como Drupal, phpBB y eZ Publish.</p>
+                    </div>
+                </div>
+                <div class="row mt-5">
+                    <div class="col">
+                        <h5>Comunidad Symfony</h5>
+                        <p class="card-text">Un grupo apasionado de más de 600,000 desarrolladores de más de 120 países, todos comprometidos a ayudar a PHP a superar lo imposible. </p>
+                    </div>
+                    <div class="col">
+                        <h5>Filosofía de Symfony</h5>
+                        <p class="card-text">Adoptar y promover la profesionalidad, las mejores prácticas, la estandarización y la interoperabilidad de las aplicaciones.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-5">
+                <div class="col"></div>
+                <div class="col-9">
+                <div class="card bg-light mb-3">
+                    <div class="card-header bg-primary text-white text-center">Estadísticas del proyecto Symfony</div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col">
+                                <p class="card-text"><strong>+3,000</strong> contribuyentes</p>
+                            </div>
+                            <div class="col">
+                                <p class="card-text"><strong>+600,000 desarrolladores de Symfony</strong></p>
+                            </div>
+                            <div class="col">
+                                <p class="card-text"><strong>+48,000,000 de descargas mensuales</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                <div class="col"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card border-primary mb-3">
+            <div class="card-body text-primary">
+                <h3 class="card-title">Posiblemente borrar todo</h3>
+                <p class="card-text">Symfony es un completo framework diseñado para optimizar el desarrollo de las aplicaciones web. Para empezar, separa la lógica de negocio, la lógica de servidor y la presentación de la aplicación web. Proporciona varias herramientas y clases encaminadas a reducir el tiempo de desarrollo de una aplicación web compleja.</p>
+                <p class="card-text">Además, automatiza las tareas más comunes, permitiendo al desarrollador dedicarse por completo a los aspectos específicos de cada aplicación.</p>
+                <p class="card-text">Symfony se diseñó para que se ajustara a los siguientes requisitos:</p>
+                <ul>
+                    <li>Fácil de instalar y configurar en la mayoría de plataformas (y con la garantía de que funciona correctamente en los sistemas Windows y *nix estándares)</li>
+                    <li>Independiente del sistema gestor de bases de datos. Su capa de abstracción y el uso de Propel, permiten cambiar con facilidad de SGBD en cualquier fase del proyecto</li>
+                    <li>Utiliza programación orientada a objetos, de ahí que sea imprescindible PHP 5</li>
+                    <li>Sencillo de usar en la mayoría de casos, está mas indicado para grandes aplicaciones Web que para pequeños proyectos</li>
+                    <li>Aunque utiliza MVC (Modelo vista controlador), tiene su propia forma de trabajo en este punto, con variantes del MVC clásico como la capa de abstracción de base de datos, el controlador frontal y las acciones</li>
+                    <li>Basado en la premisa de “convenir en vez de configurar”, en la que el desarrollador solo debe configurar aquello que no es convencional</li>
+                    <li>Sigue la mayoría de mejores prácticas y patrones de diseño para la web</li>
+                    <li>Preparado para aplicaciones empresariales y adaptable a las políticas y arquitecturas propias de cada empresa, además de ser lo suficientemente estable como para desarrollar aplicaciones a largo plazo</li>
+                    <li>Código fácil de leer que incluye comentarios de phpDocumentor y que permite un mantenimiento muy sencillo</li>
+                    <li>Fácil de extender, lo que permite su integración con las librerías de otros fabricantes</li>
+                </ul
+                <p class="card-text">Detrás de Symfony existe una gran comunidad trabajando, que colabora y fomenta su utilización. Esta comunidad ha crecido de forma exponencial durante los últimos años y la documentación ha ido aumentando y mejorando. Existe una comunidad en español que proporciona soporte y ayuda en lengua hispana, la pagina oficial es symfony.es</p>
+                <p class="card-text">Para los que gustan de verificar robustez y comprobar hasta donde puede llegar esta herramienta, decirles que Symfony lo están utilizando en grandes aplicaciones como: Yahoo Bookmarks, Digg, del.icio.us, Dailymotion y Diario Público, aplicaciones de gran envergadura que cuentan además con millones de visitas.</p>
+                <p class="card-text">En Solucionex consideramos a Symfony un framework elegante, estable, productivo y muy bien documentado. Por este motivo hemos decidido apostar por Symfony utilizándolo en nuestras aplicaciones. Mediante este blog iremos aportando nuestro granito de arena la comunidad, contando nuestras experiencias con este framework.</p>
+
+            </div>
+            <div class="card-footer text-muted">
+                <p class="card-text float-right"><small class="text-muted">Referencia: <a href="https://www.solucionex.com/blog/por-que-utilizar-symfony" target="_blank">¿Por qué utilizar Symfony?</a></small></p>
+            </div>                
+        </div>
+    </div>
+</div>
+{% endblock %}

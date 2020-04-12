@@ -26,10 +26,38 @@ class TurnoController extends AbstractController
     /**
      * @Route("/turno", name="turno_index", methods={"GET"})
      */
-    public function index(TurnoRepository $turnoRepository): Response
+    public function index(Request $request, TurnoRepository $turnoRepository, $filtro=1): Response
     {
+
+        if (is_null($request->query->get('filter'))) {
+            $filtro = 1;
+        } else {
+            $filtro = $request->query->get('filter');
+        }
+
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        if ($this->isGranted('ROLE_ADMIN')) {
+            if ($filtro) {
+                $turnosOtorgados = $turnoRepository->findAllOtorgados();
+            } else {
+                $turnosOtorgados = $turnoRepository->findAll();
+            }
+
+        } else {
+            if ($this->isGranted('ROLE_USER')) {
+                $oficinaUsuario = $this->getUser()->getOficina();
+                if ($filtro) {
+                    $turnosOtorgados = $turnoRepository->findAllOtorgadosByOficina($oficinaUsuario);
+                } else {
+                    $turnosOtorgados = $turnoRepository->findAllByOficina($oficinaUsuario);
+                }
+            }
+        }
+
         return $this->render('turno/index.html.twig', [
-            'turnos' => $turnoRepository->findAll(),
+            'filtro' => $filtro,
+            'turnos' => $turnosOtorgados,
         ]);
     }
 
@@ -162,7 +190,7 @@ class TurnoController extends AbstractController
 
             //TODO ver como borrar de session las variables utilizadas 
 
-            return $this->redirectToRoute('turno_new2');
+            return $this->redirectToRoute('main');
             
         }
 
@@ -218,7 +246,7 @@ class TurnoController extends AbstractController
     }
 
     /**
-     * @Route("/turno/oficina_localidad/{localidad_id}", name="oficinas_by_localidad", requirements = {"localidad_id" = "\d+"}, methods={"POST"})
+     * @Route("/TurnosWeb/oficina_localidad/{localidad_id}", name="oficinas_by_localidad", requirements = {"localidad_id" = "\d+"}, methods={"POST"})
      */
     public function oficinasByLocalidad($localidad_id, OficinaRepository $oficinaRepository) {
         $em = $this->getDoctrine()->getManager();
@@ -228,7 +256,7 @@ class TurnoController extends AbstractController
     }
 
     /**
-     * @Route("/turno/turnoslibres_oficina/{oficina_id}", name="turnoslibres_by_localidad", requirements = {"oficina_id" = "\d+"}, methods={"POST"})
+     * @Route("/TurnosWeb/turnoslibres_oficina/{oficina_id}", name="turnoslibres_by_localidad", requirements = {"oficina_id" = "\d+"}, methods={"POST"})
      */
     public function diasLibresByOficina(TurnoRepository $turnoRepository, $oficina_id) {
 
@@ -238,7 +266,7 @@ class TurnoController extends AbstractController
     }
 
     /**
-     * @Route("/turno/diasOcupadosOficina/{oficina_id}", name="diasOcupadosOficina", requirements = {"oficina_id" = "\d+"}, methods={"POST"})
+     * @Route("/TurnosWeb/diasOcupadosOficina/{oficina_id}", name="diasOcupadosOficina", requirements = {"oficina_id" = "\d+"}, methods={"POST"})
      */
     public function diasOcupadosByOficina(TurnoRepository $turnoRepository, $oficina_id) {
 
@@ -248,7 +276,7 @@ class TurnoController extends AbstractController
     }
 
     /**
-     * @Route("/turno/horariosDisponiblesOficinaFecha/{oficina_id}/{fecha}", name="horarisDisponibles", methods={"POST"})
+     * @Route("/TurnosWeb/horariosDisponiblesOficinaFecha/{oficina_id}/{fecha}", name="horarisDisponibles", methods={"POST"})
      */
     public function horariosDisponiblesByOficinaByFecha(TurnoRepository $turnoRepository, $oficina_id, $fecha) {
 
