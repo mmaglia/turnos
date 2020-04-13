@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nuevo Turno{% endblock %}
+
+{% block body %}
+    <div class="col-2">
+        <img src="{{asset('images/escudo.gif')}}" class="rounded float-left" alt="Poder Judicial" height="85">
+    </div>
+    <br>
+    
+    <h1>Solicitud de Turnos</h1>
+    <h2>Confirmación</h2>
+    <h6 class="float-right">Paso 4/4</h6>
+
+    <br>
+    <div class="card border-primary mb-3">
+        <div class="card-header">Datos del Solicitante</div>
+        <div class="card-body text-primary">
+            <p class="card-text"><strong>DNI:</strong> {{ turno.persona.dni }}</p>
+            <p class="card-text"><strong>NOMBRE:</strong> {{ turno.persona.apellido }}, {{ turno.persona.nombre }}</p>
+            <p class="card-text"><strong>Correo Electrónico:</strong> {{ turno.persona.email }}</p>
+        </div>
+    </div>
+
+    <div class="card border-primary mb-3">
+        <div class="card-header">Oficina</div>
+        <div class="card-body text-primary">
+            <p class="card-text"><strong>{{ turno.oficina.oficina }} ({{ turno.oficina.localidad.localidad }})</strong></p>
+        </div>
+    </div>
+
+    <div class="card border-primary mb-3">
+        <div class="card-header">Datos del Turno</div>
+        <div class="card-body text-primary">
+            <p class="card-text">El turno seleccionado es para el día <strong>{{ turno.fechaHora |date('d/m/Y') }}</strong> a las <strong>{{ turno.fechaHora |date('H:i')}}hs</strong>.</p>
+        </div>
+    </div>
+
+    <div class="alert alert-danger text-center" role="alert">
+        <strong>Ups! El turno se ha ocupado en este instante. Por favor seleccione otro turno.</strong>
+    </div>    
+
+    {{ include('turno/_form.html.twig') }}
+
+{#        <a href="#" id="ver">Listo?</a> #}
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(function() {
+            $("#confirmar").html('Selecionar otro Turno')
+        });
+    </script>  
+    
+{% endblock %}     
+        

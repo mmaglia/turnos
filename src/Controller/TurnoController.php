@@ -182,17 +182,25 @@ class TurnoController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             $turnoActualizar = $turnoRepository->findTurno($turno->getOficina()->getId(), $turno->getFechaHora());
 
-            $turnoActualizar->setMotivo($turno->getMotivo());
-            $turnoActualizar->setPersona($persona);
-
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->merge($turnoActualizar);
-            $entityManager->persist($persona);
-
-            $entityManager->flush();
+            // Verifico si el turno no se ocupó
+            // OJO que si la concurrencia es alta este control no es infalible!
+            // Entre el find() y el flush() hay un marco microtemporal
+            // En caso de fallar el control, el primero en grabar será sobreescrito por el segundo.
+            // El primero recibió notificación del turno por correo pero la Oficina no lo va a tener registrado.
+            if ($turnoActualizar->getPersona()) {
+                // Turno Ocupado
+                return $this->redirectToRoute('turnoOcupado');            
+            } else {
+                // Turno Libre. Grabo.
+                $turnoActualizar->setMotivo($turno->getMotivo());
+                $turnoActualizar->setPersona($persona);
+                $entityManager = $this->getDoctrine()->getManager();
+                $entityManager->merge($turnoActualizar);
+                $entityManager->persist($persona);
+                $entityManager->flush();   
+            }
 
             return $this->redirectToRoute('emailConfirmacion');
             
@@ -205,6 +213,31 @@ class TurnoController extends AbstractController
         ]);
     }
 
+
+    // Wizard 4/4: Notificación de Turno Ocupado
+    /**
+     * @Route("/TurnosWeb/turnoOcupado", name="turnoOcupado", methods={"GET","POST"})
+     */
+    public function turnoOcupado(SessionInterface $session, Request $request, TurnoRepository $turnoRepository): Response
+    {
+        $persona = $session->get('persona');
+        $turno = $session->get('turno');
+
+        $form = $this->createForm(Turno5Type::class, $turno);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Notifica que el turno se ocupó y lo redirige a seleccionar otra fecha/hora
+            return $this->redirectToRoute('turno_new4');
+        }
+
+        return $this->render('turno/turnoOcupado.html.twig', [
+            'turno' => $turno,
+            'persona' => $persona,
+            'form' => $form->createView(),
+        ]);
+    }
+    
     // Notificación por correo del Turno
     /**
      * @Route("/TurnosWeb/notificacion", name="emailConfirmacion", methods={"GET","POST"})
