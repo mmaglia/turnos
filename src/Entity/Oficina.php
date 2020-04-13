@@ -157,7 +157,7 @@ class Oficina
 
     public function __toString()
     {
-        return $this->oficina;
+        return $this->oficina . ' (' . $this->getLocalidad() . ')';
     }
 
     /**

@@ -14,27 +14,30 @@
                 <th>Dni</th>
                 <th>Apellido</th>
                 <th>Nombre</th>
+                <th>Oficina</th>
                 <th>Email</th>
-                <th>Fecha_alta</th>
-                <th>Fecha_baja</th>
-                <th>Ultimo_acceso</th>
-                <th>Cantidad_accesos</th>
-                <th>actions</th>
+                <th>Alta</th>
+                <th>Baja</th>
+                <th>Ult. Acceso</th>
+                <th>Cant. Accesos</th>
+                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
+            
         {% for usuario in usuarios %}
             <tr>
                 <td>{{ usuario.id }}</td>
                 <td>{{ usuario.username }}</td>
-                <td>{{ usuario.roles ? usuario.roles|json_encode : '' }}</td>
+                <td>{{ usuario.roles ? usuario.roles|json_encode|replace({'ROLE_': '', '[': '', ']': '', '"':'', ',': ', ' }) : '' }}</td>
                 <td>{{ usuario.dni }}</td>
                 <td>{{ usuario.apellido }}</td>
                 <td>{{ usuario.nombre }}</td>
+                <td>{{ usuario.oficina }}</td>
                 <td>{{ usuario.email }}</td>
-                <td>{{ usuario.fechaAlta ? usuario.fechaAlta|date('Y-m-d') : '' }}</td>
-                <td>{{ usuario.fechaBaja ? usuario.fechaBaja|date('Y-m-d') : '' }}</td>
-                <td>{{ usuario.ultimoAcceso ? usuario.ultimoAcceso|date('Y-m-d') : '' }}</td>
+                <td>{{ usuario.fechaAlta ? usuario.fechaAlta|date('d/m/Y') : '' }}</td>
+                <td>{{ usuario.fechaBaja ? usuario.fechaBaja|date('d/m/Y') : '' }}</td>
+                <td>{{ usuario.ultimoAcceso ? usuario.ultimoAcceso|date('d/m/Y') : '' }}</td>
                 <td>{{ usuario.cantidadAccesos }}</td>
                 <td>
                     <a href="{{ path('usuario_show', {'id': usuario.id}) }}">show</a>
