@@ -1,5 +1,5 @@
 {{ form_start(form) }}
     {{ form_widget(form) }}
-    <button class="btn btn-outline-secondary float-left" onclick="window.location.href = '{{ '/' }}'; return false;">{{ button_label|default('Cancelar') }}</button>
+    <button tabindex="-1" class="btn btn-outline-secondary float-left" onclick="window.location.href = '{{ '/' }}'; return false;">{{ button_label|default('Cancelar') }}</button>
     <button class="btn btn-primary float-right">{{ button_label|default('Continuar') }}</button>
 {{ form_end(form) }}

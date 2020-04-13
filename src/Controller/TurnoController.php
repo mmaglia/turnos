@@ -10,7 +10,6 @@ use App\Form\Turno5Type;
 use App\Repository\TurnoRepository;
 use App\Entity\Persona;
 use App\Form\PersonaType;
-
 use App\Repository\LocalidadRepository;
 use App\Repository\OficinaRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,8 +17,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 
 class TurnoController extends AbstractController
 {
@@ -61,6 +61,7 @@ class TurnoController extends AbstractController
         ]);
     }
 
+    // Alta generada automaticámente. No se utilizará pero no se quiso borrar el método por las dudas
     /**
      * @Route("/turno/new", name="turno_new", methods={"GET","POST"})
      */
@@ -79,6 +80,8 @@ class TurnoController extends AbstractController
         ]);
     }
 
+
+    // Wizard 1/4: Datos del Solicitante
     /**
      * @Route("/TurnosWeb/solicitante", name="turno_new2", methods={"GET","POST"})
      */
@@ -103,6 +106,7 @@ class TurnoController extends AbstractController
         ]);
     }    
 
+    // Wizard 2/4: Selección de Organismo
     /**
      * @Route("/TurnosWeb/oficina", name="turno_new3", methods={"GET","POST"})
      */
@@ -128,6 +132,7 @@ class TurnoController extends AbstractController
         ]);
     }
 
+    // Wizard 3/4: Selección de Fecha y Hora
     /**
      * @Route("/TurnosWeb/fechaHora", name="turno_new4", methods={"GET","POST"})
      */
@@ -164,6 +169,7 @@ class TurnoController extends AbstractController
         ]);
     }
 
+    // Wizard 4/4: Confirmación del Turno
     /**
      * @Route("/TurnosWeb/confirmacion", name="turno_new5", methods={"GET","POST"})
      */
@@ -171,7 +177,7 @@ class TurnoController extends AbstractController
     {
         $persona = $session->get('persona');
         $turno = $session->get('turno');
-       
+
         $form = $this->createForm(Turno5Type::class, $turno);
         $form->handleRequest($request);
 
@@ -188,9 +194,7 @@ class TurnoController extends AbstractController
 
             $entityManager->flush();
 
-            //TODO ver como borrar de session las variables utilizadas 
-
-            return $this->redirectToRoute('main');
+            return $this->redirectToRoute('emailConfirmacion');
             
         }
 
@@ -200,6 +204,42 @@ class TurnoController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+
+    // Notificación por correo del Turno
+    /**
+     * @Route("/TurnosWeb/notificacion", name="emailConfirmacion", methods={"GET","POST"})
+     */
+    public function sendEmail(SessionInterface $session, MailerInterface $mailer)
+    {
+        $persona = $session->get('persona');
+        $turno = $session->get('turno');
+
+        $email = (new TemplatedEmail())
+        ->from('maglianesi@gmail.com')
+        ->to('maglianesi@yahoo.com.ar')
+        ->addTo('mmaglianesi@justiciasantafe.gov.ar')
+        ->subject('Poder Judicial Santa Fe - Confirmación de Turno')
+    
+        // path of the Twig template to render
+        ->htmlTemplate('turno/new6.html.twig')
+    
+        // pass variables (name => value) to the template
+        ->context([
+            'expiration_date' => new \DateTime('+7 days'),
+            'username' => 'foo',
+            'turno' => $turno,
+            'persona' => $persona,
+        ])
+    ;        
+
+        //TODO Si persona no se utiliza en el correo no meterla dentro del context()
+        $mailer->send($email);
+
+        //TODO ver como borrar de session las variables utilizadas (persona, turno)
+
+        return $this->redirectToRoute('main');
+        
+    }    
 
     /**
      * @Route("/turno/{id}", name="turno_show", methods={"GET"})
@@ -251,7 +291,6 @@ class TurnoController extends AbstractController
     public function oficinasByLocalidad($localidad_id, OficinaRepository $oficinaRepository) {
         $em = $this->getDoctrine()->getManager();
         $oficinas = $oficinaRepository->findOficinaByLocalidad($localidad_id);
-
         return new JsonResponse($oficinas);
     }
 
@@ -259,9 +298,7 @@ class TurnoController extends AbstractController
      * @Route("/TurnosWeb/turnoslibres_oficina/{oficina_id}", name="turnoslibres_by_localidad", requirements = {"oficina_id" = "\d+"}, methods={"POST"})
      */
     public function diasLibresByOficina(TurnoRepository $turnoRepository, $oficina_id) {
-
         $turnosLibres = $turnoRepository->findDiasDisponiblesByOficina($oficina_id);
-
         return new JsonResponse($turnosLibres);
     }
 
@@ -269,9 +306,7 @@ class TurnoController extends AbstractController
      * @Route("/TurnosWeb/diasOcupadosOficina/{oficina_id}", name="diasOcupadosOficina", requirements = {"oficina_id" = "\d+"}, methods={"POST"})
      */
     public function diasOcupadosByOficina(TurnoRepository $turnoRepository, $oficina_id) {
-
         $diasOcupados = $turnoRepository->findDiasOcupadosByOficina($oficina_id);
-        
         return new JsonResponse($diasOcupados);
     }
 
@@ -279,10 +314,7 @@ class TurnoController extends AbstractController
      * @Route("/TurnosWeb/horariosDisponiblesOficinaFecha/{oficina_id}/{fecha}", name="horarisDisponibles", methods={"POST"})
      */
     public function horariosDisponiblesByOficinaByFecha(TurnoRepository $turnoRepository, $oficina_id, $fecha) {
-
         $horariosDisponibles = $turnoRepository->findHorariosDisponiblesByOficinaByFecha($oficina_id, $fecha);
-                
         return new JsonResponse($horariosDisponibles);
-        
     }
 }

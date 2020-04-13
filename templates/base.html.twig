@@ -8,7 +8,11 @@
         {% endblock %}
     </head>
     <body>
-        <div class="container">
+        {% if  is_granted('IS_AUTHENTICATED_FULLY') %}
+            <div class="container-fluid">
+        {% else %}
+            <div class="container">
+        {% endif %}
             {%  set url = app.request.pathInfo|split('/') %}
             {%  set lastStringUrl = url|last %}
 

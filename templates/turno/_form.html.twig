@@ -1,5 +1,8 @@
 {{ form_start(form) }}
     {{ form_widget(form) }}
-    <button class="btn btn-outline-secondary float-left" onclick="window.location.href = '{{ '/' }}'; return false;">{{ button_label|default('Cancelar') }}</button>
+    {% if  not is_granted('IS_AUTHENTICATED_FULLY') %}
+        {# Pongo el botón de Cancelar sólo para el Wizar de Solcitiud de Turno (usuario no logeado) #}
+        <button tabindex="-1" class="btn btn-outline-secondary float-left" onclick="window.location.href = '{{ '/' }}'; return false;">{{ button_label|default('Cancelar') }}</button>
+    {% endif %}
     <button class="btn btn-primary float-right" id="confirmar">{{ button_label|default('Continuar') }}</button>
 {{ form_end(form) }}
