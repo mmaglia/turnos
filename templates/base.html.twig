@@ -8,7 +8,7 @@
         {% endblock %}
     </head>
     <body>
-        {% if  is_granted('IS_AUTHENTICATED_FULLY') %}
+        {% if  is_granted('IS_AUTHENTICATED_FULLY') and not ('TURNOSWEB' in app.request.pathInfo | upper) %}
             <div class="container-fluid">
         {% else %}
             <div class="container">
@@ -101,7 +101,6 @@
             </br></br></br>
             {% endif %}
 
-            
             {% block body %}{% endblock %}            
         </div>
         {% block javascripts %}

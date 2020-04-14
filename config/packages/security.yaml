@@ -38,7 +38,8 @@ security:
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
         - { path: ^/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+#        - { path: ^/$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/$, role: ROLE_USER }
         - { path: ^((?!TurnosWeb).)*$, role: ROLE_USER }       
 
     role_hierarchy:
