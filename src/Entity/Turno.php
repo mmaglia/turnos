@@ -37,6 +37,11 @@ class Turno
      */
     private $oficina;
 
+    /**
+     * @ORM\Column(type="boolean", options={"default": false})
+     */
+    private $atendido;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -86,6 +91,18 @@ class Turno
     public function setOficina(?Oficina $oficina): self
     {
         $this->oficina = $oficina;
+
+        return $this;
+    }
+
+    public function getAtendido(): ?bool
+    {
+        return $this->atendido;
+    }
+
+    public function setAtendido(bool $atendido): self
+    {
+        $this->atendido = $atendido;
 
         return $this;
     }

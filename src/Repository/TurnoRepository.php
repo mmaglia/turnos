@@ -35,7 +35,7 @@ class TurnoRepository extends ServiceEntityRepository
         $hasta   = new \DateTime(date("Y-m-d")." 23:59:59");
 
         $result = $this->getEntityManager()
-        ->createQuery('SELECT t FROM App\Entity\Turno t WHERE t.fechaHora BETWEEN :desde AND :hasta and t.persona IS NOT NULL ORDER BY t.oficina, t.fechaHora')
+        ->createQuery('SELECT t FROM App\Entity\Turno t WHERE t.fechaHora BETWEEN :desde AND :hasta and t.persona IS NOT NULL and t.atendido = false ORDER BY t.oficina, t.fechaHora')
         ->setParameter('desde', $desde )
         ->setParameter('hasta', $hasta)
         ->getResult();
@@ -46,7 +46,7 @@ class TurnoRepository extends ServiceEntityRepository
     public function findAllOtorgados()
     {
         $result = $this->getEntityManager()
-        ->createQuery('SELECT t FROM App\Entity\Turno t WHERE t.fechaHora >= :now and t.persona IS NOT NULL ORDER BY t.oficina, t.fechaHora')
+        ->createQuery('SELECT t FROM App\Entity\Turno t WHERE t.fechaHora >= :now and t.persona IS NOT NULL and t.atendido = false ORDER BY t.oficina, t.fechaHora')
         ->setParameter('now', new \DateTime('now'))
         ->getResult();
         
@@ -59,7 +59,7 @@ class TurnoRepository extends ServiceEntityRepository
         $hasta   = new \DateTime(date("Y-m-d")." 23:59:59");
 
         $result = $this->getEntityManager()
-        ->createQuery('SELECT t FROM App\Entity\Turno t WHERE t.oficina = :oficina and t.fechaHora BETWEEN :desde AND :hasta and t.persona IS NOT NULL ORDER BY t.oficina, t.fechaHora')
+        ->createQuery('SELECT t FROM App\Entity\Turno t WHERE t.oficina = :oficina and t.fechaHora BETWEEN :desde AND :hasta and t.persona IS NOT NULL and t.atendido = false ORDER BY t.oficina, t.fechaHora')
         ->setParameter(':oficina', $oficina)
         ->setParameter('desde', $desde )
         ->setParameter('hasta', $hasta)
@@ -81,7 +81,7 @@ class TurnoRepository extends ServiceEntityRepository
     public function findAllOtorgadosByOficina($oficina)
     {
         $result = $this->getEntityManager()
-        ->createQuery('SELECT t FROM App\Entity\Turno t WHERE t.oficina >= :oficina and t.fechaHora >= :now and t.persona IS NOT NULL ORDER BY t.oficina, t.fechaHora')
+        ->createQuery('SELECT t FROM App\Entity\Turno t WHERE t.oficina >= :oficina and t.fechaHora >= :now and t.persona IS NOT NULL and t.atendido = false ORDER BY t.oficina, t.fechaHora')
         ->setParameter('now', new \DateTime('now'))
         ->setParameter(':oficina', $oficina)
         ->getResult();

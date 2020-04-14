@@ -26,15 +26,25 @@ class TurnoController extends AbstractController
     /**
      * @Route("/turno", name="turno_index", methods={"GET", "POST"})
      */
-    public function index(Request $request, TurnoRepository $turnoRepository, $filtro=1): Response
+    public function index(Request $request, TurnoRepository $turnoRepository, SessionInterface $session): Response
     {
-        if (is_null($request->request->get('filter'))) {
-            $filtro = 1;
-        } else {
-            $filtro = $request->request->get('filter');
-        }
 
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        // Procesa filtro y lo mantiene en sesión del usuario
+        if (is_null($session->get('filtroTurnos'))) { // Verifica si es la primera vez que ingresa el usaurio.
+            // Establece el primero por defecto (Turnos de Hoy Asignados)
+            $filtro = 1;
+        } else {
+            if (is_null($request->request->get('filter'))) { // Verifica si ingresa sin indicación de filtro (refresco de la opción atendido)
+                // Mantiene el filtro actual
+                $filtro = $session->get('filtroTurnos');
+            } else { 
+                // Activa el filtro seleccionado
+                $filtro = $request->request->get('filter');
+            }
+        }
+        $session->set('filtroTurnos', $filtro); // Almacena en session el filtro actual
 
         if ($this->isGranted('ROLE_ADMIN')) {
             switch ($filtro)
@@ -314,6 +324,23 @@ class TurnoController extends AbstractController
             'turno' => $turno,
             'form' => $form->createView(),
         ]);
+    }
+
+
+    /**
+     * @Route("/turno/{id}/atendido", name="turno_atendido", methods={"GET","POST"})
+     */
+    public function atendido(Request $request, Turno $turno): Response
+    {
+//        $form = $this->createForm(TurnoType::class, $turno);
+//        $form->handleRequest($request);
+
+//        if ($form->isSubmitted() && $form->isValid()) {
+        $turno->setAtendido(true);
+        $this->getDoctrine()->getManager()->flush();
+        return $this->redirectToRoute('turno_index');
+//        }
+
     }
 
     /**

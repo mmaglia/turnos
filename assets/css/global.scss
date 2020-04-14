@@ -4,6 +4,13 @@ $blue: darken(#295f2F, 5%);
 // the ~ allows you to reference things in node_modules
 @import '~bootstrap/scss/bootstrap';
 @import '~bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css';
+@import '~@fortawesome/fontawesome-free/css/all.css';
+
+@import '~@fortawesome/fontawesome-free/scss/fontawesome';
+@import '~@fortawesome/fontawesome-free/scss/regular';
+@import '~@fortawesome/fontawesome-free/scss/solid';
+//@import '~@fortawesome/fontawesome-free/scss/brands';
+
 
 body {
     font-family: Helvetica Neue,sans-serif;

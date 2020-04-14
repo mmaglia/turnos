@@ -5,6 +5,7 @@
 {% block body %}
     <h1>Lista de Turnos</h1>
 
+    <span class="iconify" data-icon="fa-brands:symfony" data-inline="false"></span>
     <form action="{{'turno'}}" method="POST">
         <div class="float-right">
             <div class="form-check form-check-inline">
@@ -26,8 +27,10 @@
         <thead>
             <tr>
                 <th>Id</th>
-                <th>Oficina</th>
-                <th>FechaHora</th>
+                {% if is_granted('ROLE_ADMIN') %}                
+                    <th>Oficina</th>
+                {% endif %}
+                <th>Fecha y Hora</th>
                 <th>Persona</th>
                 <th>Motivo</th>
                 <th>Acciones</th>
@@ -39,7 +42,9 @@
             {% set cant = cant +1 %}
             <tr>
                 <td>{{ turno.id }}</td>
-                <td>{{ turno.oficina }}</td>
+                {% if is_granted('ROLE_ADMIN') %}
+                    <td>{{ turno.oficina }}</td>
+                {% endif %}
                 <td>{{ turno.fechaHora ? turno.fechaHora|date('d/m/Y H:i') : '' }}</td>
                 <td>
 
@@ -47,9 +52,14 @@
                 </td>
                 <td>{{ turno.motivo }}</td>
                 <td>
-                    <a href="{{ path('turno_show', {'id': turno.id}) }}">Ver</a>
-                    <a href="{{ path('turno_edit', {'id': turno.id}) }}">Editar</a>
-                </td>
+                    <a href="{{ path('turno_show', {'id': turno.id}) }}" title="Ver"><i class="fas fa-eye"></i></i></a>
+                    &nbsp;&nbsp;
+                    <a href="{{ path('turno_edit', {'id': turno.id}) }}" title="Editar"><i class="fas fa-edit"></i></a>
+                    &nbsp;&nbsp;
+                    {% if turno.persona is not null%}
+                        <a href="{{ path('turno_atendido', {'id': turno.id}) }}" title="Marcar como atendido"><i class="fas fa-check"></i></a>
+                    {% endif %}
+                </td>           
             </tr>
         {% else %}
             <tr>
@@ -60,6 +70,5 @@
         <h6>Cantidad de Turnos: {{ cant }}</h6>
         </tbody>
     </table>
-    <a href="{{ path('turno_new') }}">Crear Nuevo Turno</a>
 
 {% endblock %}
