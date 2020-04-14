@@ -25,6 +25,20 @@ class TurnoRepository extends ServiceEntityRepository
         $result = $this->getEntityManager()
         ->createQuery('SELECT t FROM App\Entity\Turno t ORDER BY t.oficina, t.fechaHora')
         ->getResult();
+
+        return $result;
+    }
+
+    public function findHoyOtorgados()
+    {
+        $desde = new \DateTime(date("Y-m-d")." 00:00:00");
+        $hasta   = new \DateTime(date("Y-m-d")." 23:59:59");
+
+        $result = $this->getEntityManager()
+        ->createQuery('SELECT t FROM App\Entity\Turno t WHERE t.fechaHora BETWEEN :desde AND :hasta and t.persona IS NOT NULL ORDER BY t.oficina, t.fechaHora')
+        ->setParameter('desde', $desde )
+        ->setParameter('hasta', $hasta)
+        ->getResult();
         
         return $result;
     }
@@ -32,7 +46,23 @@ class TurnoRepository extends ServiceEntityRepository
     public function findAllOtorgados()
     {
         $result = $this->getEntityManager()
-        ->createQuery('SELECT t FROM App\Entity\Turno t WHERE t.persona IS NOT NULL ORDER BY t.oficina, t.fechaHora')
+        ->createQuery('SELECT t FROM App\Entity\Turno t WHERE t.fechaHora >= :now and t.persona IS NOT NULL ORDER BY t.oficina, t.fechaHora')
+        ->setParameter('now', new \DateTime('now'))
+        ->getResult();
+        
+        return $result;
+    }
+
+    public function findHoyOtorgadosByOficina($oficina)
+    {
+        $desde = new \DateTime(date("Y-m-d")." 00:00:00");
+        $hasta   = new \DateTime(date("Y-m-d")." 23:59:59");
+
+        $result = $this->getEntityManager()
+        ->createQuery('SELECT t FROM App\Entity\Turno t WHERE t.oficina = :oficina and t.fechaHora BETWEEN :desde AND :hasta and t.persona IS NOT NULL ORDER BY t.oficina, t.fechaHora')
+        ->setParameter(':oficina', $oficina)
+        ->setParameter('desde', $desde )
+        ->setParameter('hasta', $hasta)
         ->getResult();
         
         return $result;
@@ -51,7 +81,8 @@ class TurnoRepository extends ServiceEntityRepository
     public function findAllOtorgadosByOficina($oficina)
     {
         $result = $this->getEntityManager()
-        ->createQuery('SELECT t FROM App\Entity\Turno t WHERE t.oficina = :oficina and t.persona IS NOT NULL ORDER BY t.oficina, t.fechaHora')
+        ->createQuery('SELECT t FROM App\Entity\Turno t WHERE t.oficina >= :oficina and t.fechaHora >= :now and t.persona IS NOT NULL ORDER BY t.oficina, t.fechaHora')
+        ->setParameter('now', new \DateTime('now'))
         ->setParameter(':oficina', $oficina)
         ->getResult();
         

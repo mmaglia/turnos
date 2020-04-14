@@ -24,33 +24,45 @@ use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 class TurnoController extends AbstractController
 {
     /**
-     * @Route("/turno", name="turno_index", methods={"GET"})
+     * @Route("/turno", name="turno_index", methods={"GET", "POST"})
      */
     public function index(Request $request, TurnoRepository $turnoRepository, $filtro=1): Response
     {
-
-        if (is_null($request->query->get('filter'))) {
+        if (is_null($request->request->get('filter'))) {
             $filtro = 1;
         } else {
-            $filtro = $request->query->get('filter');
+            $filtro = $request->request->get('filter');
         }
 
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
         if ($this->isGranted('ROLE_ADMIN')) {
-            if ($filtro) {
-                $turnosOtorgados = $turnoRepository->findAllOtorgados();
-            } else {
-                $turnosOtorgados = $turnoRepository->findAll();
+            switch ($filtro)
+            {
+                case 1:
+                    $turnosOtorgados = $turnoRepository->findHoyOtorgados();
+                    break;
+                case 2:
+                    $turnosOtorgados = $turnoRepository->findAllOtorgados();
+                    break;
+                case 3:
+                    $turnosOtorgados = $turnoRepository->findAll();
+                    break;
             }
-
         } else {
             if ($this->isGranted('ROLE_USER')) {
                 $oficinaUsuario = $this->getUser()->getOficina();
-                if ($filtro) {
-                    $turnosOtorgados = $turnoRepository->findAllOtorgadosByOficina($oficinaUsuario);
-                } else {
-                    $turnosOtorgados = $turnoRepository->findAllByOficina($oficinaUsuario);
+                switch ($filtro)
+                {
+                    case 1:
+                        $turnosOtorgados = $turnoRepository->findHoyOtorgadosByOficina($oficinaUsuario);
+                        break;
+                    case 2:
+                        $turnosOtorgados = $turnoRepository->findAllOtorgadosByOficina($oficinaUsuario);
+                        break;
+                    case 3:
+                        $turnosOtorgados = $turnoRepository->findAllByOficina($oficinaUsuario);
+                        break;
                 }
             }
         }
