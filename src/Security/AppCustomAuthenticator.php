@@ -39,7 +39,7 @@ class AppCustomAuthenticator extends AbstractFormLoginAuthenticator
     public function supports(Request $request)
     {
         return 'app_login' === $request->attributes->get('_route')
-            && $request->isMethod('POST');
+        && $request->isMethod('POST');
     }
 
     public function getCredentials(Request $request)
@@ -68,7 +68,7 @@ class AppCustomAuthenticator extends AbstractFormLoginAuthenticator
 
         if (!$user) {
             // fail authentication with a custom error
-            throw new CustomUserMessageAuthenticationException('Username could not be found.');
+            throw new CustomUserMessageAuthenticationException('No se pudo encontrar el nombre de usuario.');
         }
 
         return $user;
@@ -81,11 +81,17 @@ class AppCustomAuthenticator extends AbstractFormLoginAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
+        // Una vez logueado correctamente, guardo dentro del usuario logueado la fecha de último acceso y sumarizo el contador de entradas
+        $user = $this->entityManager->getRepository(Usuario::class)->findOneBy(['username' => $request->request->get('username')]);
+        if ($user) {
+            $this->entityManager->getRepository(Usuario::class)->actualizarLogueoUsuario($user);
+        }
+
         if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
             return new RedirectResponse($targetPath);
         }
 
-        // For example : return new RedirectResponse($this->urlGenerator->generate('some_route'));
+        // Redirigo el flujo hacia el list de turnos
         return new RedirectResponse($this->urlGenerator->generate('turno_index'));
     }
 

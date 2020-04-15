@@ -28,11 +28,24 @@ class UsuarioRepository extends ServiceEntityRepository implements PasswordUpgra
     public function upgradePassword(UserInterface $user, string $newEncodedPassword): void
     {
         if (!$user instanceof Usuario) {
-            throw new UnsupportedUserException(sprintf('Instances of "%s" are not supported.', \get_class($user)));
+            throw new UnsupportedUserException(sprintf('Las instancias de "%s" no son compatibles.', \get_class($user)));
         }
 
         $user->setPassword($newEncodedPassword);
         $this->_em->persist($user);
+        $this->_em->flush();
+    }
+
+    /**
+     * Actualizar fecha de ultimo logueo y contabilizador de entradas al sistema
+     * @param Usuario
+     */
+    public function actualizarLogueoUsuario(Usuario $usuario)
+    {
+        $usuario->setUltimoAcceso(new \DateTime('now'));
+        $cantidadAnterior = $usuario->getCantidadAccesos() != null ? $usuario->getCantidadAccesos() : 0;
+        $usuario->setCantidadAccesos($cantidadAnterior + 1);
+        $this->_em->persist($usuario);
         $this->_em->flush();
     }
 
@@ -42,26 +55,26 @@ class UsuarioRepository extends ServiceEntityRepository implements PasswordUpgra
     /*
     public function findByExampleField($value)
     {
-        return $this->createQueryBuilder('u')
-            ->andWhere('u.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('u.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
+    return $this->createQueryBuilder('u')
+    ->andWhere('u.exampleField = :val')
+    ->setParameter('val', $value)
+    ->orderBy('u.id', 'ASC')
+    ->setMaxResults(10)
+    ->getQuery()
+    ->getResult()
+    ;
     }
-    */
+     */
 
     /*
-    public function findOneBySomeField($value): ?Usuario
-    {
-        return $this->createQueryBuilder('u')
-            ->andWhere('u.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
+public function findOneBySomeField($value): ?Usuario
+{
+return $this->createQueryBuilder('u')
+->andWhere('u.exampleField = :val')
+->setParameter('val', $value)
+->getQuery()
+->getOneOrNullResult()
+;
+}
+ */
 }
