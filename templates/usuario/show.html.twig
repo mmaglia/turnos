@@ -3,36 +3,6 @@
 {% block title %}Usuario{% endblock %}
 
 {% block body %}
-
-<div class="form-group row">
-    <label for="id" class="col-sm-2 col-form-label col-form-label-lg text-right ">ID Usuario:</label>
-    <div class="col-sm-9">
-        <input type="text" readonly class="form-control-plaintext form-control-lg" id="id" placeholder="ID Usuario" value= "{{ usuario.id }}">
-    </div>
-    <label for="username" class="col-sm-2 col-form-label col-form-label-lg text-right">Usuario:</label>
-    <div class="col-sm-9">
-        <input type="text" readonly class="form-control-plaintext form-control-lg" id="username" placeholder="Usuario" value= "{{ usuario.username }}">
-    </div>
-    <label for="apellido" class="col-sm-2 col-form-label col-form-label-lg text-right">Apellido:</label>
-    <div class="col-sm-9">
-        <input type="text" readonly class="form-control-plaintext form-control-lg" id="apellido" placeholder="Apellido" value= "{{ usuario.apellido }}">
-    </div>
-    <label for="nombre" class="col-sm-2 col-form-label col-form-label-lg text-right">Nombre:</label>
-    <div class="col-sm-3">
-        <input type="text" readonly class="form-control-plaintext form-control-lg" id="nombre" placeholder="Nombre" value= "{{ usuario.nombre }}">
-    </div>
-    <label for="dni" class="col-sm-2 col-form-label col-form-label-lg text-right">DNI:</label>
-    <div class="col-sm-3">
-        <input type="text" readonly class="form-control-plaintext form-control-lg" id="dni" placeholder="DNI" value= "{{ usuario.dni }}">
-    </div>
-    <label for="email" class="col-sm-2 col-form-label col-form-label-lg text-right">Email:</label>
-    <div class="col-sm-2">
-        <input type="text" readonly class="form-control-plaintext form-control-lg" id="email" placeholder="Email" value= "{{ usuario.email }}" size="100" maxlength="100">
-    </div>
-</div>
-
-
-
     <h1>Usuario</h1>
 
     <table class="table">
@@ -88,9 +58,7 @@
         </tbody>
     </table>
 
-    <a href="{{ path('usuario_index') }}">back to list</a>
-
-    <a href="{{ path('usuario_edit', {'id': usuario.id}) }}">edit</a>
-
+    <a class="btn btn-secondary float-left volver" href="{{ path('usuario_index') }}">Vover a la lista</a>
+    <a class="btn btn-secondary float-left volver" href="{{ path('usuario_edit', {'id': usuario.id}) }}">Editar</a>
     {{ include('usuario/_delete_form.html.twig') }}
 {% endblock %}

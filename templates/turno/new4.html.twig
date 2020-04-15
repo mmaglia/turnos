@@ -12,24 +12,30 @@
     <h2>Selección de Fecha y Hora</h2>
     <h6 class="float-right">Paso 3/4</h6>
 
-
-    <form name="selectorFechaHora" method="post">
-
-        <div class="form-group row">
-            <div class="col-sm-4 col-form-label col-form-label-lg">
-                <div id="fechaHora">
-                    <div class="form-group">
-                        <label for="txtFechaHora" id="lblFechaHora" class="required">Fecha hora</label>
-                        <input type="text" id="txtFechaHora" name="txtFechaHora]" required="required" class="js-datepicker form-control" />
-                        <input type="hidden" id="turnoSeleccionado" name="turnoSeleccionado]" value="esfI4LQo3JbaRY6cDMyfQ3GXhmHGyxzJnGoKynt8Xgw" />
+    <!--<form name="selectorFechaHora" method="post"> <div class="form-group row"> <div class="col-sm-4 col-form-label col-form-label-lg"> <div id="fechaHora"> <div class="form-group"> <label for="txtFechaHora" id="lblFechaHora" class="required">Fecha hora</label> <input type="text" id="txtFechaHora" name="txtFechaHora]" required="required" class="js-datepicker form-control"/> <input type="hidden" id="turnoSeleccionado" name="turnoSeleccionado]" value="esfI4LQo3JbaRY6cDMyfQ3GXhmHGyxzJnGoKynt8Xgw"/> </div> </div> </div> <div class="col-sm-8 col-form-label col-form-label-lg"> <div class="form-group"> <label class="required" for="turno3_oficina" id="lblHorarios">Seleccione la hora</label> <select id="horarios" name="horario" required="required" class="form-control"></select> </div> </div> </div> </form>-->
+    <form class="selectorFechaHora" name="selectorFechaHora" method="post">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div id="fechaHora">
+                            <div class="form-group">
+                                <label for="txtFechaHora" id="lblFechaHora" class="required">Fecha hora</label>
+                                <input type="text" id="txtFechaHora" name="txtFechaHora]" required="required" class="js-datepicker form-control"/>
+                                <input type="hidden" id="turnoSeleccionado" name="turnoSeleccionado]" value="esfI4LQo3JbaRY6cDMyfQ3GXhmHGyxzJnGoKynt8Xgw"/>
+                            </div>
+                        </div>
                     </div>
-                </div> 
+                </div>
             </div>
-            <div class="col-sm-8 col-form-label col-form-label-lg">
-                <div class="form-group">
-                    <label class="required" for="turno3_oficina" id="lblHorarios">Seleccione la hora</label>
-                    <select id="horarios" name="horario" required="required" class="form-control">
-                    </select>        
+            <div class="col-sm-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label class="required" for="turno3_oficina" id="lblHorarios">Seleccione la hora</label>
+                            <select id="horarios" name="horario" required="required" class="form-control"></select>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -42,15 +48,15 @@
 {% block javascripts %}
     {{ parent() }}
     <script>
-        $(function() {
+        $(function () {
 
             oficinaID = {{ oficinaID }}
             diaActual = '{{ diaActual }}'
             ultimoDiaDisponible = '{{ ultimoDiaDisponible }}'
-          
-            $('#txtFechaHora').change(function() {
+
+            $('#txtFechaHora').change(function () {
                 if ($('#txtFechaHora').val() == '') {
-                    // Si la fecha se cambia a vacía se pone una fecha arbitraria 
+                    // Si la fecha se cambia a vacía se pone una fecha arbitraria
                     // A fin de que la búsqueda de turnos retorne vacía
                     fechaSeleccionada = '01-01-1970'
                     $('#lblHorarios').html('Seleccione una fecha')
@@ -60,55 +66,55 @@
                 }
 
                 $.ajax({
-                    url:"/TurnosWeb/horariosDisponiblesOficinaFecha/" + oficinaID + "/" + fechaSeleccionada,
+                    url: "/TurnosWeb/horariosDisponiblesOficinaFecha/" + oficinaID + "/" + fechaSeleccionada,
                     method: "POST",
                     dataType: "json",
-                    success: function(data) {
+                    success: function (data) {
                         $('#horarios').html('');
-                        $.each(data,function(key, registro) {
-                            $("#horarios").append('<option value='+registro+'>'+registro+'</option>');
-                        });   
+                        $.each(data, function (key, registro) {
+                            $("#horarios").append('<option value=' + registro + '>' + registro + '</option>');
+                        });
                     }
                 })
             })
 
-            $("#confirmar").click(function() {
-                // Se convierte la cadena dd/mm/yyyy hh:mm a yyyy-mm-ddThh:mm            
+            $("#confirmar").click(function () {
+                // Se convierte la cadena dd/mm/yyyy hh:mm a yyyy-mm-ddThh:mm
                 // Para que Symfony lo procese correctamente como un campo DateTime
                 fechaFinal = $('#txtFechaHora').val()
                 horaFinal = $('#horarios').val()
 
                 finalFormateado = fechaFinal.substring(6, 10) + '-' + fechaFinal.substring(3, 5) + '-' + fechaFinal.substring(0, 2)
                 finalFormateado = finalFormateado + 'T' + horaFinal
-                $('#turno4_fechaHora').val(finalFormateado) // Verdadero campo de formulario (armado por el maker de Symfony)                
+                $('#turno4_fechaHora').val(finalFormateado) // Verdadero campo de formulario (armado por el maker de Symfony)
             })
 
-            $(document).ready(function() {
-                $('#turno4').hide(); // Oculta el fomrmulario de Symfony. Al momento del Submit 
-                                     // se escribirá el valor seleccionado en él control correspondiente
-                                     
-                // Arma el calendario con fecha de inicio, final y días 
-                // con turnos disponibles (deshabilitando los demás)                                     
+            $(document).ready(function () {
+                $('#turno4').hide(); // Oculta el fomrmulario de Symfony. Al momento del Submit
+                // se escribirá el valor seleccionado en él control correspondiente
+
+                // Arma el calendario con fecha de inicio, final y días
+                // con turnos disponibles (deshabilitando los demás)
                 $.ajax({
-                    url:"/TurnosWeb/diasOcupadosOficina/" + oficinaID,
+                    url: "/TurnosWeb/diasOcupadosOficina/" + oficinaID,
                     method: "POST",
                     dataType: "json",
-                    success: function(data) {
+                    success: function (data) {
                         $('#fechaHora div').datepicker({
                             format: "dd/mm/yyyy",
                             todayBtn: "linked",
                             language: "es",
                             daysOfWeekDisabled: "0,6",
                             daysOfWeekHighlighted: "0",
-//                            todayHighlight: true,
+                            //                            todayHighlight: true,
                             startDate: diaActual,
                             endDate: ultimoDiaDisponible,
-                            datesDisabled: data,
+                            datesDisabled: data
                         });
                     }
                 })
             })
         });
-    </script>  
-    
-{% endblock %}     
+    </script>
+
+{% endblock %}

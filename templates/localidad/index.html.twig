@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Lista de Localidades{% endblock %}
+{% block title %}Gestión de Localidades{% endblock %}
 
 {% block body %}
     <h1>Lista de Localidades</h1>
@@ -19,8 +19,10 @@
                 <td>{{ localidad.id }}</td>
                 <td>{{ localidad.localidad }}</td>
                 <td>
-                    <a href="{{ path('localidad_show', {'id': localidad.id}) }}">Ver</a>
-                    <a href="{{ path('localidad_edit', {'id': localidad.id}) }}">Editar</a>
+                    &nbsp;&nbsp;
+                    <a href="{{ path('localidad_show', {'id': localidad.id}) }}" title="Ver"><i class="fas fa-eye"></i></a>
+                    &nbsp;&nbsp;
+                    <a href="{{ path('localidad_edit', {'id': localidad.id}) }}" title="Editar"><i class="fas fa-edit"></i></a>
                 </td>
             </tr>
         {% else %}
@@ -31,5 +33,5 @@
         </tbody>
     </table>
 
-    <a href="{{ path('localidad_new') }}">Crear nueva Localidad</a>
+    <a class="btn btn-primary float-right" href="{{ path('localidad_new') }}">Crear nueva Localidad</a>
 {% endblock %}
