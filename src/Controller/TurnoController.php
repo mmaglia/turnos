@@ -2,26 +2,25 @@
 
 namespace App\Controller;
 
+use App\Entity\Persona;
 use App\Entity\Turno;
-use App\Form\TurnoType;
+use App\Form\PersonaType;
 use App\Form\Turno3Type;
 use App\Form\Turno4Type;
 use App\Form\Turno5Type;
-use App\Repository\TurnoRepository;
-use App\Entity\Persona;
-use App\Form\PersonaType;
+use App\Form\TurnoType;
 use App\Repository\LocalidadRepository;
 use App\Repository\OficinaRepository;
+use App\Repository\TurnoRepository;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
-
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\Routing\Annotation\Route;
 
 class TurnoController extends AbstractController
 {
@@ -41,7 +40,7 @@ class TurnoController extends AbstractController
             if (is_null($request->request->get('filter'))) { // Verifica si ingresa sin indicación de filtro (refresco de la opción atendido)
                 // Mantiene el filtro actual
                 $filtro = $session->get('filtroTurnos');
-            } else { 
+            } else {
                 // Activa el filtro seleccionado
                 $filtro = $request->request->get('filter');
             }
@@ -49,8 +48,7 @@ class TurnoController extends AbstractController
         $session->set('filtroTurnos', $filtro); // Almacena en session el filtro actual
 
         if ($this->isGranted('ROLE_ADMIN')) {
-            switch ($filtro)
-            {
+            switch ($filtro) {
                 case 1:
                     $turnosOtorgados = $turnoRepository->findHoyOtorgados();
                     break;
@@ -64,8 +62,7 @@ class TurnoController extends AbstractController
         } else {
             if ($this->isGranted('ROLE_USER')) {
                 $oficinaUsuario = $this->getUser()->getOficina();
-                switch ($filtro)
-                {
+                switch ($filtro) {
                     case 1:
                         $turnosOtorgados = $turnoRepository->findHoyOtorgadosByOficina($oficinaUsuario);
                         break;
@@ -89,8 +86,7 @@ class TurnoController extends AbstractController
     /**
      * @Route("/turno/new", name="turno_new", methods={"GET","POST"})
      */
-    public function new(Request $request, LocalidadRepository $localidadRepository): Response
-    {
+    function new (Request $request, LocalidadRepository $localidadRepository): Response {
         $turno = new Turno();
         $form = $this->createForm(TurnoType::class, $turno);
         $form->handleRequest($request);
@@ -103,7 +99,6 @@ class TurnoController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
-
 
     // Wizard 1/4: Datos del Solicitante
     /**
@@ -119,6 +114,9 @@ class TurnoController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // El nombre y apellido de la persona los fuerzo en mayusculas
+            $persona->setApellido(mb_strtoupper($persona->getApellido()));
+            $persona->setNombre(mb_strtoupper($persona->getNombre()));
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($persona);
             $session->set('persona', $persona);
@@ -129,7 +127,7 @@ class TurnoController extends AbstractController
             'persona' => $persona,
             'form' => $form->createView(),
         ]);
-    }    
+    }
 
     // Wizard 2/4: Selección de Organismo
     /**
@@ -167,9 +165,9 @@ class TurnoController extends AbstractController
         $turno = $session->get('turno');
 
         $oficinaId = $turno->getOficina()->getId();
-        $diaActual = date('d/m/Y');      
+        $diaActual = date('d/m/Y');
         $ultimoDiaDisponible = $turnoRepository->findUltimoDiaDisponibleByOficina($oficinaId);
-        
+
         $form = $this->createForm(Turno4Type::class, $turno);
         $form->handleRequest($request);
 
@@ -181,7 +179,7 @@ class TurnoController extends AbstractController
             $session->set('turno', $persona);
             $session->set('turno', $turno);
 
-            return $this->redirectToRoute('turno_new5');            
+            return $this->redirectToRoute('turno_new5');
         }
 
         return $this->render('turno/new4.html.twig', [
@@ -217,7 +215,7 @@ class TurnoController extends AbstractController
             // El primero recibió notificación del turno por correo pero la Oficina no lo va a tener registrado.
             if ($turnoActualizar->getPersona()) {
                 // Turno Ocupado
-                return $this->redirectToRoute('turnoOcupado');            
+                return $this->redirectToRoute('turnoOcupado');
             } else {
                 // Turno Libre. Grabo.
                 $turnoActualizar->setMotivo($turno->getMotivo());
@@ -225,11 +223,11 @@ class TurnoController extends AbstractController
                 $entityManager = $this->getDoctrine()->getManager();
                 $entityManager->merge($turnoActualizar);
                 $entityManager->persist($persona);
-                $entityManager->flush();   
+                $entityManager->flush();
             }
 
             return $this->redirectToRoute('emailConfirmacion');
-            
+
         }
 
         return $this->render('turno/new5.html.twig', [
@@ -238,7 +236,6 @@ class TurnoController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
-
 
     // Wizard 4/4: Notificación de Turno Ocupado
     /**
@@ -264,7 +261,7 @@ class TurnoController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
-    
+
     // Notificación por correo del Turno
     /**
      * @Route("/TurnosWeb/notificacion", name="emailConfirmacion", methods={"GET","POST"})
@@ -278,23 +275,22 @@ class TurnoController extends AbstractController
         // Si la persona ingresó un correo, envía una notificación con los datos del turno
         if ($turno->getPersona()->getEmail()) {
             $email = (new TemplatedEmail())
-            ->from('no-reply@justiciasantafe.gov.ar')
-            ->to($turno->getPersona()->getEmail())
-            ->addBcc('mmaglianesi@justiciasantafe.gov.ar')
-            ->addBcc('jialarcon@justiciasantafe.gov.ar')
-            ->subject('Poder Judicial Santa Fe - Confirmación de Turno')
-        
-            // path of the Twig template to render
-            ->htmlTemplate('turno/new6.html.twig')
-        
-            // pass variables (name => value) to the template
-            ->context([
-                'expiration_date' => new \DateTime('+7 days'),
-                'username' => 'foo',
-                'turno' => $turno,
-                'persona' => $persona,
-            ])
-            ;        
+                ->from('no-reply@justiciasantafe.gov.ar')
+                ->to($turno->getPersona()->getEmail())
+                ->addTo('mmaglianesi@justiciasantafe.gov.ar')
+                ->subject('Poder Judicial Santa Fe - Confirmación de Turno!')
+
+                // path of the Twig template to render
+                ->htmlTemplate('turno/new6.html.twig')
+
+                // pass variables (name => value) to the template
+                ->context([
+                    'expiration_date' => new \DateTime('+7 days'),
+                    'username' => 'foo',
+                    'turno' => $turno,
+                    'persona' => $persona,
+                ])
+            ;
 
             //TODO Si persona no se utiliza en el correo no meterla dentro del context()
             $mailer->send($email);
@@ -336,14 +332,13 @@ class TurnoController extends AbstractController
         ]);
     }
 
-
     /**
      * @Route("/turno/{id}/atendido", name="turno_atendido", methods={"GET","POST"})
      */
     public function atendido(Request $request, Turno $turno): Response
     {
 //        $form = $this->createForm(TurnoType::class, $turno);
-//        $form->handleRequest($request);
+        //        $form->handleRequest($request);
 
 //        if ($form->isSubmitted() && $form->isValid()) {
         $turno->setAtendido(true);
@@ -358,7 +353,7 @@ class TurnoController extends AbstractController
      */
     public function delete(Request $request, Turno $turno): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$turno->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $turno->getId(), $request->request->get('_token'))) {
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->remove($turno);
             $entityManager->flush();
@@ -371,7 +366,8 @@ class TurnoController extends AbstractController
      * @Route("/TurnosWeb/oficina_localidad/{localidad_id}", name="oficinas_by_localidad", requirements = {"localidad_id" = "\d+"}, methods={"POST"})
      * @IsGranted("ROLE_USER")
      */
-    public function oficinasByLocalidad($localidad_id, OficinaRepository $oficinaRepository) {
+    public function oficinasByLocalidad($localidad_id, OficinaRepository $oficinaRepository)
+    {
         $em = $this->getDoctrine()->getManager();
         $oficinas = $oficinaRepository->findOficinaByLocalidad($localidad_id);
         return new JsonResponse($oficinas);
@@ -380,7 +376,8 @@ class TurnoController extends AbstractController
     /**
      * @Route("/TurnosWeb/turnoslibres_oficina/{oficina_id}", name="turnoslibres_by_localidad", requirements = {"oficina_id" = "\d+"}, methods={"POST"})
      */
-    public function diasLibresByOficina(TurnoRepository $turnoRepository, $oficina_id) {
+    public function diasLibresByOficina(TurnoRepository $turnoRepository, $oficina_id)
+    {
         $turnosLibres = $turnoRepository->findDiasDisponiblesByOficina($oficina_id);
         return new JsonResponse($turnosLibres);
     }
@@ -388,7 +385,8 @@ class TurnoController extends AbstractController
     /**
      * @Route("/TurnosWeb/diasOcupadosOficina/{oficina_id}", name="diasOcupadosOficina", requirements = {"oficina_id" = "\d+"}, methods={"POST"})
      */
-    public function diasOcupadosByOficina(TurnoRepository $turnoRepository, $oficina_id) {
+    public function diasOcupadosByOficina(TurnoRepository $turnoRepository, $oficina_id)
+    {
         $diasOcupados = $turnoRepository->findDiasOcupadosByOficina($oficina_id);
         return new JsonResponse($diasOcupados);
     }
@@ -396,7 +394,8 @@ class TurnoController extends AbstractController
     /**
      * @Route("/TurnosWeb/horariosDisponiblesOficinaFecha/{oficina_id}/{fecha}", name="horarisDisponibles", methods={"POST"})
      */
-    public function horariosDisponiblesByOficinaByFecha(TurnoRepository $turnoRepository, $oficina_id, $fecha) {
+    public function horariosDisponiblesByOficinaByFecha(TurnoRepository $turnoRepository, $oficina_id, $fecha)
+    {
         $horariosDisponibles = $turnoRepository->findHorariosDisponiblesByOficinaByFecha($oficina_id, $fecha);
         return new JsonResponse($horariosDisponibles);
     }

@@ -30,9 +30,7 @@
         </tbody>
     </table>
 
-    <a href="{{ path('oficina_index') }}">Volver a la Lista</a>
-
-    <a href="{{ path('oficina_edit', {'id': oficina.id}) }}">Editar</a>
-
+    <a class="btn btn-secondary float-left volver" href="{{ path('oficina_index') }}">Volver a la Lista</a>
+    <a class="btn btn-secondary float-left volver" href="{{ path('oficina_edit', {'id': oficina.id}) }}">Editar</a>
     {{ include('oficina/_delete_form.html.twig') }}
 {% endblock %}
