@@ -280,8 +280,9 @@ class TurnoController extends AbstractController
             $email = (new TemplatedEmail())
             ->from('no-reply@justiciasantafe.gov.ar')
             ->to($turno->getPersona()->getEmail())
-            ->addTo('mmaglianesi@justiciasantafe.gov.ar')
-            ->subject('Poder Judicial Santa Fe - Confirmación de Turno!')
+            ->addBcc('mmaglianesi@justiciasantafe.gov.ar')
+            ->addBcc('jialarcon@justiciasantafe.gov.ar')
+            ->subject('Poder Judicial Santa Fe - Confirmación de Turno')
         
             // path of the Twig template to render
             ->htmlTemplate('turno/new6.html.twig')
@@ -301,8 +302,7 @@ class TurnoController extends AbstractController
 
         //TODO ver como borrar de session las variables utilizadas (persona, turno)
 
-//        return $this->redirectToRoute('main');
-return new JsonResponse(("Listo"));
+        return $this->redirectToRoute('main');
         
     }    
 
