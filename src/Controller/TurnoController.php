@@ -132,6 +132,7 @@ class TurnoController extends AbstractController
     // Wizard 2/4: Selección de Organismo
     /**
      * @Route("/TurnosWeb/oficina", name="turno_new3", methods={"GET","POST"})
+     * @IsGranted("ROLE_USER")
      */
     public function new3(SessionInterface $session, Request $request): Response
     {
@@ -158,6 +159,7 @@ class TurnoController extends AbstractController
     // Wizard 3/4: Selección de Fecha y Hora
     /**
      * @Route("/TurnosWeb/fechaHora", name="turno_new4", methods={"GET","POST"})
+     * @IsGranted("ROLE_USER")
      */
     public function new4(SessionInterface $session, Request $request, TurnoRepository $turnoRepository): Response
     {
@@ -165,7 +167,7 @@ class TurnoController extends AbstractController
         $turno = $session->get('turno');
 
         $oficinaId = $turno->getOficina()->getId();
-        $diaActual = date('d/m/Y');
+        $primerDiaDisponible = $turnoRepository->findPrimerDiaDisponibleByOficina($oficinaId);
         $ultimoDiaDisponible = $turnoRepository->findUltimoDiaDisponibleByOficina($oficinaId);
 
         $form = $this->createForm(Turno4Type::class, $turno);
@@ -186,7 +188,7 @@ class TurnoController extends AbstractController
             'turno' => $turno,
             'persona' => $persona,
             'oficinaID' => $oficinaId,
-            'diaActual' => $diaActual,
+            'primerDiaDisponible' => $primerDiaDisponible,
             'ultimoDiaDisponible' => $ultimoDiaDisponible,
             'form' => $form->createView(),
         ]);

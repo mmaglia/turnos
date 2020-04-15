@@ -51,7 +51,7 @@
         $(function () {
 
             oficinaID = {{ oficinaID }}
-            diaActual = '{{ diaActual }}'
+            primerDiaDisponible = '{{ primerDiaDisponible }}'
             ultimoDiaDisponible = '{{ ultimoDiaDisponible }}'
 
             $('#txtFechaHora').change(function () {
@@ -107,7 +107,7 @@
                             daysOfWeekDisabled: "0,6",
                             daysOfWeekHighlighted: "0",
                             //                            todayHighlight: true,
-                            startDate: diaActual,
+                            startDate: primerDiaDisponible,
                             endDate: ultimoDiaDisponible,
                             datesDisabled: data
                         });

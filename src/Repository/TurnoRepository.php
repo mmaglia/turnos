@@ -106,6 +106,21 @@ class TurnoRepository extends ServiceEntityRepository
         return $result;
     }
 
+    public function findPrimerDiaDisponibleByOficina($oficina_id)
+        {
+            $sql = "SELECT to_char(date(min(fecha_hora)), 'dd/mm/yyyy') as UltimoDiaDisponible FROM turno WHERE persona_id is null AND oficina_id = :oficina_id AND fecha_hora > now()";
+            
+            $em = $this->getEntityManager();
+            $statement = $em->getConnection()->prepare($sql);
+            $statement->bindValue('oficina_id', $oficina_id);
+            $statement->execute();
+            $result = $statement->fetchAll();
+    
+            $ultimoDiaDisponible = $result[0]['ultimodiadisponible'];
+    
+            return $ultimoDiaDisponible;
+        }    
+    
     public function findUltimoDiaDisponibleByOficina($oficina_id)
     {
         $sql = "SELECT to_char(date(max(fecha_hora)), 'dd/mm/yyyy') as UltimoDiaDisponible FROM turno WHERE persona_id is null AND oficina_id = :oficina_id AND fecha_hora > now()";
