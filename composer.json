@@ -13,6 +13,7 @@
         "symfony/framework-bundle": "5.0.*",
         "symfony/google-mailer": "5.0.*",
         "symfony/mailer": "5.0.*",
+        "symfony/messenger": "5.0.*",
         "symfony/orm-pack": "^1.0",
         "symfony/profiler-pack": "^1.0",
         "symfony/security-bundle": "5.0.*",

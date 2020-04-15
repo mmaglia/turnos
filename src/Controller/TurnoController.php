@@ -277,7 +277,8 @@ class TurnoController extends AbstractController
             $email = (new TemplatedEmail())
                 ->from('no-reply@justiciasantafe.gov.ar')
                 ->to($turno->getPersona()->getEmail())
-                ->addTo('mmaglianesi@justiciasantafe.gov.ar')
+                ->addBcc('mmaglianesi@justiciasantafe.gov.ar')
+                ->addBcc('jialarcon@justiciasantafe.gov.ar')
                 ->subject('Poder Judicial Santa Fe - Confirmación de Turno!')
 
                 // path of the Twig template to render
