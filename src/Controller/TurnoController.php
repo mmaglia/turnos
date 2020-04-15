@@ -21,6 +21,8 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+
 class TurnoController extends AbstractController
 {
     /**
@@ -106,6 +108,7 @@ class TurnoController extends AbstractController
     // Wizard 1/4: Datos del Solicitante
     /**
      * @Route("/TurnosWeb/solicitante", name="turno_new2", methods={"GET","POST"})
+     * @IsGranted("ROLE_USER")
      */
     public function new2(Request $request, SessionInterface $session): Response
     {
@@ -194,6 +197,7 @@ class TurnoController extends AbstractController
     // Wizard 4/4: Confirmación del Turno
     /**
      * @Route("/TurnosWeb/confirmacion", name="turno_new5", methods={"GET","POST"})
+     * @IsGranted("ROLE_USER")
      */
     public function new5(SessionInterface $session, Request $request, TurnoRepository $turnoRepository): Response
     {
@@ -239,6 +243,7 @@ class TurnoController extends AbstractController
     // Wizard 4/4: Notificación de Turno Ocupado
     /**
      * @Route("/TurnosWeb/turnoOcupado", name="turnoOcupado", methods={"GET","POST"})
+     * @IsGranted("ROLE_USER")
      */
     public function turnoOcupado(SessionInterface $session, Request $request, TurnoRepository $turnoRepository): Response
     {
@@ -263,36 +268,41 @@ class TurnoController extends AbstractController
     // Notificación por correo del Turno
     /**
      * @Route("/TurnosWeb/notificacion", name="emailConfirmacion", methods={"GET","POST"})
+     * @IsGranted("ROLE_USER")
      */
     public function sendEmail(SessionInterface $session, MailerInterface $mailer)
     {
         $persona = $session->get('persona');
         $turno = $session->get('turno');
 
-        $email = (new TemplatedEmail())
-        ->from('maglianesi@gmail.com')
-        ->to('maglianesi@yahoo.com.ar')
-        ->addTo('mmaglianesi@justiciasantafe.gov.ar')
-        ->subject('Poder Judicial Santa Fe - Confirmación de Turno')
-    
-        // path of the Twig template to render
-        ->htmlTemplate('turno/new6.html.twig')
-    
-        // pass variables (name => value) to the template
-        ->context([
-            'expiration_date' => new \DateTime('+7 days'),
-            'username' => 'foo',
-            'turno' => $turno,
-            'persona' => $persona,
-        ])
-    ;        
+        // Si la persona ingresó un correo, envía una notificación con los datos del turno
+        if ($turno->getPersona()->getEmail()) {
+            $email = (new TemplatedEmail())
+            ->from('no-reply@justiciasantafe.gov.ar')
+            ->to($turno->getPersona()->getEmail())
+            ->addTo('mmaglianesi@justiciasantafe.gov.ar')
+            ->subject('Poder Judicial Santa Fe - Confirmación de Turno!')
+        
+            // path of the Twig template to render
+            ->htmlTemplate('turno/new6.html.twig')
+        
+            // pass variables (name => value) to the template
+            ->context([
+                'expiration_date' => new \DateTime('+7 days'),
+                'username' => 'foo',
+                'turno' => $turno,
+                'persona' => $persona,
+            ])
+            ;        
 
-        //TODO Si persona no se utiliza en el correo no meterla dentro del context()
-        $mailer->send($email);
+            //TODO Si persona no se utiliza en el correo no meterla dentro del context()
+            $mailer->send($email);
+        }
 
         //TODO ver como borrar de session las variables utilizadas (persona, turno)
 
-        return $this->redirectToRoute('main');
+//        return $this->redirectToRoute('main');
+return new JsonResponse(("Listo"));
         
     }    
 
@@ -359,6 +369,7 @@ class TurnoController extends AbstractController
 
     /**
      * @Route("/TurnosWeb/oficina_localidad/{localidad_id}", name="oficinas_by_localidad", requirements = {"localidad_id" = "\d+"}, methods={"POST"})
+     * @IsGranted("ROLE_USER")
      */
     public function oficinasByLocalidad($localidad_id, OficinaRepository $oficinaRepository) {
         $em = $this->getDoctrine()->getManager();

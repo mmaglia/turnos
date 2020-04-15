@@ -178,7 +178,7 @@ class TurnoRepository extends ServiceEntityRepository
     public function findHorariosDisponiblesByOficinaByFecha($oficina_id, $fecha)
     {
         // Obtengo días (futuros) con turnos disponibles para una oficina en particular
-        $sql = "SELECT to_char(fecha_hora, 'HH24:MI') as hora FROM turno WHERE persona_id is null AND oficina_id = :oficina_id AND to_char(date(fecha_hora), 'dd-mm-yyyy') = :fecha order by fecha_hora";
+        $sql = "SELECT to_char(fecha_hora, 'HH24:MI') as hora FROM turno WHERE persona_id is null AND oficina_id = :oficina_id AND to_char(date(fecha_hora), 'dd-mm-yyyy') = :fecha and fecha_hora > now() order by fecha_hora";
 
         $em = $this->getEntityManager();
         $statement = $em->getConnection()->prepare($sql);
