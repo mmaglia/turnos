@@ -66,9 +66,14 @@ class AppCustomAuthenticator extends AbstractFormLoginAuthenticator
 
         $user = $this->entityManager->getRepository(Usuario::class)->findOneBy(['username' => $credentials['username']]);
 
+        // Si no existe el usuario, muestro un cartel avisando la situación
         if (!$user) {
-            // fail authentication with a custom error
             throw new CustomUserMessageAuthenticationException('No se pudo encontrar el nombre de usuario.');
+        }
+
+        // Si el usuario esta dado de baja, muestro un cartel avisando la situación
+        if ($user->getFechaBaja() != null) {
+            throw new CustomUserMessageAuthenticationException('El usuario ingresado ha sido dado de baja. Comuníquese con la Secretaría de Informática.');
         }
 
         return $user;
