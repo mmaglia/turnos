@@ -29,68 +29,47 @@ class TurnoRepository extends ServiceEntityRepository
         return $result;
     }
 
-    public function findHoyOtorgados()
+    public function findByRoleAdmin($rango, $atendido)
     {
-        $desde = new \DateTime(date("Y-m-d")." 00:00:00");
-        $hasta   = new \DateTime(date("Y-m-d")." 23:59:59");
-
-        $result = $this->getEntityManager()
-        ->createQuery('SELECT t FROM App\Entity\Turno t WHERE t.fechaHora BETWEEN :desde AND :hasta and t.persona IS NOT NULL and t.atendido = false ORDER BY t.oficina, t.fechaHora')
-        ->setParameter('desde', $desde )
-        ->setParameter('hasta', $hasta)
-        ->getResult();
-        
+        if ( $atendido == 'TODOS') {
+            $result = $this->getEntityManager()
+            ->createQuery('SELECT t FROM App\Entity\Turno t WHERE t.fechaHora BETWEEN :desde AND :hasta ORDER BY t.oficina, t.fechaHora')
+            ->setParameter('desde', $rango['desde'] )
+            ->setParameter('hasta', $rango['hasta'] )
+            ->getResult();    
+        } else {
+            $result = $this->getEntityManager()
+            ->createQuery('SELECT t FROM App\Entity\Turno t WHERE t.fechaHora BETWEEN :desde AND :hasta and t.persona IS NOT NULL and t.atendido = :atendido ORDER BY t.oficina, t.fechaHora')
+            ->setParameter('desde', $rango['desde'] )
+            ->setParameter('hasta', $rango['hasta'] )
+            ->setParameter('atendido', $atendido )
+            ->getResult();    
+        }
         return $result;
     }
 
-    public function findAllOtorgados()
+    public function findWithRoleUser($rango, $atendido, $oficina)
     {
-        $result = $this->getEntityManager()
-        ->createQuery('SELECT t FROM App\Entity\Turno t WHERE t.fechaHora >= :now and t.persona IS NOT NULL and t.atendido = false ORDER BY t.oficina, t.fechaHora')
-        ->setParameter('now', new \DateTime('now'))
-        ->getResult();
-        
+        if ( $atendido == 'TODOS') {
+            $result = $this->getEntityManager()
+            ->createQuery('SELECT t FROM App\Entity\Turno t WHERE t.oficina = :oficina  AND t.fechaHora BETWEEN :desde AND :hasta ORDER BY t.oficina, t.fechaHora')
+            ->setParameter('desde', $rango['desde'] )
+            ->setParameter('hasta', $rango['hasta'] )
+            ->setParameter(':oficina', $oficina)
+            ->getResult();    
+        } else {
+            $result = $this->getEntityManager()
+            ->createQuery('SELECT t FROM App\Entity\Turno t WHERE t.oficina = :oficina AND t.fechaHora BETWEEN :desde AND :hasta and t.persona IS NOT NULL and t.atendido = :atendido ORDER BY t.oficina, t.fechaHora')
+            ->setParameter('desde', $rango['desde'] )
+            ->setParameter('hasta', $rango['hasta'] )
+            ->setParameter(':oficina', $oficina)
+            ->setParameter('atendido', $atendido )
+            ->getResult();    
+        }
         return $result;
     }
 
-    public function findHoyOtorgadosByOficina($oficina)
-    {
-        $desde = new \DateTime(date("Y-m-d")." 00:00:00");
-        $hasta   = new \DateTime(date("Y-m-d")." 23:59:59");
-
-        $result = $this->getEntityManager()
-        ->createQuery('SELECT t FROM App\Entity\Turno t WHERE t.oficina = :oficina and t.fechaHora BETWEEN :desde AND :hasta and t.persona IS NOT NULL and t.atendido = false ORDER BY t.oficina, t.fechaHora')
-        ->setParameter(':oficina', $oficina)
-        ->setParameter('desde', $desde )
-        ->setParameter('hasta', $hasta)
-        ->getResult();
-        
-        return $result;
-    }
-
-    public function findAllByOficina($oficina)
-    {
-        $result = $this->getEntityManager()
-        ->createQuery('SELECT t FROM App\Entity\Turno t WHERE t.oficina = :oficina ORDER BY t.oficina, t.fechaHora')
-        ->setParameter(':oficina', $oficina)
-        ->getResult();
-        
-        return $result;
-    }    
-
-    public function findAllOtorgadosByOficina($oficina)
-    {
-        $result = $this->getEntityManager()
-        ->createQuery('SELECT t FROM App\Entity\Turno t WHERE t.oficina >= :oficina and t.fechaHora >= :now and t.persona IS NOT NULL and t.atendido = false ORDER BY t.oficina, t.fechaHora')
-        ->setParameter('now', new \DateTime('now'))
-        ->setParameter(':oficina', $oficina)
-        ->getResult();
-        
-        return $result;
-    }    
-
-        
-    
+   
     public function findUltimoTurnoByOficina($value)
     {
         $result = $this->getEntityManager()

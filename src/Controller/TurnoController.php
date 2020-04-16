@@ -12,6 +12,7 @@ use App\Form\TurnoType;
 use App\Repository\LocalidadRepository;
 use App\Repository\OficinaRepository;
 use App\Repository\TurnoRepository;
+use DateInterval;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,65 +22,72 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Dompdf\Dompdf;
 
 class TurnoController extends AbstractController
 {
+
     /**
      * @Route("/turno", name="turno_index", methods={"GET", "POST"})
      */
     public function index(Request $request, TurnoRepository $turnoRepository, SessionInterface $session): Response
     {
 
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY'); // Deniega acceso si el usuario no está autenticado (por seguridad)
 
         // Procesa filtro y lo mantiene en sesión del usuario
-        if (is_null($session->get('filtroTurnos'))) { // Verifica si es la primera vez que ingresa el usaurio.
+        if (is_null($session->get('filtroMomentoTurnos'))) { // Verifica si es la primera vez que ingresa el usuario
             // Establece el primero por defecto (Turnos de Hoy Asignados)
-            $filtro = 1;
+            $filtroMomento = 2;
+            $filtroEstado  = 1;
         } else {
-            if (is_null($request->request->get('filter'))) { // Verifica si ingresa sin indicación de filtro (refresco de la opción atendido)
+            if (is_null($request->request->get('filterMoment'))) { // Verifica si ingresa sin indicación de filtro (refresco de la opción atendido)
                 // Mantiene el filtro actual
-                $filtro = $session->get('filtroTurnos');
+                $filtroMomento = $session->get('filtroMomentoTurnos');
+                $filtroEstado  = $session->get('filtroEstadoTurnos');
             } else {
                 // Activa el filtro seleccionado
-                $filtro = $request->request->get('filter');
+                $filtroMomento = $request->request->get('filterMoment');
+                $filtroEstado  = $request->request->get('filterState');
             }
         }
-        $session->set('filtroTurnos', $filtro); // Almacena en session el filtro actual
+        $session->set('filtroMomentoTurnos', $filtroMomento); // Almacena en session el filtro actual
+        $session->set('filtroEstadoTurnos', $filtroEstado);   // Almacena en session el filtro actual
+
+        // Obtiene un arreglo asociativo con valores para las fechas Desde y Hasta que involucra el filtro de momento
+        $rango = $this->obtieneMomento($filtroMomento);
+
+        // Procesa filtro de Estado
+        switch ($filtroEstado) {
+            case 1:
+                $atendido = 'false';
+                break;
+            case 2:
+                $atendido = 'true';
+                break;
+            case 3:
+                $atendido = 'TODOS';
+                break;
+        }
+
 
         if ($this->isGranted('ROLE_ADMIN')) {
-            switch ($filtro) {
-                case 1:
-                    $turnosOtorgados = $turnoRepository->findHoyOtorgados();
-                    break;
-                case 2:
-                    $turnosOtorgados = $turnoRepository->findAllOtorgados();
-                    break;
-                case 3:
-                    $turnosOtorgados = $turnoRepository->findAll();
-                    break;
-            }
+            // Busca los turnos en función a los estados de todas las oficinas
+            $turnosOtorgados = $turnoRepository->findByRoleAdmin($rango, $atendido);
         } else {
             if ($this->isGranted('ROLE_USER')) {
+                // Busca los turnos en función a los estados de la oficina a la que pertenece el usuario
                 $oficinaUsuario = $this->getUser()->getOficina();
-                switch ($filtro) {
-                    case 1:
-                        $turnosOtorgados = $turnoRepository->findHoyOtorgadosByOficina($oficinaUsuario);
-                        break;
-                    case 2:
-                        $turnosOtorgados = $turnoRepository->findAllOtorgadosByOficina($oficinaUsuario);
-                        break;
-                    case 3:
-                        $turnosOtorgados = $turnoRepository->findAllByOficina($oficinaUsuario);
-                        break;
-                }
+                $turnosOtorgados = $turnoRepository->findWithRoleUser($rango, $atendido, $oficinaUsuario);
             }
         }
 
         return $this->render('turno/index.html.twig', [
-            'filtro' => $filtro,
+            'filtroMomento' => $filtroMomento,
+            'filtroEstado' => $filtroEstado,
             'turnos' => $turnosOtorgados,
         ]);
+
     }
 
     // Alta generada automaticámente. No se utilizará pero no se quiso borrar el método por las dudas
@@ -278,6 +286,7 @@ class TurnoController extends AbstractController
         if ($turno->getPersona()->getEmail()) {
             $email = (new TemplatedEmail())
                 ->from('no-reply@justiciasantafe.gov.ar')
+                ->from('admpjsfe@justiciasantafe.gov.ar')                                
                 ->to($turno->getPersona()->getEmail())
                 ->addBcc('mmaglianesi@justiciasantafe.gov.ar')
                 ->addBcc('jialarcon@justiciasantafe.gov.ar')
@@ -301,7 +310,7 @@ class TurnoController extends AbstractController
 
         //TODO ver como borrar de session las variables utilizadas (persona, turno)
 
-        return $this->redirectToRoute('main');
+        return $this->redirectToRoute('mainTMP');
         
     }    
 
@@ -340,14 +349,9 @@ class TurnoController extends AbstractController
      */
     public function atendido(Request $request, Turno $turno): Response
     {
-//        $form = $this->createForm(TurnoType::class, $turno);
-        //        $form->handleRequest($request);
-
-//        if ($form->isSubmitted() && $form->isValid()) {
         $turno->setAtendido(true);
         $this->getDoctrine()->getManager()->flush();
         return $this->redirectToRoute('turno_index');
-//        }
 
     }
 
@@ -401,5 +405,26 @@ class TurnoController extends AbstractController
     {
         $horariosDisponibles = $turnoRepository->findHorariosDisponiblesByOficinaByFecha($oficina_id, $fecha);
         return new JsonResponse($horariosDisponibles);
+    }
+
+    private function obtieneMomento($momento) {
+        $rango = [];
+        switch ($momento) {
+            case 1: // Pasado (desde el 01/01/1970 al día anterior al actual)
+                $rango['desde'] = new \DateTime("1970-01-01 00:00:00");
+                $rango['hasta'] = (new \DateTime(date("Y-m-d")." 23:59:59")) 
+                    ->sub(new DateInterval('P1D')); // Resta un día al día actual
+                break;  
+            case 2: // Hoy (de las 0hs a las 23:59 del día actual)
+                $rango['desde'] = new \DateTime(date("Y-m-d")." 00:00:00");
+                $rango['hasta'] = new \DateTime(date("Y-m-d")." 23:59:59");
+                break;  
+            case 3: // Futuro (del posterior al día actual hasta el 31/12/2200)
+                $rango['desde'] = (new \DateTime(date("Y-m-d")." 00:00:00"))
+                    ->add(new DateInterval('P1D')); // Suma un día al día actual
+                $rango['hasta'] = new \DateTime("2200-12-31 23:59:59");
+                break;  
+        }
+        return $rango;
     }
 }
