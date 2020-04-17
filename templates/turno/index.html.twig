@@ -5,7 +5,7 @@
 {% block body %}
     <div style="text-align:center;">
         <h1 style="display:inline;">Lista de Turnos</h1>
-        <a onclick="window.print()" title="Imprimir Lista" style="display:inline; float:right">
+        <a onclick="window.print()" title="Imprimir Lista" class="d-print-none" style="display:inline; float:right;">
             <i class="fas fa-print"></i>
         </a>
     </div>
@@ -76,10 +76,16 @@
                             <i class="fas fa-pen"></i>
                         </a>
                         &nbsp;&nbsp;
-                        {% if turno.persona is not null%}
-                            <a href="{{ path('turno_atendido', {'id': turno.id}) }}" title="Marcar como atendido">
-                                <i class="fas fa-check"></i>
-                            </a>
+                        {% if turno.persona is not null %}
+                            {% if turno.atendido %}
+                                <a href="{{ path('turno_atendido', {'id': turno.id}) }}" title="Marcar como NO atendido">
+                                    <i class="fas fa-user-times"></i>
+                                </a>
+                            {% else %}
+                                <a href="{{ path('turno_atendido', {'id': turno.id}) }}" title="Marcar como atendido">
+                                    <i class="fas fa-user-check"></i>
+                                </a>
+                            {% endif %}
                         {% endif %}
                     </td>
                 </tr>

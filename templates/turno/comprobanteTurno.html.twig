@@ -3,16 +3,26 @@
 {% block title %}Nuevo Turno{% endblock %}
 
 {% block body %}
+ 
     <div class="col-2">
         <img src="{{asset('images/escudo.gif')}}" class="rounded float-left" alt="Poder Judicial" height="85">
     </div>
     <br>
     
-    <h1>Solicitud de Turnos</h1>
-    <h2>Confirmación</h2>
-    <h6 class="float-right">Paso 4/4</h6>
+    <h1>Comprobante de Turno Otorgado</h1>
+      <br>
+        {# Lee y muestra todos los mensajes flash #}
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="row">
+                    <div class="col-4"></div>
+                    <div class="col-8 text-right">
+                        <div class="alert alert-{{ label }}">{{ message }}</div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endfor %}
 
-    <br>
     <div class="card border-primary mb-3">
         <div class="card-header">Datos del Solicitante</div>
         <div class="card-body text-primary">
@@ -47,7 +57,19 @@
     {{ parent() }}
     <script>
         $(function() {
-            $("#confirmar").html('Confirmar el Turno')
+            $("#cancelar").html('Finalizar')
+            $("#cancelar").attr('class', 'btn btn-primary float-left d-print-none')
+            $("#confirmar").attr('class', 'btn btn-primary float-right d-print-none')
+            $("#confirmar").html('Imprimir Comprobante')
+            $("#confirmar").click(function () {
+                window.print()
+            })
+
+            $(document).ready(function(){            
+                $(document).ready(function(){
+                    $(".alert").delay(2500).slideUp(1000);
+                });
+            });
         });
     </script>  
     

@@ -232,6 +232,7 @@ class TurnoController extends AbstractController
                 $entityManager->merge($turnoActualizar);
                 $entityManager->persist($persona);
                 $entityManager->flush();
+                $this->addFlash('success', 'Su turno ha sido otorgado satisfactoriamente');                
             }
 
             return $this->redirectToRoute('emailConfirmacion');
@@ -277,7 +278,6 @@ class TurnoController extends AbstractController
      */
     public function sendEmail(SessionInterface $session, MailerInterface $mailer)
     {
-        $persona = $session->get('persona');
         $turno = $session->get('turno');
 
         // Si la persona ingresó un correo, envía una notificación con los datos del turno
@@ -301,12 +301,40 @@ class TurnoController extends AbstractController
                 ])
             ;
             $mailer->send($email);
+            $this->addFlash('info', 'Se ha enviado un correo a la dirección ' . $turno->getPersona()->getEmail());
+
         }
 
-        // Limpio las variables de session utilizadas
-        $session->clear();
+        return $this->redirectToRoute('comprobanteTurno');
 
-        return $this->redirectToRoute('mainTMP');
+    }
+
+    // NotiComprobante del Turno
+    /**
+     * @Route("/TurnosWeb/comprobante", name="comprobanteTurno", methods={"GET","POST"})
+     * @IsGranted("ROLE_USER")
+     */
+    public function comprobanteTurno(Request $request, SessionInterface $session)
+    {
+        $turno = $session->get('turno');
+
+        $form = $this->createForm(Turno5Type::class, $turno);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Finalizó el proceso de Solicitud de Turnos. Vuelve a la página principal.
+            return $this->redirectToRoute('mainTMP');
+        }
+
+        return $this->render('turno/comprobanteTurno.html.twig', [
+            'turno' => $turno,
+            'form' => $form->createView(),
+        ]);
+
+
+        // Limpio las variables de session utilizadas
+        $session->remove('turno');
+        $session->remove('persona');
 
     }
 
@@ -345,7 +373,8 @@ class TurnoController extends AbstractController
      */
     public function atendido(Request $request, Turno $turno): Response
     {
-        $turno->setAtendido(true);
+        // Alterna estado de Atendido (de true -> false o de false -> true)
+        $turno->setAtendido(!$turno->getAtendido());
         $this->getDoctrine()->getManager()->flush();
         return $this->redirectToRoute('turno_index');
 
