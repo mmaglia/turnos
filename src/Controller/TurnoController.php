@@ -22,7 +22,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Routing\Annotation\Route;
-use Dompdf\Dompdf;
 
 class TurnoController extends AbstractController
 {
@@ -39,20 +38,20 @@ class TurnoController extends AbstractController
         if (is_null($session->get('filtroMomentoTurnos'))) { // Verifica si es la primera vez que ingresa el usuario
             // Establece el primero por defecto (Turnos de Hoy Asignados)
             $filtroMomento = 2;
-            $filtroEstado  = 1;
+            $filtroEstado = 1;
         } else {
             if (is_null($request->request->get('filterMoment'))) { // Verifica si ingresa sin indicación de filtro (refresco de la opción atendido)
                 // Mantiene el filtro actual
                 $filtroMomento = $session->get('filtroMomentoTurnos');
-                $filtroEstado  = $session->get('filtroEstadoTurnos');
+                $filtroEstado = $session->get('filtroEstadoTurnos');
             } else {
                 // Activa el filtro seleccionado
                 $filtroMomento = $request->request->get('filterMoment');
-                $filtroEstado  = $request->request->get('filterState');
+                $filtroEstado = $request->request->get('filterState');
             }
         }
         $session->set('filtroMomentoTurnos', $filtroMomento); // Almacena en session el filtro actual
-        $session->set('filtroEstadoTurnos', $filtroEstado);   // Almacena en session el filtro actual
+        $session->set('filtroEstadoTurnos', $filtroEstado); // Almacena en session el filtro actual
 
         // Obtiene un arreglo asociativo con valores para las fechas Desde y Hasta que involucra el filtro de momento
         $rango = $this->obtieneMomento($filtroMomento);
@@ -69,7 +68,6 @@ class TurnoController extends AbstractController
                 $atendido = 'TODOS';
                 break;
         }
-
 
         if ($this->isGranted('ROLE_ADMIN')) {
             // Busca los turnos en función a los estados de todas las oficinas
@@ -284,13 +282,13 @@ class TurnoController extends AbstractController
 
         // Si la persona ingresó un correo, envía una notificación con los datos del turno
         if ($turno->getPersona()->getEmail()) {
+            $fromAdrress = $_ENV['MAIL_FROM'];
             $email = (new TemplatedEmail())
-                ->from('no-reply@justiciasantafe.gov.ar')
-                ->from('admpjsfe@justiciasantafe.gov.ar')                                
+                ->from($fromAdrress)
                 ->to($turno->getPersona()->getEmail())
                 ->addBcc('mmaglianesi@justiciasantafe.gov.ar')
                 ->addBcc('jialarcon@justiciasantafe.gov.ar')
-                ->subject('Poder Judicial Santa Fe - Confirmación de Turno!')
+                ->subject('Poder Judicial Santa Fe - Confirmación de Turno')
 
                 // path of the Twig template to render
                 ->htmlTemplate('turno/new6.html.twig')
@@ -300,19 +298,17 @@ class TurnoController extends AbstractController
                     'expiration_date' => new \DateTime('+7 days'),
                     'username' => 'foo',
                     'turno' => $turno,
-                    'persona' => $persona,
                 ])
             ;
-
-            //TODO Si persona no se utiliza en el correo no meterla dentro del context()
             $mailer->send($email);
         }
 
-        //TODO ver como borrar de session las variables utilizadas (persona, turno)
+        // Limpio las variables de session utilizadas
+        $session->clear();
 
         return $this->redirectToRoute('mainTMP');
-        
-    }    
+
+    }
 
     /**
      * @Route("/turno/{id}", name="turno_show", methods={"GET"})
@@ -407,23 +403,24 @@ class TurnoController extends AbstractController
         return new JsonResponse($horariosDisponibles);
     }
 
-    private function obtieneMomento($momento) {
+    private function obtieneMomento($momento)
+    {
         $rango = [];
         switch ($momento) {
             case 1: // Pasado (desde el 01/01/1970 al día anterior al actual)
                 $rango['desde'] = new \DateTime("1970-01-01 00:00:00");
-                $rango['hasta'] = (new \DateTime(date("Y-m-d")." 23:59:59")) 
+                $rango['hasta'] = (new \DateTime(date("Y-m-d") . " 23:59:59"))
                     ->sub(new DateInterval('P1D')); // Resta un día al día actual
-                break;  
+                break;
             case 2: // Hoy (de las 0hs a las 23:59 del día actual)
-                $rango['desde'] = new \DateTime(date("Y-m-d")." 00:00:00");
-                $rango['hasta'] = new \DateTime(date("Y-m-d")." 23:59:59");
-                break;  
+                $rango['desde'] = new \DateTime(date("Y-m-d") . " 00:00:00");
+                $rango['hasta'] = new \DateTime(date("Y-m-d") . " 23:59:59");
+                break;
             case 3: // Futuro (del posterior al día actual hasta el 31/12/2200)
-                $rango['desde'] = (new \DateTime(date("Y-m-d")." 00:00:00"))
+                $rango['desde'] = (new \DateTime(date("Y-m-d") . " 00:00:00"))
                     ->add(new DateInterval('P1D')); // Suma un día al día actual
                 $rango['hasta'] = new \DateTime("2200-12-31 23:59:59");
-                break;  
+                break;
         }
         return $rango;
     }

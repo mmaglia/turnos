@@ -1,17 +1,33 @@
-<h1>Solicitud de Turnos</h1>
+<h2>Su turno ha sido confirmado</h2>
 
 <p>
-    Este correo es una confirmación del turno que ha solicitado para: <strong>{{ turno.oficina.oficina }} - {{ turno.oficina.localidad.localidad }} (Poder Judicial de Santa Fe)</strong>.
+    Estimado/a:
+    {{ turno.persona.apellido }},
+    {{ turno.persona.nombre }}
+    mediante este correo le informamos que su turno ha sido confirmado con los siguientes datos:
 </p>
-
-<p><strong>DNI:</strong> {{ turno.persona.dni }}</p>
-
-<p><strong>NOMBRE:</strong> {{ turno.persona.apellido }}, {{ turno.persona.nombre }}</p>
-
-<p><strong>Correo Electrónico:</strong> {{ turno.persona.email }} 
-<br>
-<strong><font color="red">AQUI deberíamos ajustar el controller para que remita a esta dirección. A pártir de ese momento mucha precaución con las pruebas que hagamos</font></strong></p>
-
-<p>El turno seleccionado es para el día <strong>{{ turno.fechaHora |date('d/m/Y') }}</strong> a las <strong>{{ turno.fechaHora |date('H:i')}}hs</strong>.</p>
-
-
+<p>
+    <strong>Oficina: </strong>{{ turno.oficina.oficina }}
+    -
+    {{ turno.oficina.localidad.localidad }}
+    (Poder Judicial de Santa Fe)
+</p>
+<p>
+    <strong>Motivo: </strong>
+    {{ turno.motivo }}
+</p>
+<p>
+    <strong>DNI: </strong>
+    {{ turno.persona.dni }}
+</p>
+<p>
+    <strong>Correo Electrónico: </strong>
+    {{ turno.persona.email }}
+    <br>
+</p>
+<p>
+    <strong>Fecha: </strong>
+    {{ turno.fechaHora |date('d/m/Y') }}
+    a las
+    {{ turno.fechaHora |date('H:i')}}hs.
+</p>
