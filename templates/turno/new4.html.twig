@@ -102,11 +102,10 @@
                     success: function (data) {
                         $('#fechaHora div').datepicker({
                             format: "dd/mm/yyyy",
-                            todayBtn: "linked",
                             language: "es",
                             daysOfWeekDisabled: "0,6",
                             daysOfWeekHighlighted: "0",
-                            //                            todayHighlight: true,
+                            todayHighlight: true,
                             startDate: primerDiaDisponible,
                             endDate: ultimoDiaDisponible,
                             datesDisabled: data

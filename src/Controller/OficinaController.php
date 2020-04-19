@@ -70,6 +70,9 @@ class OficinaController extends AbstractController
             $fechaHoraUltimoTurno = new DateTime('now');
         }
 
+        $aPartirde = new DateTime($fechaHoraUltimoTurno->format('Y-m-d'));
+        $aPartirde = $aPartirde->add(new DateInterval('P1D')); // Suma un día al día actual
+
         $frecuencia = $oficina->getFrecuenciaAtencion();
         $cantidadDias = 30;
 
@@ -112,6 +115,7 @@ class OficinaController extends AbstractController
                     $turno = new Turno();
                     $turno->setFechaHora($nuevoTurno);
                     $turno->setOficina($oficina);
+                    $turno->setAtendido(false);
                     $entityManager->persist($turno);       
                     $this->getDoctrine()->getManager()->flush();
 
@@ -129,6 +133,7 @@ class OficinaController extends AbstractController
         return $this->render('oficina/add_turnos.html.twig', [
             'oficina' => $oficina,
             'fechaHoraUltimoTurno' => $fechaHoraUltimoTurno,
+            'aPartirde' => $aPartirde,
             'form' => $form->createView(),
         ]);
     }

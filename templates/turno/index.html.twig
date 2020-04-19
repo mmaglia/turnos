@@ -13,7 +13,7 @@
     <form action="{{'turno'}}" method="POST">
         <div class="card border-primary mb-3 float-left" style="max-width: 18rem; margin-right:1rem; padding: 0.3rem 4rem 0.3em 0.3rem; line-height: 0.5cm;">
             <div class="form-check">
-                <input class="form-check-input" type="radio" name="filterMoment" id="optMomento1" value="1" onchange="this.form.submit()" {{ (filtroMomento == 1) ? 'checked' : '' }} {{ (filtroEstado == 3) ? 'disabled' : '' }}>
+                <input class="form-check-input" type="radio" name="filterMoment" id="optMomento1" value="1" onchange="this.form.submit()" {{ (filtroMomento == 1) ? 'checked' : '' }} {{ (filtroEstado == 3) ? 'disabledddd' : '' }}>
                 <label class="form-check-label" for="optMomento1">Pasado</label>
             </div>
             <div class="form-check">
@@ -35,7 +35,7 @@
                 <label class="form-check-label" for="optEstado2">Atendidos</label>
             </div>
             <div class="form-check">
-                <input class="form-check-input" type="radio" name="filterState" id="optEstado3" value="3" onchange="this.form.submit()" {{ (filtroEstado == 3) ? 'checked' : ''}} {{ (filtroMomento == 1) ? 'disabled' : '' }}>
+                <input class="form-check-input" type="radio" name="filterState" id="optEstado3" value="3" onchange="this.form.submit()" {{ (filtroEstado == 3) ? 'checked' : ''}} {{ (filtroMomento == 1) ? 'disableddddd' : '' }}>
                 <label class="form-check-label" for="optEstado3">Todos</label>
             </div>
         </div>
@@ -44,13 +44,15 @@
     <table class="table table-hover">
         <thead>
             <tr>
-                {% if is_granted('ROLE_ADMIN') %}
+                {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_CONSULTOR') %}
                     <th>Oficina</th>
                 {% endif %}
                 <th>Fecha y Hora</th>
                 <th>Persona</th>
                 <th>Motivo</th>
-                <th class="table-bordered table-secondary text-center d-print-none" style="background-color: rgb(245, 245, 245);">Acciones</th>
+                {% if is_granted('ROLE_CONSULTOR') == false %} 
+                    <th class="table-bordered table-secondary text-center d-print-none" style="background-color: rgb(245, 245, 245);">Acciones</th>
+                {% endif %}
             </tr>
         </thead>
         <tbody>
@@ -58,7 +60,7 @@
             {% for turno in turnos %}
                 {% set cant = cant + 1 %}
                 <tr>
-                    {% if is_granted('ROLE_ADMIN') %}
+                    {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_CONSULTOR') %}
                         <td>{{ turno.oficina }}</td>
                     {% endif %}
                     <td>{{ turno.fechaHora ? turno.fechaHora|date('d/m/Y H:i') : '' }}</td>
@@ -67,27 +69,29 @@
                         {{ turno.persona is null or turno.persona == '' ? '' : turno.persona.apellido ~ ', ' ~ turno.persona.nombre}}
                     </td>
                     <td>{{ turno.motivo }}</td>
-                    <td class="table-bordered table-secondary text-center d-print-none" width="140px" style="background-color: rgb(245, 245, 245);">
-                        <a href="{{ path('turno_show', {'id': turno.id}) }}" title="Ver">
-                            <i class="fas fa-eye"></i>
-                        </a>
-                        &nbsp;&nbsp;
-                        <a href="{{ path('turno_edit', {'id': turno.id}) }}" title="Editar">
-                            <i class="fas fa-pen"></i>
-                        </a>
-                        &nbsp;&nbsp;
-                        {% if turno.persona is not null %}
-                            {% if turno.atendido %}
-                                <a href="{{ path('turno_atendido', {'id': turno.id}) }}" title="Marcar como NO atendido">
-                                    <i class="fas fa-user-times"></i>
-                                </a>
-                            {% else %}
-                                <a href="{{ path('turno_atendido', {'id': turno.id}) }}" title="Marcar como atendido">
-                                    <i class="fas fa-user-check"></i>
-                                </a>
+                    {% if is_granted('ROLE_CONSULTOR') == false %} 
+                        <td class="table-bordered table-secondary text-center d-print-none" width="140px" style="background-color: rgb(245, 245, 245);">
+                            <a href="{{ path('turno_show', {'id': turno.id}) }}" title="Ver">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            &nbsp;&nbsp;
+                            <a href="{{ path('turno_edit', {'id': turno.id}) }}" title="Editar">
+                                <i class="fas fa-pen"></i>
+                            </a>
+                            &nbsp;&nbsp;
+                            {% if turno.persona is not null %}
+                                {% if turno.atendido %}
+                                    <a href="{{ path('turno_atendido', {'id': turno.id}) }}" title="Marcar como NO atendido">
+                                        <i class="fas fa-user-times"></i>
+                                    </a>
+                                {% else %}
+                                    <a href="{{ path('turno_atendido', {'id': turno.id}) }}" title="Marcar como atendido">
+                                        <i class="fas fa-user-check"></i>
+                                    </a>
+                                {% endif %}
                             {% endif %}
-                        {% endif %}
-                    </td>
+                        </td>
+                    {% endif %}
                 </tr>
             {% else %}
                 <tr>

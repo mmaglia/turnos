@@ -14,6 +14,7 @@
                 <th>Hora Inicio Atencion</th>
                 <th>Hora Fin Atencion</th>
                 <th>Frecuencia Atencion (minutos)</th>
+                <th>Teléfono</th>
                 <th>Ultimo Turno</th>
                 <th>Acciones</th>
             </tr>
@@ -27,13 +28,14 @@
                 <td>{{ oficina.horaInicioAtencion ? oficina.horaInicioAtencion|date('H:i') : '' }}</td>
                 <td>{{ oficina.horaFinAtencion ? oficina.horaFinAtencion|date('H:i') : '' }}</td>
                 <td>{{ oficina.frecuenciaAtencion }}</td>
+                <td>{{ oficina.telefono }}</td>
                 <td>{{ oficina.ultimoTurno ? oficina.ultimoTurno|date('Y-m-d H:i') : '' }}</td>
-                <td>
+                <td class="table-bordered table-secondary text-center d-print-none" width="140px" style="background-color: rgb(245, 245, 245);">
                     <a href="{{ path('oficina_show', {'id': oficina.id}) }}" title="Ver"><i class="fas fa-eye"></i></a>
                     &nbsp;&nbsp;
                     <a href="{{ path('oficina_edit', {'id': oficina.id}) }}" title="Editar"><i class="fas fa-pen"></i></a>
                     &nbsp;&nbsp;
-                    <a href="{{ path('oficina_addTurnos', {'id': oficina.id}) }}" title="Crear Nueva Oficina"><i class="fas fa-plus"></i></a>
+                    <a href="{{ path('oficina_addTurnos', {'id': oficina.id}) }}" title="Crear Nuevos Turnos para {{ oficina.oficina }} ({{oficina.localidad}})"><i class="far fa-calendar-plus"></i></a>
                 </td>
             </tr>
         {% else %}

@@ -5,6 +5,8 @@ namespace App\Form;
 use App\Entity\Oficina;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class OficinaType extends AbstractType
@@ -17,6 +19,7 @@ class OficinaType extends AbstractType
             ->add('horaFinAtencion')
             ->add('frecuenciaAtencion')
             ->add('localidad')
+            ->add('telefono', TextType::class, ['label' => 'Teléfono de Contacto', 'attr' => array('maxlength' => '50')])
         ;
     }
 

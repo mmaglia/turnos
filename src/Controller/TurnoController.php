@@ -69,7 +69,7 @@ class TurnoController extends AbstractController
                 break;
         }
 
-        if ($this->isGranted('ROLE_ADMIN')) {
+        if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_CONSULTOR')) {
             // Busca los turnos en función a los estados de todas las oficinas
             $turnosOtorgados = $turnoRepository->findByRoleAdmin($rango, $atendido);
         } else {
@@ -415,12 +415,52 @@ class TurnoController extends AbstractController
     }
 
     /**
-     * @Route("/TurnosWeb/diasOcupadosOficina/{oficina_id}", name="diasOcupadosOficina", requirements = {"oficina_id" = "\d+"}, methods={"POST"})
+     * @Route("/TurnosWeb/diasOcupadosOficina/{oficina_id}", name="diasOcupadosOficina", requirements = {"oficina_id" = "\d+"}, methods={"GET", "POST"})
      */
-    public function diasOcupadosByOficina(TurnoRepository $turnoRepository, $oficina_id)
-    {
-        $diasOcupados = $turnoRepository->findDiasOcupadosByOficina($oficina_id);
-        return new JsonResponse($diasOcupados);
+    public function diasOcupadosByOficina(TurnoRepository $turnoRepository, SessionInterface $session, $oficina_id)
+    { 
+        // Este proceso recorre día a día el rango de días posibles de turnos para una oficina y retorna
+        // un arreglo de los días que no tienen ningún turno libre o que no tienen turnos generados (feriados)
+
+        // Obtiene la Oficina
+        $turno = $session->get('turno');
+        $oficinaId = $turno->getOficina()->getId();
+
+        // Obtiene el primer turno a partir del momento actual
+        $primerDiaDisponible = $turnoRepository->findPrimerDiaDisponibleByOficina($oficinaId);
+
+        // Obtiene el último turno disponible para la oficina
+        $ultimoDiaDisponible = $turnoRepository->findUltimoDiaDisponibleByOficina($oficinaId);
+
+        // Estable rangos temporales desde el primer día al último
+        $desde = (new \DateTime)->createFromFormat('d/m/Y H:i:s', $primerDiaDisponible . '00:00:00');
+        $hasta = (new \DateTime)->createFromFormat('d/m/Y H:i:s', $ultimoDiaDisponible . '23:59:59');
+
+        // Recorre cada uno de los días y arma en $diasNoHabilitados los días que no tienen turnos libres
+        // o bien, los turnos que no tienen turnos creados (feriados)
+        $diasNoHabilitados = [];
+        while (true) {
+            // Establece horaría máximo de búsqueda. Se busca desde las 0hs hasta las 23:59, día a día
+            $horaHasta = (new \DateTime)->createFromFormat('d/m/Y H:i:s', $desde->format('d/m/Y') . ' 23:59:59');
+
+            // OJO con este método. Debería retornar sólo si existen o no turnos y retorna todos los turnos.
+            // TODO Mejorarlo por una cuestión de performance y de recursos
+            $horarios = $turnoRepository->findExisteTurnoLibreByOficinaByFecha($oficinaId, $desde, $horaHasta);
+
+            // Si no existen turnos libres para ese día (o bien, no existen turnos creados)
+            if (!$horarios) {
+                // Lo almacena como día no habiltiado
+                $diasNoHabilitados[] = $desde->format('d/m/Y');
+            }
+
+            // Incrementa el intervalo en un día
+            $desde->add(new DateInterval('P1D'));
+            if ($desde >= $hasta) {
+                break;
+            }
+        }
+
+        return new JsonResponse($diasNoHabilitados);
     }
 
     /**

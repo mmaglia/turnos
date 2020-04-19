@@ -87,7 +87,7 @@ class TurnoRepository extends ServiceEntityRepository
 
     public function findPrimerDiaDisponibleByOficina($oficina_id)
         {
-            $sql = "SELECT to_char(date(min(fecha_hora)), 'dd/mm/yyyy') as UltimoDiaDisponible FROM turno WHERE persona_id is null AND oficina_id = :oficina_id AND fecha_hora > now()";
+            $sql = "SELECT to_char(date(min(fecha_hora)), 'dd/mm/yyyy') as PrimerDiaDisponible FROM turno WHERE persona_id is null AND oficina_id = :oficina_id AND fecha_hora > now()";
             
             $em = $this->getEntityManager();
             $statement = $em->getConnection()->prepare($sql);
@@ -95,9 +95,9 @@ class TurnoRepository extends ServiceEntityRepository
             $statement->execute();
             $result = $statement->fetchAll();
     
-            $ultimoDiaDisponible = $result[0]['ultimodiadisponible'];
+            $primerDiaDisponible = $result[0]['primerdiadisponible'];
     
-            return $ultimoDiaDisponible;
+            return $primerDiaDisponible;
         }    
     
     public function findUltimoDiaDisponibleByOficina($oficina_id)
@@ -135,40 +135,6 @@ class TurnoRepository extends ServiceEntityRepository
         return $diasDisponibles;
     }    
 
-    public function findDiasOcupadosByOficina($oficina_id)
-    {
-
-        // Obtengo todos los días futuros de atención programada para una oficina en particular
-        $sql = "SELECT DISTINCT to_char(date(fecha_hora), 'dd/mm/yyyy') as DiasPosibles FROM turno WHERE oficina_id = :oficina_id AND fecha_hora >= now() ORDER BY 1";
-
-        $em = $this->getEntityManager();
-        $statement = $em->getConnection()->prepare($sql);
-        $statement->bindValue('oficina_id', $oficina_id);
-        $statement->execute();
-        $result = $statement->fetchAll();
-
-        // Convierto arreglo multi asociativo a un asociativo simple (Doctrine retorna un array por cada registro)
-        $diasPosibles = array();
-        foreach($result as $item) {
-            $diasPosibles[] = $item['diasposibles'];
-        }
-
-        // Obtengo días (futuros) con turnos disponibles para una oficina en particular
-        $diasDisponibles = $this->findDiasDisponiblesByOficina($oficina_id);
-
-        // Obtengo la diferencia
-        $diferencia = array_diff($diasPosibles, $diasDisponibles);
-
-        // Proceso la diferencia para obtener en un arreglo asociativo simple 
-        // los días completamente ocupados para una oficina en particular
-        $diasOcupados = array();
-        foreach($diferencia as $item) {
-            $diasOcupados[] = $item;
-        }
-
-        return $diasOcupados;
-    } 
-
     public function findHorariosDisponiblesByOficinaByFecha($oficina_id, $fecha)
     {
         // Obtengo días (futuros) con turnos disponibles para una oficina en particular
@@ -191,6 +157,19 @@ class TurnoRepository extends ServiceEntityRepository
     }    
 
 
+    public function findExisteTurnoLibreByOficinaByFecha($oficina_id, $desde, $hasta)
+    {
+        $result = $this->getEntityManager()
+        ->createQuery('SELECT t.id FROM App\Entity\Turno t WHERE t.oficina = :oficina AND t.fechaHora BETWEEN :desde AND :hasta and t.persona IS NULL ORDER BY t.oficina, t.fechaHora')
+        ->setParameter('desde', $desde)
+        ->setParameter('hasta', $hasta)
+        ->setParameter(':oficina', $oficina_id)
+        ->getResult();
+
+        return $result;
+    }    
+
+
     public function findTurno($oficina_id, $fecha_hora)
     {
         $result = $this->getEntityManager()
@@ -206,4 +185,17 @@ class TurnoRepository extends ServiceEntityRepository
         
         return $result;
     }
+
+
+    public function deleteTurnosByDiaByOficina($oficina_id, $desde, $hasta)
+    {
+
+        return $this->getEntityManager()
+            ->createQuery("DELETE FROM App\Entity\Turno t WHERE t.oficina = :oficina_id and t.persona IS NULL and t.fechaHora BETWEEN :desde AND :hasta")
+            ->setParameter('oficina_id', $oficina_id)
+            ->setParameter('desde', $desde)
+            ->setParameter('hasta', $hasta)
+            ->getResult();
+    }    
+
 }

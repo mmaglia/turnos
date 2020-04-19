@@ -53,6 +53,11 @@ class Oficina
      */
     private $usuarios;
 
+    /**
+     * @ORM\Column(type="string", length=50, nullable=true)
+     */
+    private $telefono;
+
     public function __construct()
     {
         $this->turnos = new ArrayCollection();
@@ -187,6 +192,18 @@ class Oficina
                 $usuario->setOficina(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getTelefono(): ?string
+    {
+        return $this->telefono;
+    }
+
+    public function setTelefono(?string $telefono): self
+    {
+        $this->telefono = $telefono;
 
         return $this;
     }

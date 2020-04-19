@@ -15,7 +15,7 @@ class AddTurnosType extends AbstractType
             [   'label' => 'Cantidad de Días',
                 'html5' => true,
                 'required' => true,
-                'attr' => ['max' => '30', 'size' => 2]
+                'attr' => ['max' => '30', 'size' => 2, 'autofocus' => true]
             ])
         ;
     }

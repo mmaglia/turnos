@@ -25,21 +25,21 @@
             </tr>
             <tr>
                 <th>Ultimo Turno</th>
-                <td>{{ fechaHoraUltimoTurno ? fechaHoraUltimoTurno|date('Y-m-d H:i') : '' }}</td>
+                <td>{{ fechaHoraUltimoTurno ? fechaHoraUltimoTurno|date('d/m/Y H:i') : '' }}</td>
             </tr>
         </tbody>
     </table>
 
-    Este proceso creará automáticamente turnos nuevos para: {{ oficina.oficina }} ({{ oficina.localidad }}). 
+    <div class="card border-primary mb-3">
+        <div class="card-body text-primary">
+          <h5 class="card-title">Generación de Nuevos Turnos</h5>
+          <p>Este proceso creará automáticamente turnos nuevos para: <strong>{{ oficina.oficina }} ({{ oficina.localidad }}) </strong>.</p> 
+          <p>Los turnos se crearán <strong>a partir del {{ aPartirde ? aPartirde|date('d/m/Y') : '' }}</strong> y por la cantidad de días que usted indique a continuación.</p>
+          <p>Se crearán para todos los días de lunes a viernes (no considera feriados). Puede eliminar un día en particular para toda una localidad desde la gestión de localidades.</p>
+          {{ include('oficina/_form.html.twig', {'button_label': 'Generar Turnos'}) }}
+        </div>
+      </div>    
     <br>
-    Los turnos se crearán a partir del último existente ({{ fechaHoraUltimoTurno ? fechaHoraUltimoTurno|date('Y-m-d H:i') : '' }}) y por la cantidad de días que usted indique a continuación.
-    <br>
-    Se crearán para todos los días de lunes a viernes (no considera feriados).
-
-    <br><br>
-
-    {{ include('oficina/_form.html.twig', {'button_label': 'Generar Turnos'}) }}
-
     <a href="{{ path('oficina_index') }}">Volver a la  lista</a>
 
 {% endblock %}
