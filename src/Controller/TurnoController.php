@@ -69,7 +69,7 @@ class TurnoController extends AbstractController
                 break;
         }
 
-        if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_CONSULTOR')) {
+        if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_AUDITORIA_GESTION')) {
             // Busca los turnos en función a los estados de todas las oficinas
             $turnosOtorgados = $turnoRepository->findByRoleAdmin($rango, $atendido);
         } else {

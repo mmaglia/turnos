@@ -44,13 +44,13 @@
     <table class="table table-hover">
         <thead>
             <tr>
-                {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_CONSULTOR') %}
+                {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') %}
                     <th>Oficina</th>
                 {% endif %}
                 <th>Fecha y Hora</th>
                 <th>Persona</th>
                 <th>Motivo</th>
-                {% if is_granted('ROLE_CONSULTOR') == false %} 
+                {% if is_granted('ROLE_EDITOR') %} 
                     <th class="table-bordered table-secondary text-center d-print-none" style="background-color: rgb(245, 245, 245);">Acciones</th>
                 {% endif %}
             </tr>
@@ -60,7 +60,7 @@
             {% for turno in turnos %}
                 {% set cant = cant + 1 %}
                 <tr>
-                    {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_CONSULTOR') %}
+                    {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') %}
                         <td>{{ turno.oficina }}</td>
                     {% endif %}
                     <td>{{ turno.fechaHora ? turno.fechaHora|date('d/m/Y H:i') : '' }}</td>
@@ -69,7 +69,7 @@
                         {{ turno.persona is null or turno.persona == '' ? '' : turno.persona.apellido ~ ', ' ~ turno.persona.nombre}}
                     </td>
                     <td>{{ turno.motivo }}</td>
-                    {% if is_granted('ROLE_CONSULTOR') == false %} 
+                    {% if is_granted('ROLE_EDITOR') %} 
                         <td class="table-bordered table-secondary text-center d-print-none" width="140px" style="background-color: rgb(245, 245, 245);">
                             <a href="{{ path('turno_show', {'id': turno.id}) }}" title="Ver">
                                 <i class="fas fa-eye"></i>
