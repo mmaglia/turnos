@@ -105,11 +105,15 @@
 
             {% block body %}{% endblock %}            
         </div>
-
         {% block javascripts %}
             {{ encore_entry_script_tags('js/app') }}
             <script src="{{ asset('js/locales/bootstrap-datepicker.es.min.js') }}" type="text/javascript"></script>
         {% endblock %}
-
     </body>
+    <footer class="footer fixed-bottom">
+        <!-- Copyright -->
+        <div class="footer-copyright text-center py-3">© 2020 Copyright:
+            <a href="http://www.justiciasantafe.gov.ar/js/index.php"> Poder Judicial de la Provincia de Santa Fe  - República Argentina. Todos los derechos reservados</a>
+        </div>
+    </footer>
 </html>
