@@ -29,10 +29,10 @@ class UsuarioType extends AbstractType
             'first_options' => ['label' => 'Contraseña'],
             'second_options' => ['label' => 'Confirme Contraseña']
             ])
-        ->add('dni', NumberType::class, ['label' => 'DNI', 'attr' => ['max' => '99999999']])
+        ->add('dni', NumberType::class, ['label' => 'DNI', 'required' => false, 'attr' => ['max' => '99999999']])
         ->add('apellido', null, ['label' => 'Apellido', 'attr' => array('maxlength' => '50')])
         ->add('nombre', null, ['label' => 'Nombre', 'attr' => array('maxlength' => '50')])
-        ->add('email', EmailType::class, ['label' => 'Correo', 'attr' => array('maxlength' => '100')])
+        ->add('email', EmailType::class, ['label' => 'Correo', 'required' => false, 'attr' => array('maxlength' => '100')])
         ->add('roles', ChoiceType::class, [
             'multiple' => true,
             'expanded' => true, // render check-boxes

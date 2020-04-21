@@ -12,7 +12,7 @@ class LocalidadType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('Localidad')
+            ->add('Localidad', null, ['required' => true])
         ;
     }
 

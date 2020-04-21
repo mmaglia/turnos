@@ -19,7 +19,7 @@ class PersonaType extends AbstractType
             ->add('apellido', TextType::class, ['label' => 'Apellido', 'required' => true, 'attr' => array('maxlength' => '50')])
             ->add('nombre', TextType::class, ['label' => 'Nombre', 'required' => true, 'attr' => array('maxlength' => '50')])
             ->add('email', EmailType::class, ['label' => 'Correo', 'required' => true, 'attr' => array('maxlength' => '80')])
-            ->add('telefono', TextType::class, ['label' => 'Teléfono de Contacto', 'attr' => array('maxlength' => '50')])
+            ->add('telefono', TextType::class, ['label' => 'Teléfono de Contacto',  'required'   => false, 'attr' => array('maxlength' => '50')])
         ;
     }
 

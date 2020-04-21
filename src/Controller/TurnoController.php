@@ -39,19 +39,23 @@ class TurnoController extends AbstractController
             // Establece el primero por defecto (Turnos de Hoy Asignados)
             $filtroMomento = 2;
             $filtroEstado = 1;
+            $filtroOficina = '';
         } else {
             if (is_null($request->request->get('filterMoment'))) { // Verifica si ingresa sin indicación de filtro (refresco de la opción atendido)
                 // Mantiene el filtro actual
                 $filtroMomento = $session->get('filtroMomentoTurnos');
                 $filtroEstado = $session->get('filtroEstadoTurnos');
+                $filtroOficina = $session->get('filtroOficina');
             } else {
                 // Activa el filtro seleccionado
                 $filtroMomento = $request->request->get('filterMoment');
                 $filtroEstado = $request->request->get('filterState');
+                $filtroOficina = $request->request->get('cboOficina');
             }
         }
         $session->set('filtroMomentoTurnos', $filtroMomento); // Almacena en session el filtro actual
         $session->set('filtroEstadoTurnos', $filtroEstado); // Almacena en session el filtro actual
+        $session->set('filtroOficinaTurnos', $filtroOficina); // Almacena en session el filtro actual
 
         // Obtiene un arreglo asociativo con valores para las fechas Desde y Hasta que involucra el filtro de momento
         $rango = $this->obtieneMomento($filtroMomento);
@@ -68,10 +72,14 @@ class TurnoController extends AbstractController
                 $atendido = 'TODOS';
                 break;
         }
-
         if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_AUDITORIA_GESTION')) {
             // Busca los turnos en función a los estados de todas las oficinas
-            $turnosOtorgados = $turnoRepository->findByRoleAdmin($rango, $atendido);
+            if ($filtroOficina)
+            {
+                $turnosOtorgados = $turnoRepository->findWithRoleUser($rango, $atendido, $filtroOficina);
+            } else {
+                $turnosOtorgados = $turnoRepository->findByRoleAdmin($rango, $atendido);
+            }
         } else {
             if ($this->isGranted('ROLE_USER')) {
                 // Busca los turnos en función a los estados de la oficina a la que pertenece el usuario
@@ -83,6 +91,7 @@ class TurnoController extends AbstractController
         return $this->render('turno/index.html.twig', [
             'filtroMomento' => $filtroMomento,
             'filtroEstado' => $filtroEstado,
+            'filtroOficina' => $filtroOficina,
             'turnos' => $turnosOtorgados,
         ]);
 
@@ -402,6 +411,17 @@ class TurnoController extends AbstractController
     {
         $em = $this->getDoctrine()->getManager();
         $oficinas = $oficinaRepository->findOficinaByLocalidad($localidad_id);
+        return new JsonResponse($oficinas);
+    }
+
+    /**
+     * @Route("/oficinas", name="oficinas", methods={"POST"})
+     * @IsGranted("ROLE_USER")
+     */
+    public function oficinas(OficinaRepository $oficinaRepository)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $oficinas = $oficinaRepository->findAllOficinas();
         return new JsonResponse($oficinas);
     }
 

@@ -3,29 +3,39 @@
 {% block title %}Lista de Turnos{% endblock %}
 
 {% block body %}
+    {# Los siguients 2 div's se utilizan para trasladar a JavaScrip si el usuario tienen rol de Admin o de Auditoria_Gestion 
+       Ref.: https://symfony.com/doc/current/frontend/encore/server-data.html
+    #}
+    <div class="js-role-admin" data-is-authenticated="{{ is_granted('ROLE_ADMIN') ? true : false }}"></div>
+    <div class="js-role-auditoria_gestion" data-is-authenticated="{{ is_granted('ROLE_AUDITORIA_GESTION') ? true : false }}"></div>
+
     <div style="text-align:center;">
         <h1 style="display:inline;">Lista de Turnos</h1>
         <a onclick="window.print()" title="Imprimir Lista" class="d-print-none" style="display:inline; float:right;">
-            <i class="fas fa-print"></i>
+            <i class="fas fa-print fa-lg"></i>
         </a>
     </div>
+    <br>
+
     <span class="iconify" data-icon="fa-brands:symfony" data-inline="false"></span>
     <form action="{{'turno'}}" method="POST">
-        <div class="card border-primary mb-3 float-left" style="max-width: 18rem; margin-right:1rem; padding: 0.3rem 4rem 0.3em 0.3rem; line-height: 0.5cm;">
+        <div class="card border-primary mb-3 float-left" style="max-width: 18rem; margin-right:1rem; padding: 0.3rem 0.3rem 0.3em 0.3rem; line-height: 0.5cm;">
+            <label for="optMomento" id="lblMomento" class="required"><strong>Momento</strong></label>
             <div class="form-check">
                 <input class="form-check-input" type="radio" name="filterMoment" id="optMomento1" value="1" onchange="this.form.submit()" {{ (filtroMomento == 1) ? 'checked' : '' }} {{ (filtroEstado == 3) ? 'disabledddd' : '' }}>
-                <label class="form-check-label" for="optMomento1">Pasado</label>
+                <label class="form-check-label" for="optMomento1">Turnos pasados</label>
             </div>
             <div class="form-check">
                 <input class="form-check-input" type="radio" name="filterMoment" id="optMomento2" value="2" onchange="this.form.submit()" {{ (filtroMomento == 2) ? 'checked' : '' }}>
-                <label class="form-check-label" for="optMomento2">Hoy</label>
+                <label class="form-check-label" for="optMomento2">Turnos del día de hoy</label>
             </div>
             <div class="form-check">
                 <input class="form-check-input" type="radio" name="filterMoment" id="optMomento3" value="3" onchange="this.form.submit()" {{ (filtroMomento == 3) ? 'checked' : ''}}>
-                <label class="form-check-label" for="optMomento3">Futuro</label>
+                <label class="form-check-label" for="optMomento3">Turnos Futuros</label>
             </div>
         </div>
-        <div class="card border-primary mb-3 float-left" style="max-width: 18rem; margin-right:1rem; padding: 0.3rem 4rem 0.3em 0.3rem; line-height: 0.5cm;">
+        <div class="card border-primary mb-3 float-left" style="max-width: 18rem; margin-right:1rem; padding: 0.3rem 0.3rem 0.3em 0.3rem; line-height: 0.5cm;">
+            <label for="optTurno" id="lblTurno" class="required"><strong>Característica del Turno</strong></label>
             <div class="form-check">
                 <input class="form-check-input" type="radio" name="filterState" id="optEstado1" value="1" onchange="this.form.submit()" {{ (filtroEstado == 1) ? 'checked' : '' }}>
                 <label class="form-check-label" for="optEstado1">Sin Atender</label>
@@ -39,6 +49,21 @@
                 <label class="form-check-label" for="optEstado3">Todos</label>
             </div>
         </div>
+        {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') %}
+            <div class="card border-primary mb-3 float-left" style="max-width: 28rem; margin-right:1rem; padding: 0.3rem 0.3rem 0.3em 0.3rem; line-height: 0.5cm;">
+                <div id="turno3">
+                    <div class="form-group">
+                        <div class="form-group">
+                            <label for="cboOficina"><strong>Oficina</strong></label>
+                            <select id="cboOficina" name="cboOficina" class="form-control" onchange="this.form.submit();">
+                                '<option value="" selected>Todas</option>'
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
     </form>
 
     <table class="table table-hover">
@@ -118,3 +143,43 @@
         </table>
 
     {% endblock %}
+
+    {% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(function() {
+            $(document).ready(function () {
+                // ¿Tiene rol de Admin?
+                var roleAdmin = document.querySelector('.js-role-admin');
+                var isRoleAdmin = roleAdmin.dataset.isAuthenticated;
+
+                // ¿Tiene rol de Auditoría de Gestión?
+                var roleAuditoriaGestion = document.querySelector('.js-role-auditoria_gestion');
+                var isRoleAuditoriaGestion = roleAuditoriaGestion.dataset.isAuthenticated;
+
+                var oficinaID = '{{ filtroOficina }}';
+
+                if (isRoleAdmin || isRoleAuditoriaGestion) {
+                    // Armo lista de Oficinas para su selección por filtro
+                    $.ajax({
+                        url:"/oficinas",
+                        method: "POST",
+                        dataType: "json",
+                        success: function(data) {
+                            $('#cboOficina').html('');
+                            $('#cboOficina').append('<option value="">Todas</option>');
+                            $.each(data,function(key, registro) {
+                                if (oficinaID != '' && registro.id == oficinaID ) {
+                                    $("#cboOficina").append('<option value=' + registro.id +  ' selected>' + registro.oficina+'</option>');
+                                } else {
+                                    $("#cboOficina").append('<option value=' + registro.id +  '>' + registro.oficina+'</option>');
+                                }
+                            });   
+                        }
+                    })
+                }
+            })
+        });
+    </script>  
+
+{% endblock %}     
