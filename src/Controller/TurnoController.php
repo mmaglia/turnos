@@ -309,7 +309,7 @@ class TurnoController extends AbstractController
 
     }
 
-    // NotiComprobante del Turno
+    // Comprobante del Turno
     /**
      * @Route("/TurnosWeb/comprobante", name="comprobanteTurno", methods={"GET","POST"})
      * @IsGranted("ROLE_USER")

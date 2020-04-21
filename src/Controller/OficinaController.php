@@ -63,7 +63,7 @@ class OficinaController extends AbstractController
 
         $ultimoTurno = $turnoRepository->findUltimoTurnoByOficina($oficina);
 
-        // Controla que existean turnos previos.
+        // Controla que existan turnos previos.
         if ($ultimoTurno) {
             $fechaHoraUltimoTurno = $ultimoTurno[0]->getFechaHora();
         } else { // Sino establece el día actual como punto de partida
@@ -109,8 +109,6 @@ class OficinaController extends AbstractController
                 while (true) {
                     $j++;
 
-                    $nuevoTurno = $fechaHoraUltimoTurno->add(new DateInterval('PT' . $frecuencia . 'M'));
-
                     // Genera el alta del turno
                     $turno = new Turno();
                     $turno->setFechaHora($nuevoTurno);
@@ -118,6 +116,8 @@ class OficinaController extends AbstractController
                     $turno->setAtendido(false);
                     $entityManager->persist($turno);       
                     $this->getDoctrine()->getManager()->flush();
+                    
+                    $nuevoTurno = $fechaHoraUltimoTurno->add(new DateInterval('PT' . $frecuencia . 'M'));
 
                     if ($nuevoTurno > $ultimoTurnoDelDia) {
                         break;

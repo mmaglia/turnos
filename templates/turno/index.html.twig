@@ -49,6 +49,7 @@
                 {% endif %}
                 <th>Fecha y Hora</th>
                 <th>Persona</th>
+                <th>DNI</th>
                 <th>Motivo</th>
                 {% if is_granted('ROLE_EDITOR') %} 
                     <th class="table-bordered table-secondary text-center d-print-none" style="background-color: rgb(245, 245, 245);">Acciones</th>
@@ -64,10 +65,17 @@
                         <td>{{ turno.oficina }}</td>
                     {% endif %}
                     <td>{{ turno.fechaHora ? turno.fechaHora|date('d/m/Y H:i') : '' }}</td>
-                    <td>
-
-                        {{ turno.persona is null or turno.persona == '' ? '' : turno.persona.apellido ~ ', ' ~ turno.persona.nombre}}
+                    <td {# Armo el tooltip considerando si existe persona vinculada al turno y si la persona registró el teléfono #}
+                        {% if turno.persona is not null and turno.persona != '' and turno.persona.telefono is not null and turno.persona.telefono != ''%}
+                            title="Correo:  {{ turno.persona.email }}. Tel. Contacto: {{ turno.persona.telefono }}"
+                        {% elseif turno.persona is not null and turno.persona != '' and (turno.persona.telefono is null or turno.persona.telefono == '') %}
+                                title="Correo:  {{ turno.persona.email }}"
+                        {% endif %}
+                    >
+                        {{  turno.persona is null or turno.persona == '' ? '' : turno.persona.apellido ~ ', ' ~ turno.persona.nombre}}
+                        
                     </td>
+                    <td>{{ turno.persona is null or turno.persona == '' ? '' : turno.persona.dni }}</td>
                     <td>{{ turno.motivo }}</td>
                     {% if is_granted('ROLE_EDITOR') %} 
                         <td class="table-bordered table-secondary text-center d-print-none" width="140px" style="background-color: rgb(245, 245, 245);">

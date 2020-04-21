@@ -43,6 +43,11 @@ class Persona
      */
     private $turnos;
 
+    /**
+     * @ORM\Column(type="string", length=50, nullable=true)
+     */
+    private $telefono;
+
     public function __construct()
     {
         $this->turnos = new ArrayCollection();
@@ -135,6 +140,18 @@ class Persona
     public function __toString()
     {
         return $this->getApellido() . ', ' . $this->getNombre();
+    }
+
+    public function getTelefono(): ?string
+    {
+        return $this->telefono;
+    }
+
+    public function setTelefono(?string $telefono): self
+    {
+        $this->telefono = $telefono;
+
+        return $this;
     }
 
 }
