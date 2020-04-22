@@ -415,7 +415,7 @@ class TurnoController extends AbstractController
     }
 
     /**
-     * @Route("/oficinas", name="oficinas", methods={"POST"})
+     * @Route("/TurnosWeb/oficinas", name="oficinas", methods={"GET", "POST"})
      * @IsGranted("ROLE_USER")
      */
     public function oficinas(OficinaRepository $oficinaRepository)

@@ -162,7 +162,7 @@
                 if (isRoleAdmin || isRoleAuditoriaGestion) {
                     // Armo lista de Oficinas para su selección por filtro
                     $.ajax({
-                        url:"/oficinas",
+                        url:"/TurnosWeb/oficinas",
                         method: "POST",
                         dataType: "json",
                         success: function(data) {
