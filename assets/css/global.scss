@@ -1,5 +1,5 @@
 // customize some Bootstrap variables
-$blue: darken(#295f2F, 5%);
+$blue: darken(#006600, 5%);
 
 // the ~ allows you to reference things in node_modules
 @import '~bootstrap/scss/bootstrap';
@@ -25,21 +25,21 @@ h1 {
 
 h2 {
     font-size: 1.2rem;
-    color: #295f2F;
+    color: #006600;
     font-weight: lighter;
     text-align: center;
-    border-bottom: 1.5px solid #295f2F;
+    border-bottom: 1.5px solid #006600;
 }
 
 h6 {
     font-size: .75rem;
-    color: #295f2F;
+    color: #006600;
     font-weight: bold;
 }
 
 label {
     font-weight: normal;
-    color: #295f2F;
+    color: #006600;
     font-size: .9rem;
     margin-bottom: 0;
     margin-left: .2rem;
@@ -60,7 +60,7 @@ label {
 
 
  .datepicker table tr td {
-     color: #295f2F;
+     color: #006600;
      font-weight: normal;
 }
 
@@ -124,4 +124,6 @@ label {
 // Footer 
 .footer {
     padding-top: 40px;
+    font-size: .75rem;
+    color: #006600;
 }
