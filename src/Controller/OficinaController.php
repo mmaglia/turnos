@@ -14,6 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Turno;
 use App\Repository\TurnoRepository;
 
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use DateTime;
 use DateInterval;
 
@@ -137,6 +138,51 @@ class OficinaController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+
+    /**
+     * @Route("/{id}/borraDiaAgendaTurnosbyOficina", name="borraDiaAgendaTurnosbyOficina", methods={"GET", "POST"})
+     */
+    public function borraDiaAgendaTurnosbyOficina(Request $request, Oficina $oficina, TurnoRepository $turnoRepository, OficinaRepository $oficinaRepository): Response
+    {
+
+        //Construyo el formulario al vuelo
+        $data = array(
+            'fecha' => (new \DateTime(date("Y-m-d"))), // Campos del formulario
+        );
+
+        $form = $this->createFormBuilder($data)
+            ->add('fecha', DateType::class, [
+                'widget' => 'single_text',
+                'html5' => false,
+                'format' => 'dd/MM/yyyy',
+                'label' => 'Seleccione Fecha a Borrar',
+                'attr' => ['class' => 'text-danger js-datepicker'],
+                'required' =>true,
+                ])
+            ->getForm();
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $fechaSeleccionada = $request->request->get('form')['fecha'];
+
+            // Establezco valores de fecha/hora desde/hasta para el día seleccionado
+            $desde = (new \DateTime)->createFromFormat('d/m/Y H:i:s', $fechaSeleccionada . '00:00:00');
+            $hasta = (new \DateTime)->createFromFormat('d/m/Y H:i:s', $fechaSeleccionada . '23:59:59');
+
+            // Borro todos los turnos que no se encuentren asignados. Los cuento para informarlos después.
+            $cantTurnosBorrados =  $turnoRepository->deleteTurnosByDiaByOficina($oficina->getId(), $desde, $hasta);
+            if ($cantTurnosBorrados) {
+                $this->addFlash('info', $oficina . ': ' . $cantTurnosBorrados . ' turnos borrados');
+            }
+
+            return $this->redirectToRoute('oficina_index');
+        }
+
+        return $this->render('oficina/borraDiaAgendaTurnosOficina.html.twig', [
+            'oficina' => $oficina,
+            'form' => $form->createView(),
+        ]);
+    }    
 
 
     /**

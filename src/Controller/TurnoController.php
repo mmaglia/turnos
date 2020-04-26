@@ -118,7 +118,6 @@ class TurnoController extends AbstractController
     // Wizard 1/4: Datos del Solicitante
     /**
      * @Route("/TurnosWeb/solicitante", name="turno_new2", methods={"GET","POST"})
-     * @IsGranted("ROLE_USER")
      */
     public function new2(Request $request, SessionInterface $session): Response
     {
@@ -147,7 +146,6 @@ class TurnoController extends AbstractController
     // Wizard 2/4: Selección de Organismo
     /**
      * @Route("/TurnosWeb/oficina", name="turno_new3", methods={"GET","POST"})
-     * @IsGranted("ROLE_USER")
      */
     public function new3(SessionInterface $session, Request $request): Response
     {
@@ -174,7 +172,6 @@ class TurnoController extends AbstractController
     // Wizard 3/4: Selección de Fecha y Hora
     /**
      * @Route("/TurnosWeb/fechaHora", name="turno_new4", methods={"GET","POST"})
-     * @IsGranted("ROLE_USER")
      */
     public function new4(SessionInterface $session, Request $request, TurnoRepository $turnoRepository): Response
     {
@@ -212,7 +209,6 @@ class TurnoController extends AbstractController
     // Wizard 4/4: Confirmación del Turno
     /**
      * @Route("/TurnosWeb/confirmacion", name="turno_new5", methods={"GET","POST"})
-     * @IsGranted("ROLE_USER")
      */
     public function new5(SessionInterface $session, Request $request, TurnoRepository $turnoRepository): Response
     {
@@ -258,7 +254,6 @@ class TurnoController extends AbstractController
     // Wizard 4/4: Notificación de Turno Ocupado
     /**
      * @Route("/TurnosWeb/turnoOcupado", name="turnoOcupado", methods={"GET","POST"})
-     * @IsGranted("ROLE_USER")
      */
     public function turnoOcupado(SessionInterface $session, Request $request, TurnoRepository $turnoRepository): Response
     {
@@ -283,7 +278,6 @@ class TurnoController extends AbstractController
     // Notificación por correo del Turno
     /**
      * @Route("/TurnosWeb/notificacion", name="emailConfirmacion", methods={"GET","POST"})
-     * @IsGranted("ROLE_USER")
      */
     public function sendEmail(SessionInterface $session, MailerInterface $mailer)
     {
@@ -321,7 +315,6 @@ class TurnoController extends AbstractController
     // Comprobante del Turno
     /**
      * @Route("/TurnosWeb/comprobante", name="comprobanteTurno", methods={"GET","POST"})
-     * @IsGranted("ROLE_USER")
      */
     public function comprobanteTurno(Request $request, SessionInterface $session)
     {
@@ -332,7 +325,7 @@ class TurnoController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             // Finalizó el proceso de Solicitud de Turnos. Vuelve a la página principal.
-            return $this->redirectToRoute('mainTMP');
+            return $this->redirectToRoute('main');
         }
 
         return $this->render('turno/comprobanteTurno.html.twig', [
@@ -405,7 +398,6 @@ class TurnoController extends AbstractController
 
     /**
      * @Route("/TurnosWeb/oficina_localidad/{localidad_id}", name="oficinas_by_localidad", requirements = {"localidad_id" = "\d+"}, methods={"POST"})
-     * @IsGranted("ROLE_USER")
      */
     public function oficinasByLocalidad($localidad_id, OficinaRepository $oficinaRepository)
     {
@@ -416,7 +408,6 @@ class TurnoController extends AbstractController
 
     /**
      * @Route("/TurnosWeb/oficinas", name="oficinas", methods={"GET", "POST"})
-     * @IsGranted("ROLE_USER")
      */
     public function oficinas(OficinaRepository $oficinaRepository)
     {

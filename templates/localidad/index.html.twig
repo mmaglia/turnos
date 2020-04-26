@@ -5,6 +5,17 @@
 {% block body %}
     <h1>Lista de Localidades</h1>
 
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="row">
+                <div class="col-8"></div>
+                <div class="col-4 text-right">
+                    <div class="alert alert-{{ label }}">{{ message }}</div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
     <table class="table">
         <thead>
             <tr>
@@ -16,16 +27,6 @@
         <tbody>
         {% for localidad in localidads %}
         {# Lee y muestra todos los mensajes flash #}
-            {% for label, messages in app.flashes %}
-                {% for message in messages %}
-                    <div class="row">
-                        <div class="col-8"></div>
-                        <div class="col-4 text-right">
-                            <div class="alert alert-{{ label }}">{{ message }}</div>
-                        </div>
-                    </div>
-                {% endfor %}
-            {% endfor %}
             <tr>
                 <td>{{ localidad.id }}</td>
                 <td>{{ localidad.localidad }}</td>

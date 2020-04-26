@@ -8,9 +8,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class MainController extends AbstractController
 {
-    //ORIGINAL Route("/", name="main")
     /**
-     * @Route("/TurnosWeb", name="mainTMP")
+     * @Route("/", name="main")
      */
     public function index()
     {
@@ -18,13 +17,4 @@ class MainController extends AbstractController
             'controller_name' => 'MainController',
         ]);
     }
-
-    /**
-     * @Route("/", name="main")
-     */
-    public function homeTMP()
-    {
-        return new Response("");
-    }
-
 }

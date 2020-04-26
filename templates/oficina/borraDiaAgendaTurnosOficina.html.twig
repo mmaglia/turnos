@@ -3,17 +3,17 @@
 {% block title %}Borrar Turnos de un Día{% endblock %}
 
 {% block body %}
-    <h1>Borrar Día de la Agenda de Turnos para {{ localidad }} </h1>
+    <h1>Borrar Día de la Agenda de Turnos para {{ oficina }} </h1>
     <br><br><br>
     <div class="card border-danger mb-3">
         <div class="card-body text-danger">
           <h5 class="card-title">Borrar Día</h5>
-          <p>Este proceso borra todos los turnos (sin asignar) de un día en particular para todas las oficinas que corresponden a la localidad de <strong>{{ localidad }}</strong></p>
-          {{ include('localidad/_form.html.twig', {'button_label': 'Grabar Cambios'}) }}
+          <p>Este proceso borra todos los turnos (sin asignar) de un día en particular para <strong>{{ oficina }}</strong></p>
+          {{ include('oficina/_form.html.twig', {'button_label': 'Grabar Cambios'}) }}
         </div>
       </div>    
 
-    <a class="btn btn-secondary float-left volver" href="{{ path('localidad_index') }}">Volver a la Lista</a>
+    <a class="btn btn-secondary float-left volver" href="{{ path('oficina_index') }}">Volver a la Lista</a>
 
 {% endblock %}
 
