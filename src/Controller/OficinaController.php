@@ -17,6 +17,7 @@ use App\Repository\TurnoRepository;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use DateTime;
 use DateInterval;
+use Psr\Log\LoggerInterface;
 
 /**
  * @Route("/oficina")
@@ -59,7 +60,7 @@ class OficinaController extends AbstractController
     /**
      * @Route("/{id}/addTurnos", name="oficina_addTurnos", methods={"GET","POST"})
      */
-    public function addTurnos(Request $request, Oficina $oficina, TurnoRepository $turnoRepository): Response
+    public function addTurnos(Request $request, Oficina $oficina, TurnoRepository $turnoRepository, LoggerInterface $logger): Response
     {
 
         $ultimoTurno = $turnoRepository->findUltimoTurnoByOficina($oficina);
@@ -123,9 +124,18 @@ class OficinaController extends AbstractController
                     if ($nuevoTurno > $ultimoTurnoDelDia) {
                         break;
                     }
-
                 }               
             }
+
+            $logger->info('Turnos Creados por Oficina', [
+                'Oficina' => $oficina->getOficinayLocalidad(), 
+                'Desde' => $aPartirde->format('d/m/Y'),
+                'Hasta' => $nuevoTurno->format('d/m/Y'),
+                'Cant. de Días' => $cantidadDias,
+                'Usuario' => $this->getUser()->getUsuario()
+                ]
+            );
+
 
             // TODO ver de notificar la cantidad de turnos creados
             return $this->redirectToRoute('oficina_index');
@@ -142,7 +152,7 @@ class OficinaController extends AbstractController
     /**
      * @Route("/{id}/borraDiaAgendaTurnosbyOficina", name="borraDiaAgendaTurnosbyOficina", methods={"GET", "POST"})
      */
-    public function borraDiaAgendaTurnosbyOficina(Request $request, Oficina $oficina, TurnoRepository $turnoRepository, OficinaRepository $oficinaRepository): Response
+    public function borraDiaAgendaTurnosbyOficina(Request $request, Oficina $oficina, TurnoRepository $turnoRepository, LoggerInterface $logger): Response
     {
 
         //Construyo el formulario al vuelo
@@ -173,6 +183,14 @@ class OficinaController extends AbstractController
             $cantTurnosBorrados =  $turnoRepository->deleteTurnosByDiaByOficina($oficina->getId(), $desde, $hasta);
             if ($cantTurnosBorrados) {
                 $this->addFlash('info', $oficina . ': ' . $cantTurnosBorrados . ' turnos borrados');
+                $logger->info('Turnos Borrados por Oficina', [
+                    'Oficina' => $oficina->getOficinayLocalidad(), 
+                    'Desde' => $desde->format('d/m/Y'),
+                    'Hasta' => $hasta->format('d/m/Y'),
+                    'Cantidad de Turnos' => $cantTurnosBorrados,
+                    'Usuario' => $this->getUser()->getUsuario()
+                    ]
+                );
             }
 
             return $this->redirectToRoute('oficina_index');

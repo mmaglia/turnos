@@ -106,4 +106,13 @@ class Turno
 
         return $this;
     }
+
+    public function __toString()
+    {
+        return $this->getFechaHora()->format('d/m/Y H:i');
+    }
+
+    public function getTurno() {
+        return $this->__toString();
+    }
 }

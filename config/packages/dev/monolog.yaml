@@ -1,5 +1,11 @@
 monolog:
     handlers:
+        app:
+            # log a nivel de aplicación
+            level:    debug
+            type:     stream
+            path:     '%kernel.logs_dir%/aplication.log'
+            channels: [app]           
         main:
             type: stream
             path: "%kernel.logs_dir%/%kernel.environment%.log"

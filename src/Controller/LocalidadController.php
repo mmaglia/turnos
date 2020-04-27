@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Psr\Log\LoggerInterface;
 
 /**
  * @Route("/localidad")
@@ -98,9 +99,8 @@ class LocalidadController extends AbstractController
     /**
      * @Route("/{id}/borraDiaAgendaTurnosbyLocalidad", name="borraDiaAgendaTurnosbyLocalidad", methods={"GET", "POST"})
      */
-    public function borraDiaAgendaTurnosbyLocalidad(Request $request, TurnoRepository $turnoRepository, OficinaRepository $oficinaRepository, Localidad $localidad): Response
+    public function borraDiaAgendaTurnosbyLocalidad(Request $request, TurnoRepository $turnoRepository, OficinaRepository $oficinaRepository, Localidad $localidad, LoggerInterface $logger): Response
     {
-
         //Construyo el formulario al vuelo
         $data = array(
             'fecha' => (new \DateTime(date("Y-m-d"))), // Campos del formulario
@@ -134,6 +134,15 @@ class LocalidadController extends AbstractController
                 $cantTurnosBorrados =  $turnoRepository->deleteTurnosByDiaByOficina($oficina['id'], $desde, $hasta);
                 if ($cantTurnosBorrados) {
                     $this->addFlash('info', $oficina['oficina'] . ': ' . $cantTurnosBorrados . ' turnos borrados');
+                    $logger->info('Turnos Borrados por Localidad', [
+                        'Oficina' => $oficina['oficina'], 
+                        'Localidad' => $localidad->getLocalidad(),
+                        'Desde' => $desde->format('d/m/Y'),
+                        'Hasta' => $hasta->format('d/m/Y'),
+                        'Cantidad de Turnos' => $cantTurnosBorrados,
+                        'Usuario' => $this->getUser()->getUsuario()
+                        ]
+                    );
                 }
             }
 

@@ -154,4 +154,9 @@ class Persona
         return $this;
     }
 
+    public function getPersona() {
+        return $this->__toString();
+    }
+
+
 }

@@ -207,4 +207,10 @@ class Oficina
 
         return $this;
     }
+
+    public function getOficinayLocalidad() {
+        return $this->oficina . ' (' . $this->getLocalidad() . ')';
+
+    }
+
 }

@@ -22,6 +22,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Psr\Log\LoggerInterface;
 
 class TurnoController extends AbstractController
 {
@@ -210,7 +211,7 @@ class TurnoController extends AbstractController
     /**
      * @Route("/TurnosWeb/confirmacion", name="turno_new5", methods={"GET","POST"})
      */
-    public function new5(SessionInterface $session, Request $request, TurnoRepository $turnoRepository): Response
+    public function new5(SessionInterface $session, Request $request, TurnoRepository $turnoRepository, LoggerInterface $logger): Response
     {
         $persona = $session->get('persona');
         $turno = $session->get('turno');
@@ -237,7 +238,13 @@ class TurnoController extends AbstractController
                 $entityManager->merge($turnoActualizar);
                 $entityManager->persist($persona);
                 $entityManager->flush();
-                $this->addFlash('success', 'Su turno ha sido otorgado satisfactoriamente');                
+                $this->addFlash('success', 'Su turno ha sido otorgado satisfactoriamente');        
+                $logger->info('Turno Otorgado', [
+                    'Oficina' => $turnoActualizar->getOficina()->getOficinayLocalidad(), 
+                    'Turno' => $turnoActualizar->getTurno(), 
+                    'Solicitante' => $turnoActualizar->getPersona()->getPersona()
+                    ]
+                );
             }
 
             return $this->redirectToRoute('emailConfirmacion');
@@ -255,7 +262,7 @@ class TurnoController extends AbstractController
     /**
      * @Route("/TurnosWeb/turnoOcupado", name="turnoOcupado", methods={"GET","POST"})
      */
-    public function turnoOcupado(SessionInterface $session, Request $request, TurnoRepository $turnoRepository): Response
+    public function turnoOcupado(SessionInterface $session, Request $request, TurnoRepository $turnoRepository, LoggerInterface $logger): Response
     {
         $persona = $session->get('persona');
         $turno = $session->get('turno');
@@ -265,6 +272,12 @@ class TurnoController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             // Notifica que el turno se ocupó y lo redirige a seleccionar otra fecha/hora
+            $logger->info('Turno Ocupado', [
+                'Oficina' => $turno->getOficina()->getOficinayLocalidad(), 
+                'Turno' => $turno->getTurno(), 
+                'Solicitante' => $turno->getPersona()->getPersona()
+                ]
+            );
             return $this->redirectToRoute('turno_new4');
         }
 
@@ -279,7 +292,7 @@ class TurnoController extends AbstractController
     /**
      * @Route("/TurnosWeb/notificacion", name="emailConfirmacion", methods={"GET","POST"})
      */
-    public function sendEmail(SessionInterface $session, MailerInterface $mailer)
+    public function sendEmail(SessionInterface $session, MailerInterface $mailer, LoggerInterface $logger)
     {
         $turno = $session->get('turno');
 
@@ -305,6 +318,11 @@ class TurnoController extends AbstractController
             ;
             $mailer->send($email);
             $this->addFlash('info', 'Se ha enviado un correo a la dirección ' . $turno->getPersona()->getEmail());
+            $logger->info('Notificación Enviada', [
+                'Destinatario' => $turno->getPersona()->getPersona(), 
+                'Dirección' => $turno->getPersona()->getEmail()
+                ]
+            );
 
         }
 
@@ -373,11 +391,18 @@ class TurnoController extends AbstractController
     /**
      * @Route("/turno/{id}/atendido", name="turno_atendido", methods={"GET","POST"})
      */
-    public function atendido(Request $request, Turno $turno): Response
+    public function atendido(Request $request, Turno $turno, LoggerInterface $logger): Response
     {
         // Alterna estado de Atendido (de true -> false o de false -> true)
         $turno->setAtendido(!$turno->getAtendido());
         $this->getDoctrine()->getManager()->flush();
+        $logger->info(($turno->getAtendido() ? 'Marca como Atendido' : 'Marca como No Atendido'), [
+            'Oficina' => $turno->getOficina()->getOficinayLocalidad(), 
+            'Turno' => $turno->getTurno(), 
+            'Persona' => $turno->getPersona()->getPersona(),
+            'Usuario' => $this->getUser()->getUsuario()
+            ]
+        );
         return $this->redirectToRoute('turno_index');
 
     }
@@ -385,11 +410,17 @@ class TurnoController extends AbstractController
     /**
      * @Route("/turno/{id}", name="turno_delete", methods={"DELETE"})
      */
-    public function delete(Request $request, Turno $turno): Response
+    public function delete(Request $request, Turno $turno, LoggerInterface $logger): Response
     {
         if ($this->isCsrfTokenValid('delete' . $turno->getId(), $request->request->get('_token'))) {
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->remove($turno);
+            $logger->info('Turno Borrado', [
+                'Oficina' => $turno->getOficina()->getOficinayLocalidad(), 
+                'Turno' => $turno->getTurno(),
+                'Usuario' => $this->getUser()->getUsuario()
+                ]
+            );
             $entityManager->flush();
         }
 

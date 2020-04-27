@@ -264,4 +264,9 @@ class Usuario implements UserInterface
         return $this;
     }
 
+    public function getUsuario() {
+        return $this->getUsername();
+    }
+
+
 }
