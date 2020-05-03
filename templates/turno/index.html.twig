@@ -9,12 +9,25 @@
     <div class="js-role-admin" data-is-authenticated="{{ is_granted('ROLE_ADMIN') ? true : false }}"></div>
     <div class="js-role-auditoria_gestion" data-is-authenticated="{{ is_granted('ROLE_AUDITORIA_GESTION') ? true : false }}"></div>
 
-    <div style="text-align:center;">
-        <h1 style="display:inline;">Lista de Turnos</h1>
-        <a onclick="window.print()" title="Imprimir Lista" class="d-print-none" style="display:inline; float:right;">
-            <i class="fas fa-print fa-lg"></i>
-        </a>
-    </div>
+
+        <div class="row">
+            <div id="porcentajeAgendaAsignada" class="col col-3 text-left blockquote-footer">
+                Agenda Asignada:
+                <div id="spinner" class="spinner-grow spinner-grow-sm" role="status">
+                    <span class="sr-only">Calculando...</span>
+                </div>
+            </div>
+            <div class="col col-6 text-center">
+                <h1>Lista de Turnos</h1>    
+            </div>
+            <div class="col col-3 float-right">
+                <a onclick="window.print()" title="Imprimir Lista" class="d-print-none float-right">
+                    <i class="fas fa-print fa-lg"></i>
+                </a>
+            </div>
+        </div>
+    <div>
+
     <br>
 
     <span class="iconify" data-icon="fa-brands:symfony" data-inline="false"></span>
@@ -159,6 +172,8 @@
 
                 var oficinaID = '{{ filtroOficina }}';
 
+                getNivelOcupacionAgenda(oficinaID);
+
                 if (isRoleAdmin || isRoleAuditoriaGestion) {
                     // Armo lista de Oficinas para su selección por filtro
                     $.ajax({
@@ -179,6 +194,25 @@
                     })
                 }
             })
+
+            function getNivelOcupacionAgenda(idOficina)
+            {
+                // Obtiene nivel de ocupación de la Agenda
+                $.ajax({
+                    url:"/TurnosWeb/ocupacionAgenda",
+                    method: "POST",
+                    data: {'oficina_id' : idOficina},
+                    dataType: "json",
+                    success: function(data) {
+                        // Establece umbral de alerta (evaluar más adelante si no parametrizarlo)
+                        if (data > 50) { 
+                            $('#porcentajeAgendaAsignada').addClass('text-danger');
+                        }
+                        $('#porcentajeAgendaAsignada').html('Agenda Asignada: ' + data + '%');                                    
+                    }
+                })
+            }
+
         });
     </script>  
 

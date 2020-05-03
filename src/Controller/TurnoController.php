@@ -514,6 +514,27 @@ class TurnoController extends AbstractController
         return new JsonResponse($horariosDisponibles);
     }
 
+    /**
+     * @Route("/TurnosWeb/ocupacionAgenda", name="ocupacionAgenda", methods={"GET", "POST"})
+     */
+    public function ocupacionAgenda(Request $request, TurnoRepository $turnoRepository)
+    {
+        $nivelOcupacionAgenda = 0;
+        if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_AUDITORIA_GESTION')) {
+            $filtroOficina = $request->request->get('oficina_id');
+            $nivelOcupacionAgenda = $turnoRepository->findCantidadTurnosAsignados($filtroOficina) / $turnoRepository->findCantidadTurnosExistentes($filtroOficina);
+        } else {
+            if ($this->isGranted('ROLE_USER')) {
+                // Busca en la oficina a la que pertenece el usuario
+                $oficinaUsuario = $this->getUser()->getOficina()->getId();
+                $nivelOcupacionAgenda = $turnoRepository->findCantidadTurnosAsignados($oficinaUsuario) / $turnoRepository->findCantidadTurnosExistentes($oficinaUsuario);
+            }
+        }
+
+        return new JsonResponse(round($nivelOcupacionAgenda * 100));
+    }
+
+
     private function obtieneMomento($momento)
     {
         $rango = [];

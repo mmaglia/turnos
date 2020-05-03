@@ -6,7 +6,6 @@ use App\Entity\Turno;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-
 /**
  * @method Turno|null find($id, $lockMode = null, $lockVersion = null)
  * @method Turno|null findOneBy(array $criteria, array $orderBy = null)
@@ -197,5 +196,56 @@ class TurnoRepository extends ServiceEntityRepository
             ->setParameter('hasta', $hasta)
             ->getResult();
     }    
+
+    // Obtiene total de turnos futuros creados para una oficina en particular o todas
+    public function findCantidadTurnosExistentes($oficina_id = '')
+    {
+        // Si vino con parámetro de oficina, armo filtro por oficina
+        $filter = '';
+        if ($oficina_id) {
+            $filter = 'AND oficina_id = :oficina_id';
+        }
+
+        $sql = "SELECT count(*) as cantidad FROM turno WHERE fecha_hora > now() $filter";
+            
+        $em = $this->getEntityManager();
+        $statement = $em->getConnection()->prepare($sql);
+
+        // Evalúa sin asignar la variable de filtro
+        if ($oficina_id) {
+            $statement->bindValue('oficina_id', $oficina_id);
+        }
+
+        $statement->execute();
+        $result = $statement->fetchColumn();
+
+        return $result;
+    }
+
+    // Obtiene total de turnos futuros reservados para una oficina en particular o todas
+    public function findCantidadTurnosAsignados($oficina_id = '')
+    {
+        // Si vino con parámetro de oficina, arma filtro por oficina
+        $filter = '';
+        if ($oficina_id) {
+            $filter = 'AND oficina_id = :oficina_id';
+        }
+
+        $sql = "SELECT count(*) as cantidad FROM turno WHERE persona_id is not null $filter AND fecha_hora > now()";
+            
+        $em = $this->getEntityManager();
+        $statement = $em->getConnection()->prepare($sql);
+
+        // Evalúa sin asignar la variable de filtro
+        if ($oficina_id) {
+            $statement->bindValue('oficina_id', $oficina_id);
+        }
+
+        $statement->execute();
+        $result = $statement->fetchColumn();
+
+        return $result;
+    }
+
 
 }
