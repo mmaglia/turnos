@@ -60,6 +60,9 @@
                     </ul>
                 </div>
                 {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                    {% if app.environment == 'dev' %}
+                        <div class="text-danger mr-5"><strong>Testing</strong></div>
+                    {% endif %}
                     <div class="float-lg-right">
                         {{ app.user.getApellido()}}
                         {% if app.user.getNombre() %}
@@ -112,7 +115,11 @@
     </body>
     <footer class="footer text-center">
         <br><br>
-        <p>&copy; 2020 <a target="_blank" href="http://www.justiciasantafe.gov.ar/js/index.php"> Poder Judicial de la Provincia de Santa Fe</a> - República Argentina. Todos los derechos reservados</p>
+        <p>&copy; 2020 <a target="_blank" href="http://www.justiciasantafe.gov.ar/js/index.php"> Poder Judicial de la Provincia de Santa Fe</a> - República Argentina. Todos los derechos reservados
+            {% if app.environment == 'dev' %}
+                <strong class="text-danger ml-3">TESTING</strong>
+            {% endif %}
+        </p>
         </div>
     </footer>
 </html>
