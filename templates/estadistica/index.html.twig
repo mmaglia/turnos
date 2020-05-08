@@ -1,0 +1,86 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Estadistíca de Turnos{% endblock %}
+
+{% block body %}
+    <h1>Estadística</h1>
+
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="row">
+                <div class="col-8"></div>
+                <div class="col-4 text-right">
+                    <div class="alert alert-{{ label }}">{{ message }}</div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Oficina</th>
+                <th>Localidad</th>
+                <th>Hora Inicio Atencion</th>
+                <th>Hora Fin Atencion</th>
+                <th>Frecuencia Atencion (minutos)</th>
+                <th>Teléfono</th>
+                <th>Ultimo Turno</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+        {# Lee y muestra todos los mensajes flash #}
+        {% for oficina in oficinas %}
+            <tr>
+                <td>{{ oficina.id }}</td>
+                <td>{{ oficina.oficina }}</td>
+                <td>{{ oficina.localidad }}</td>
+                <td>{{ oficina.horaInicioAtencion ? oficina.horaInicioAtencion|date('H:i') : '' }}</td>
+                <td>{{ oficina.horaFinAtencion ? oficina.horaFinAtencion|date('H:i') : '' }}</td>
+                <td>{{ oficina.frecuenciaAtencion }}</td>
+                <td>{{ oficina.telefono }}</td>
+                <td>{{ oficina.ultimoTurno ? oficina.ultimoTurno|date('Y-m-d H:i') : '' }}</td>
+                <td class="table-bordered table-secondary text-center d-print-none" width="160px" style="background-color: rgb(245, 245, 245);">
+                    <a href="{{ path('oficina_show', {'id': oficina.id}) }}" title="Ver"><i class="fas fa-eye"></i></a>
+                    &nbsp;&nbsp;
+                    <a href="{{ path('oficina_edit', {'id': oficina.id}) }}" title="Editar"><i class="fas fa-pen"></i></a>
+                    &nbsp;&nbsp;
+                    <a href="{{ path('oficina_addTurnos', {'id': oficina.id}) }}" title="Crear Nuevos Turnos para {{ oficina.oficina }} ({{oficina.localidad}})"><i class="far fa-calendar-plus"></i></a>
+                    &nbsp;&nbsp;
+                    <a href="{{ path('borraDiaAgendaTurnosbyOficina', {'id': oficina.id}) }}" title="Elimina un día de la Agenda de {{ oficina.oficina }} ({{oficina.localidad}})"><i class="far fa-calendar-minus"></i></a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="6">no hay registros</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a class="btn btn-primary float-right" href="{{ path('oficina_new') }}">Crear Nueva Oficina</a>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(function() {
+            $("#cancelar").html('Finalizar')
+            $("#cancelar").attr('class', 'btn btn-primary float-left d-print-none')
+            $("#confirmar").attr('class', 'btn btn-primary float-right d-print-none')
+            $("#confirmar").html('Imprimir Comprobante')
+            $("#confirmar").click(function () {
+                window.print()
+            })
+
+            $(document).ready(function(){            
+                $(document).ready(function(){
+                    $(".alert").delay(9000).slideUp(7500);
+                });
+            });
+        });
+    </script>  
+    
+{% endblock %}     

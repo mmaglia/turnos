@@ -75,24 +75,35 @@ class OficinaController extends AbstractController
         $aPartirde = new DateTime($fechaHoraUltimoTurno->format('Y-m-d'));
         $aPartirde = $aPartirde->add(new DateInterval('P1D')); // Suma un día al día actual
 
+        // Establece valores por defecto
         $frecuencia = $oficina->getFrecuenciaAtencion();
-        $cantidadDias = 30;
+        $cantidadDias = 90;
+        $minutosDesplazamiento = 0;
 
         $form = $this->createForm(AddTurnosType::class, [
+            'fechaInicio' => $aPartirde,
+            'minutosDesplazamiento' => $minutosDesplazamiento,
             'cantidadDias' => $cantidadDias,
             ] );
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $fechaInicio = $request->request->get('add_turnos')['fechaInicio'];
+            $minutosDesplazamiento = $request->request->get('add_turnos')['minutosDesplazamiento'];
             $cantidadDias = $request->request->get('add_turnos')['cantidadDias'];
+
+            // Establece las 0hs del día seleccionado en formato DateTime
+            $aPartirde = new \DateTime(substr($fechaInicio,-4) . '-' . substr($fechaInicio,3,2) . '-' . substr($fechaInicio, 0,2));
+            $aPartirde->sub(new DateInterval('P1D')); // Resta un día al día de comienzo porque incremento al comienzo del bucle siguiente
 
             $entityManager = $this->getDoctrine()->getManager();
 
             // Recorre cada día del intervalo indicado
+            $j=0;
             for ($i=1; $i <= $cantidadDias; $i++){
 
                 // Incrementa fecha en un 1 día
-                $nuevoTurno = $fechaHoraUltimoTurno->add(new DateInterval('P1D'));
+                $nuevoTurno = $aPartirde->add(new DateInterval('P1D'));
 
                 // Verifico que no sea sábado (6) o domingo (7)
                 if ($nuevoTurno->format('N') >= 6) {
@@ -102,36 +113,46 @@ class OficinaController extends AbstractController
                 // Establece la hora máxima para el día que se está generando
                 $ultimoTurnoDelDia = new DateTime($nuevoTurno->format('Y-m-d H:i'));
                 $ultimoTurnoDelDia = $ultimoTurnoDelDia->setTime($oficina->getHoraFinAtencion()->format('H'), $oficina->getHoraFinAtencion()->format('i'));
+                $ultimoTurnoDelDia->add(new DateInterval('PT' . $minutosDesplazamiento . 'M'));
 
                 // Establece la hora de Inicio de Atención
                 $nuevoTurno = $nuevoTurno->setTime($oficina->getHoraInicioAtencion()->format('H'), $oficina->getHoraInicioAtencion()->format('i'));
+                $nuevoTurno->add(new DateInterval('PT' . $minutosDesplazamiento . 'M'));
                 
                 // Recorre intervalos para el día en proceso
-                $j=0;
                 while (true) {
-                    $j++;
+                    // Verifica que el turno no exsite
+                    if (!$turnoRepository->findTurno($oficina, $nuevoTurno)) {
+                        $j++;
 
-                    // Genera el alta del turno
-                    $turno = new Turno();
-                    $turno->setFechaHora($nuevoTurno);
-                    $turno->setOficina($oficina);
-                    $turno->setEstado(1);
-                    $entityManager->persist($turno);       
-                    $this->getDoctrine()->getManager()->flush();
-                    
-                    $nuevoTurno = $fechaHoraUltimoTurno->add(new DateInterval('PT' . $frecuencia . 'M'));
+                        // Genera el alta del turno
+                        $turno = new Turno();
+                        $turno->setFechaHora($nuevoTurno);
+                        $turno->setOficina($oficina);
+                        $turno->setEstado(1);
+                        $entityManager->persist($turno);       
+                        $this->getDoctrine()->getManager()->flush();
+                    }
+
+                    $nuevoTurno = $aPartirde->add(new DateInterval('PT' . $frecuencia . 'M'));
 
                     if ($nuevoTurno > $ultimoTurnoDelDia) {
                         break;
                     }
-                }               
+
+                }
             }
+
+            $this->addFlash('info', $oficina . ': ' . $j . ' turnos nuevos. Ultimo turno Generado: ' . $fechaHoraUltimoTurno->format('d/m/Y'));
+
 
             $logger->info('Turnos Creados por Oficina', [
                 'Oficina' => $oficina->getOficinayLocalidad(), 
-                'Desde' => $aPartirde->format('d/m/Y'),
+                'Desde' => $fechaInicio,
                 'Hasta' => $nuevoTurno->format('d/m/Y'),
+                'Minutos Desplazamiento' => $minutosDesplazamiento,
                 'Cant. de Días' => $cantidadDias,
+                'Turnos Generados' => $j,
                 'Usuario' => $this->getUser()->getUsuario()
                 ]
             );

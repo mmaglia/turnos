@@ -180,7 +180,7 @@ class TurnoRepository extends ServiceEntityRepository
         )
         ->setParameter(':oficina_id', $oficina_id)
         ->setParameter(':fecha_hora', $fecha_hora)
-        ->getSingleResult();
+        ->getOneOrNullResult();
         
         return $result;
     }

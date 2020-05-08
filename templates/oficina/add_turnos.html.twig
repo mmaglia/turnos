@@ -34,12 +34,36 @@
         <div class="card-body text-primary">
           <h5 class="card-title">Generación de Nuevos Turnos</h5>
           <p>Este proceso creará automáticamente turnos nuevos para: <strong>{{ oficina.oficina }} ({{ oficina.localidad }}) </strong>.</p> 
-          <p>Los turnos se crearán <strong>a partir del {{ aPartirde ? aPartirde|date('d/m/Y') : '' }}</strong> y por la cantidad de días que usted indique a continuación.</p>
+          <p>Los turnos se crearán a partir de la fecha indicada. Por defecto se propone el día siguiente al último existente en la agenda de la oficina. Es decir <strong>a partir del {{ aPartirde ? aPartirde|date('d/m/Y') : '' }}</strong> y por la cantidad de días que usted indique a continuación. </p>
+          <p>Sin embargo puede optar por indicar un día de inicio cualquiera si usted desea, por ejemplo, añadir turnos a días generados previamente. Para ello podrá establecer los minutos de desplazamiento con respecto a la hora de inicio de atención. <strong>Se cuidadoso. Que no se superpongan los nuevos turnos con turnos previamente asignados.</strong></p>
           <p>Se crearán para todos los días de lunes a viernes (no considera feriados). Puede eliminar un día en particular para toda una localidad desde la gestión de localidades.</p>
+          <p><strong>Sólo se crearán los turnos si no existe superposición horario con turnos previos.</strong></p>
           {{ include('oficina/_form.html.twig', {'button_label': 'Generar Turnos'}) }}
         </div>
       </div>    
     <br>
     <a  class="btn btn-secondary float-left volver" href="{{ path('oficina_index') }}">Volver a la  lista</a>
 
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(function () {
+            $(document).ready(function () {
+                jQuery(document).ready(function() {
+                    $('.js-datepicker').datepicker({
+                        format: "dd/mm/yyyy",
+                        language: "es",
+                        daysOfWeekDisabled: "0,6",
+                        daysOfWeekHighlighted: "0",
+                        todayHighlight: true,
+                        autoclose: true,
+                        todayBtn: true,
+                    });
+                });
+            })
+            $('label.required').attr('class', 'text-danger .required')
+        });
+    </script>
 {% endblock %}
