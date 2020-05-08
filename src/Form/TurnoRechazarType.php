@@ -9,11 +9,12 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class TurnoType extends AbstractType
+class TurnoRechazarType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -46,28 +47,18 @@ class TurnoType extends AbstractType
                     ]);
                     $form->add('fechaHora', DateTimeType::class, [
                         'widget' => 'single_text',
-                        'html5' => false,
-                        'placeholder' => 'Seleccione una Fecha',
-                        'attr' => ['class' => 'js-datepicker', 'date_format' => 'd/m/Y H:i', 'autofocus' => true],
-                        'mapped' => true
+                        'mapped' => true,
+                        'disabled' => true
                     ]);
-                $form->add('motivo');
-                $form->add('estado', ChoiceType::class, [
-                    'expanded' => true, // render check-boxes
-                    'label'    => 'Estado del Turno',
-                    'choices'  => [
-                        'No atendido' => '1',
-                        'Atendido' => '2',
-                        'No asistió' => '3',
-                        'Rechazado' => '4',
-                    ]]);        
-                } else {
-/*                    $form->add('oficina', EntityType::class, [
-                        'class' => 'App\Entity\Oficina',
-                        'placeholder' => 'Seleccione una Oficina',
-                        'choices' => []
-                        ]);
-*/                        
+                    $form->add('motivo', null, ['label' => 'Motivo Indicado', 'disabled' => true]);
+                    $form->add('motivoRechazo', TextareaType::class, ['label' => 'Motivo del Rechazo', 'mapped' => false, 'attr' => ['autofocus' => true]]);
+                    $form->add('enviarMail', CheckboxType::class, [
+                        'label'    => 'Notificar por Correo',
+                        'mapped'   => false,
+                        'required' => false,
+                        'attr' => ['checked'   => 'checked']
+                        ]);        
+    
                 }
             }
         );

@@ -115,7 +115,7 @@ class OficinaController extends AbstractController
                     $turno = new Turno();
                     $turno->setFechaHora($nuevoTurno);
                     $turno->setOficina($oficina);
-                    $turno->setAtendido(false);
+                    $turno->setEstado(1);
                     $entityManager->persist($turno);       
                     $this->getDoctrine()->getManager()->flush();
                     

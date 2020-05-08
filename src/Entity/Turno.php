@@ -38,9 +38,9 @@ class Turno
     private $oficina;
 
     /**
-     * @ORM\Column(type="boolean", options={"default": false})
+     * @ORM\Column(type="integer")
      */
-    private $atendido;
+    private $estado;
 
     public function getId(): ?int
     {
@@ -95,18 +95,6 @@ class Turno
         return $this;
     }
 
-    public function getAtendido(): ?bool
-    {
-        return $this->atendido;
-    }
-
-    public function setAtendido(bool $atendido): self
-    {
-        $this->atendido = $atendido;
-
-        return $this;
-    }
-
     public function __toString()
     {
         return $this->getFechaHora()->format('d/m/Y H:i');
@@ -114,5 +102,17 @@ class Turno
 
     public function getTurno() {
         return $this->__toString();
+    }
+
+    public function getEstado(): ?int
+    {
+        return $this->estado;
+    }
+
+    public function setEstado(int $estado): self
+    {
+        $this->estado = $estado;
+
+        return $this;
     }
 }

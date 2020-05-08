@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Rechazar Turno{% endblock %}
+
+{% block body %}
+    <h1>Rechazar Turno</h1>
+
+    <p class="text-primary">Correo Denunciado: <strong>{{turno.getPersona().getEmail()}}</strong></p>
+
+    {{ include('turno/_form.html.twig', {'button_label': 'Rechazar'}) }}
+
+    <br>
+    <!-- Se agregan estilos a los botones para que queden alineados -->
+    <a class="btn btn-secondary float-left volver" href="{{ path('turno_index') }}">Volver a la Lista</a>
+{% endblock %}  
+

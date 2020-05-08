@@ -31,53 +31,8 @@
     <br>
 
     <span class="iconify" data-icon="fa-brands:symfony" data-inline="false"></span>
-    <form action="{{'turno'}}" method="POST">
-        <div class="card border-primary mb-3 float-left" style="max-width: 18rem; margin-right:1rem; padding: 0.3rem 0.3rem 0.3em 0.3rem; line-height: 0.5cm;">
-            <label for="optMomento" id="lblMomento" class="required"><strong>Momento</strong></label>
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="filterMoment" id="optMomento1" value="1" onchange="this.form.submit()" {{ (filtroMomento == 1) ? 'checked' : '' }} {{ (filtroEstado == 3) ? 'disabledddd' : '' }}>
-                <label class="form-check-label" for="optMomento1">Turnos pasados</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="filterMoment" id="optMomento2" value="2" onchange="this.form.submit()" {{ (filtroMomento == 2) ? 'checked' : '' }}>
-                <label class="form-check-label" for="optMomento2">Turnos del día de hoy</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="filterMoment" id="optMomento3" value="3" onchange="this.form.submit()" {{ (filtroMomento == 3) ? 'checked' : ''}}>
-                <label class="form-check-label" for="optMomento3">Turnos Futuros</label>
-            </div>
-        </div>
-        <div class="card border-primary mb-3 float-left" style="max-width: 18rem; margin-right:1rem; padding: 0.3rem 0.3rem 0.3em 0.3rem; line-height: 0.5cm;">
-            <label for="optTurno" id="lblTurno" class="required"><strong>Característica del Turno</strong></label>
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="filterState" id="optEstado1" value="1" onchange="this.form.submit()" {{ (filtroEstado == 1) ? 'checked' : '' }}>
-                <label class="form-check-label" for="optEstado1">Sin Atender</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="filterState" id="optEstado2" value="2" onchange="this.form.submit()" {{ (filtroEstado == 2) ? 'checked' : '' }}>
-                <label class="form-check-label" for="optEstado2">Atendidos</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="filterState" id="optEstado3" value="3" onchange="this.form.submit()" {{ (filtroEstado == 3) ? 'checked' : ''}} {{ (filtroMomento == 1) ? 'disableddddd' : '' }}>
-                <label class="form-check-label" for="optEstado3">Todos</label>
-            </div>
-        </div>
-        {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') %}
-            <div class="card border-primary mb-3 float-left d-print-none" style="max-width: 28rem; margin-right:1rem; padding: 0.3rem 0.3rem 0.3em 0.3rem; line-height: 0.5cm;">
-                <div id="turno3">
-                    <div class="form-group">
-                        <div class="form-group">
-                            <label for="cboOficina"><strong>Oficina</strong></label>
-                            <select id="cboOficina" name="cboOficina" class="form-control" onchange="this.form.submit();">
-                                '<option value="" selected>Todas</option>'
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
 
-    </form>
+    {{ include('turno/_filters_form.html.twig') }}
 
     <table class="table table-hover">
         <thead>
@@ -89,6 +44,7 @@
                 <th>Persona</th>
                 <th>DNI</th>
                 <th>Motivo</th>
+                <th class="text-center">Estado</th>
                 {% if is_granted('ROLE_EDITOR') %} 
                     <th class="table-bordered table-secondary text-center d-print-none" style="background-color: rgb(245, 245, 245);">Acciones</th>
                 {% endif %}
@@ -115,8 +71,16 @@
                     </td>
                     <td>{{ turno.persona is null or turno.persona == '' ? '' : turno.persona.dni }}</td>
                     <td>{{ turno.motivo }}</td>
+                    <td class="text-center">{% if turno.persona is not null %}
+                            {% if turno.estado == 1 %}          No Atendido
+                                {% elseif turno.estado == 2 %}  Atendido
+                                {% elseif turno.estado == 3 %}  No Asistió
+                                {% elseif turno.estado == 4 %}  Rechazado
+                            {% endif %}
+                        {% endif %}
+                    </td>
                     {% if is_granted('ROLE_EDITOR') %} 
-                        <td class="table-bordered table-secondary text-center d-print-none" width="140px" style="background-color: rgb(245, 245, 245);">
+                        <td class="table-bordered table-secondary text-center d-print-none" width="220px" style="background-color: rgb(245, 245, 245);">
                             <a href="{{ path('turno_show', {'id': turno.id}) }}" title="Ver">
                                 <i class="fas fa-eye"></i>
                             </a>
@@ -126,14 +90,14 @@
                             </a>
                             &nbsp;&nbsp;
                             {% if turno.persona is not null %}
-                                {% if turno.atendido %}
-                                    <a href="{{ path('turno_atendido', {'id': turno.id}) }}" title="Marcar como NO atendido">
-                                        <i class="fas fa-user-times"></i>
-                                    </a>
-                                {% else %}
-                                    <a href="{{ path('turno_atendido', {'id': turno.id}) }}" title="Marcar como atendido">
-                                        <i class="fas fa-user-check"></i>
-                                    </a>
+                                {% if turno.estado == 1%}
+                                    <a href="{{ path('turno_atendido', {'id': turno.id}) }}" title="Marcar como atendido"><i class="fas fa-user-check"></i></a>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;
+                                    <a href="{{ path('turno_no_asistido', {'id': turno.id}) }}" title="Marcar como No Asistido"><i class="fas fa-user-slash text-danger"></i></a>
+                                    &nbsp;
+                                    <a href="{{ path('turno_rechazado', {'id': turno.id}) }}" title="Rechazar"><i class="fas fa-thumbs-down text-danger"></i></a>
+                                {% elseif turno.estado == 2 %}
+                                    <a href="{{ path('turno_atendido', {'id': turno.id}) }}" title="Marcar como NO atendido"><i class="fas fa-user-times"></i></a>
                                 {% endif %}
                             {% endif %}
                         </td>
@@ -192,7 +156,7 @@
                             });   
                         }
                     })
-                }
+                }                
             })
 
             function getNivelOcupacionAgenda(idOficina)

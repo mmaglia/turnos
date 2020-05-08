@@ -28,9 +28,9 @@ class TurnoRepository extends ServiceEntityRepository
         return $result;
     }
 
-    public function findByRoleAdmin($rango, $atendido)
+    public function findByRoleAdmin($rango, $estado)
     {
-        if ( $atendido == 'TODOS') {
+        if ( $estado == 9 ) { // Todos
             $result = $this->getEntityManager()
             ->createQuery('SELECT t FROM App\Entity\Turno t WHERE t.fechaHora BETWEEN :desde AND :hasta ORDER BY t.oficina, t.fechaHora')
             ->setParameter('desde', $rango['desde'] )
@@ -38,18 +38,18 @@ class TurnoRepository extends ServiceEntityRepository
             ->getResult();    
         } else {
             $result = $this->getEntityManager()
-            ->createQuery('SELECT t FROM App\Entity\Turno t WHERE t.fechaHora BETWEEN :desde AND :hasta and t.persona IS NOT NULL and t.atendido = :atendido ORDER BY t.oficina, t.fechaHora')
+            ->createQuery('SELECT t FROM App\Entity\Turno t WHERE t.fechaHora BETWEEN :desde AND :hasta and t.persona IS NOT NULL and t.estado = :estado ORDER BY t.oficina, t.fechaHora')
             ->setParameter('desde', $rango['desde'] )
             ->setParameter('hasta', $rango['hasta'] )
-            ->setParameter('atendido', $atendido )
+            ->setParameter('estado', $estado )
             ->getResult();    
         }
         return $result;
     }
 
-    public function findWithRoleUser($rango, $atendido, $oficina)
+    public function findWithRoleUser($rango, $estado, $oficina)
     {
-        if ( $atendido == 'TODOS') {
+        if ( $estado == 9) {
             $result = $this->getEntityManager()
             ->createQuery('SELECT t FROM App\Entity\Turno t WHERE t.oficina = :oficina  AND t.fechaHora BETWEEN :desde AND :hasta ORDER BY t.oficina, t.fechaHora')
             ->setParameter('desde', $rango['desde'] )
@@ -58,11 +58,11 @@ class TurnoRepository extends ServiceEntityRepository
             ->getResult();    
         } else {
             $result = $this->getEntityManager()
-            ->createQuery('SELECT t FROM App\Entity\Turno t WHERE t.oficina = :oficina AND t.fechaHora BETWEEN :desde AND :hasta and t.persona IS NOT NULL and t.atendido = :atendido ORDER BY t.oficina, t.fechaHora')
+            ->createQuery('SELECT t FROM App\Entity\Turno t WHERE t.oficina = :oficina AND t.fechaHora BETWEEN :desde AND :hasta and t.persona IS NOT NULL and t.estado = :estado ORDER BY t.oficina, t.fechaHora')
             ->setParameter('desde', $rango['desde'] )
             ->setParameter('hasta', $rango['hasta'] )
             ->setParameter(':oficina', $oficina)
-            ->setParameter('atendido', $atendido )
+            ->setParameter('estado', $estado )
             ->getResult();    
         }
         return $result;

@@ -20,8 +20,15 @@
                 <td>{{ turno.motivo }}</td>
             </tr>
             <tr>
-                <th>Atendido</th>
-                <td>{{ turno.atendido ? 'Si' : 'No' }}</td>
+                <th>Estado</th>
+                <td>{% if turno.persona is not null %}
+                        {% if turno.estado == 1 %}          No Atendido
+                            {% elseif turno.estado == 2 %}  Atendido
+                            {% elseif turno.estado == 3 %}  No Asistió
+                            {% elseif turno.estado == 4 %}  Rechazado
+                        {% endif %}
+                    {% endif %}
+                </td>
             </tr>
         </tbody>
     </table>
