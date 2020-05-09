@@ -247,5 +247,36 @@ class TurnoRepository extends ServiceEntityRepository
         return $result;
     }
 
+    public function findEstadistica($desde, $hasta, $oficinaId)
+    {
+        if ( $oficinaId != 0) { // Todas las Oficinas
+            $filtroOficina = "oficina_id = :oficinaId AND";
+        } else {
+            $filtroOficina = "";
+        }
+        
+        $sql = "SELECT '$desde' as Desde, '$hasta' as Hasta,
+                        (SELECT count(*) FROM turno WHERE $filtroOficina fecha_hora BETWEEN :desde AND :hasta) as Total,
+                        (SELECT count(*) FROM turno WHERE $filtroOficina fecha_hora BETWEEN :desde AND :hasta and persona_id IS NOT NULL) as Otorgados,
+                        (SELECT count(*) FROM turno WHERE $filtroOficina fecha_hora BETWEEN :desde AND :hasta and persona_id IS NOT NULL and estado = 1) as NoAtendidos,
+                        (SELECT count(*) FROM turno WHERE $filtroOficina fecha_hora BETWEEN :desde AND :hasta and persona_id IS NOT NULL and estado = 2) as Atendidos,
+                        (SELECT count(*) FROM turno WHERE $filtroOficina fecha_hora BETWEEN :desde AND :hasta and persona_id IS NOT NULL and estado = 3) as NoAsistidos,
+                        (SELECT count(*) FROM turno_rechazado WHERE $filtroOficina fecha_hora_turno BETWEEN :desde AND :hasta) as Rechazados                    
+            ";
+        
+        $em = $this->getEntityManager();
+        $statement = $em->getConnection()->prepare($sql);
+        $statement->bindValue('desde', $desde);
+        $statement->bindValue('hasta', $hasta);
+        if ( $oficinaId != 0) { 
+            $statement->bindValue('oficinaId', $oficinaId);
+        }
+        $statement->execute();
+        $result = $statement->fetchAll();
+
+        return $result[0];
+    }
+
+
 
 }

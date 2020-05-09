@@ -43,14 +43,12 @@
                         <li class="nav-item">
                             <a class="nav-link text-light" href="{{ path('turno_index') }}">Gestionar Turnos</a>
                         </li>
-{#                        
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle text-light" href="#" id="dropdownId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Informes</a>
                             <div class="dropdown-menu" aria-labelledby="dropdownId">
                                 <a class="dropdown-item" href="{{ path('estadistica_index') }}">Estadísticas</a>
                             </div>
                         </li>
-#}
                         {% if is_granted('ROLE_ADMIN') %}
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle text-light" href="#" id="dropdownId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Administrar</a>

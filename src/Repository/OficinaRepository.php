@@ -53,6 +53,16 @@ class OficinaRepository extends ServiceEntityRepository
         $result = $statement->fetchAll();
 
         return $result;
-
     }    
+
+    public function findById($oficinaId): ?Oficina
+    {
+        
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.id = :val')
+            ->setParameter('val', $oficinaId)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
 }

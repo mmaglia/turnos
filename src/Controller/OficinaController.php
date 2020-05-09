@@ -143,7 +143,7 @@ class OficinaController extends AbstractController
                 }
             }
 
-            $this->addFlash('info', $oficina . ': ' . $j . ' turnos nuevos. Ultimo turno Generado: ' . $fechaHoraUltimoTurno->format('d/m/Y'));
+            $this->addFlash('info', $oficina . ': ' . $j . ' turnos nuevos. Ultimo turno Generado: ' . $nuevoTurno->format('d/m/Y'));
 
 
             $logger->info('Turnos Creados por Oficina', [

@@ -1,20 +1,225 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello EstadisticaController!{% endblock %}
+{% block title %}Estadística de Turnos{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+    <h1>Estadísticas de Turnos {{ oficina }} </h1>
+    <h2>Período del {{desde}} al {{hasta}}</h2>
+    <br>
+    {# Resumen General #}
+    {% if estadisticaGeneral | length > 0 %}
+        <div class="row">
+            <div class="col-2"></div>
+            <div class="col-4">
+                <div class="card border-primary mb-3" style="max-width: 35rem;">
+                    <div class="card-header">Resumen del Período {{desde}} al {{hasta}}</div>
+                    <div class="card-body text-primary">
+                        <div class="row">
+                            <div class="col-sm-6 text-right">
+                                Cantidad de Turnos:
+                                <br>
+                                Otorgados:
+                                <br>
+                                No Atendidos:
+                                <br>
+                                Atendidos:
+                                <br>
+                                No Asistidos:
+                                <br>
+                                Rechazados:
+                            </div>
+                            <div class="col-sm text-right">
+                                {{ estadisticaGeneral['total'] }}
+                                <br>
+                                {{ estadisticaGeneral['otorgados'] }}
+                                <br>
+                                {{ estadisticaGeneral['noatendidos'] }}
+                                <br>
+                                {{ estadisticaGeneral['atendidos'] }}
+                                <br>
+                                {{ estadisticaGeneral['noasistidos'] }}
+                                <br>
+                                {{ estadisticaGeneral['rechazados'] }}
+                            </div>
+                            <div class="col-sm-4 text-right" style="color:gray">
+                                &nbsp;
+                                <br>
+                                {{ (estadisticaGeneral['noatendidos'] / estadisticaGeneral['total'] * 100) | round(2)}}%
+                                <br>
+                                {{ (estadisticaGeneral['noatendidos'] / estadisticaGeneral['otorgados'] * 100) | round(2)}}%
+                                <br>
+                                {{ (estadisticaGeneral['atendidos'] / estadisticaGeneral['otorgados'] * 100) | round(2)}}%
+                                <br>
+                                {{ (estadisticaGeneral['noasistidos'] / estadisticaGeneral['otorgados'] * 100) | round(2)}}%
+                                <br>
+                                {{ (estadisticaGeneral['rechazados'] / estadisticaGeneral['otorgados'] * 100) | round(2)}}%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> 
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+            <div class="col-4 float-right jsChart" data-is-authenticated="{{ piechart | length > 0 ? 'true' : 'false' }}">
+                <div class="card border-primary mb-3" style="max-width: 90rem;">
+                    <div class="card-header">Vista General del Período {{desde}} al {{hasta}}</div>
+                    <div class="card-body text-primary">
+                        <center><div id="div_chart"></div></center>
+                    </div>
+                </div>
+            </div>
+            <div class="col-2"></div>
+        </div>
+    {% endif %}
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code><a href="{{ '/home/martin/symfonyProjects/turnos/src/Controller/EstadisticaController.php'|file_link(0) }}">src/Controller/EstadisticaController.php</a></code></li>
-        <li>Your template at <code><a href="{{ '/home/martin/symfonyProjects/turnos/templates/estadistica/index.html.twig'|file_link(0) }}">templates/estadistica/index.html.twig</a></code></li>
-    </ul>
-</div>
+    {% if estadisticaSemanal | length > 0 %}
+        <div class="row">   
+            {# Resumen Semanal #}
+            <div class="col-2"></div>
+            <div class="col-8">
+                <div class="card border-primary mb-3" style="max-width: 90rem;">
+                    <div class="card-header">Vista Semanal </div>
+                    <div class="card-body text-primary">
+                        <table class="table table-hover table-bordered">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">Desde</th>
+                                    <th class="text-center">Hasta</th>
+                                    <th class="text-right">Cant. Turnos</th>
+                                    <th class="text-right" colspan="2">Otorgados</th>
+                                    <th class="text-right" colspan="2">No Atendidos</th>
+                                    <th class="text-right" colspan="2">Atendidos</th>
+                                    <th class="text-right" colspan="2">No Asistidos</th>
+                                    <th class="text-right" colspan="2">Rechazados</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                        {% set semanas, turnos, otorgados, noatendidos, atendidos, noasistidos, rechazados = 0, 0, 0, 0, 0, 0, 0 %}
+                        {% for semana in estadisticaSemanal %}
+                                {% set semanas, turnos, otorgados, noatendidos, atendidos, noasistidos, rechazados = semanas + 1, turnos + semana['total']
+                                , otorgados + semana['otorgados'], noatendidos + semana['noatendidos'], atendidos + semana['atendidos'], noasistidos + semana['noasistidos'], rechazados + semana['rechazados']
+                                %}
+                                <tr>
+                                    <td class="text-center">{{ semana['desde'] | slice(0, 10)}}</td>
+                                    <td class="text-center">{{ semana['hasta'] | slice(0, 10)}}</td>
+                                    <td class="text-right">{{ semana['total'] }}</td>
+                                    <td class="text-right">{{ semana['otorgados'] }}</td>
+                                    <td class="text-right text-secondary">{{ semana['otorgados'] > 0 ? '(' ~ ((semana['otorgados'] / semana['total'] * 100) | round(2)) ~ '%)'}}</td>
+                                    <td class="text-right">{{ semana['noatendidos'] }}</td>
+                                    <td class="text-right text-secondary">{{ semana['otorgados'] > 0 ? '(' ~ ((semana['noatendidos'] / semana['otorgados'] * 100) | round(2)) ~ '%)'}}</td>
+                                    <td class="text-right">{{ semana['atendidos'] }}</td>
+                                    <td class="text-right text-secondary">{{ semana['otorgados'] > 0 ? '(' ~ ((semana['atendidos'] / semana['otorgados'] * 100) | round(2)) ~ '%)'}}</td>
+                                    <td class="text-right">{{ semana['noasistidos'] }}</td>
+                                    <td class="text-right text-secondary">{{ semana['otorgados'] > 0 ? '(' ~ ((semana['noasistidos'] / semana['otorgados'] * 100) | round(2)) ~ '%)'}}</td>
+                                    <td class="text-right">{{ semana['rechazados'] }}</td>
+                                    <td class="text-right text-secondary">{{ semana['otorgados'] > 0 ? '(' ~ ((semana['rechazados'] / semana['otorgados'] * 100) | round(2)) ~ '%)'}}</td>
+                                </tr>
+                        {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <td class="text-center" colspan="2"><b>Cant. de Semanas: {{semanas}}</b></td>
+                            <td class="text-right"><b>{{turnos}}</b></td>
+                            <td class="text-right" colspan="2"><b>{{otorgados}}</b></td>
+                            <td class="text-right" colspan="2"><b>{{noatendidos}}</b></td>
+                            <td class="text-right" colspan="2"><b>{{atendidos}}</b></td>
+                            <td class="text-right" colspan="2"><b>{{noasistidos}}</b></td>
+                            <td class="text-right" colspan="2"><b>{{rechazados}}</b></td>
+                        </tfoot>
+                        </table>
+            
+                    </div>
+                </div> 
+            </div>
+        </div>
+    {% endif %}
+  
+    {% if estadisticaDiaria | length > 0 %}
+        {# Resumen Diario #}    
+        <div class="row">
+                <div class="col-1"></div>
+                <div class="col-10">
+                <div class="card border-primary mb-3">
+                    <div class="card-header">Vista Detallada </div>
+                    <div class="card-body text-primary">
+                        <table class="table table-hover table-bordered">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">Desde</th>
+                                    <th class="text-center">Hasta</th>
+                                    <th class="text-right">Cant. Turnos</th>
+                                    <th class="text-right" colspan="2">Otorgados</th>
+                                    <th class="text-right" colspan="2">No Atendidos</th>
+                                    <th class="text-right" colspan="2">Atendidos</th>
+                                    <th class="text-right" colspan="2">No Asistidos</th>
+                                    <th class="text-right" colspan="2">Rechazados</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                        {% set dias, turnos, otorgados, noatendidos, atendidos, noasistidos, rechazados = 0, 0, 0, 0, 0, 0, 0 %}
+                        {% for dia in estadisticaDiaria %}
+                                {% set dias, turnos, otorgados, noatendidos, atendidos, noasistidos, rechazados = dias + 1, turnos + dia['total']
+                                , otorgados + dia['otorgados'], noatendidos + dia['noatendidos'], atendidos + dia['atendidos'], noasistidos + dia['noasistidos'], rechazados + dia['rechazados']
+                                %}
+                                <tr>
+                                    <td class="text-center">{{ dia['desde'] | slice(0, 10)}}</td>
+                                    <td class="text-center">{{ dia['hasta'] | slice(0, 10)}}</td>
+                                    <td class="text-right">{{ dia['total'] }}</td>
+                                    <td class="text-right">{{ dia['otorgados'] }}</td>
+                                    <td class="text-right text-secondary">{{ dia['otorgados'] > 0 ? '(' ~ ((dia['otorgados'] / dia['total'] * 100) | round(2)) ~ '%)'}}</td>
+                                    <td class="text-right">{{ dia['noatendidos'] }}</td>
+                                    <td class="text-right text-secondary">{{ dia['otorgados'] > 0 ? '(' ~ ((dia['noatendidos'] / dia['otorgados'] * 100) | round(2)) ~ '%)'}}</td>
+                                    <td class="text-right">{{ dia['atendidos'] }}</td>
+                                    <td class="text-right text-secondary">{{ dia['otorgados'] > 0 ? '(' ~ ((dia['atendidos'] / dia['otorgados'] * 100) | round(2)) ~ '%)'}}</td>
+                                    <td class="text-right">{{ dia['noasistidos'] }}</td>
+                                    <td class="text-right text-secondary">{{ dia['otorgados'] > 0 ? '(' ~ ((dia['noasistidos'] / dia['otorgados'] * 100) | round(2)) ~ '%)'}}</td>
+                                    <td class="text-right">{{ dia['rechazados'] }}</td>
+                                    <td class="text-right text-secondary">{{ dia['otorgados'] > 0 ? '(' ~ ((dia['rechazados'] / dia['otorgados'] * 100) | round(2)) ~ '%)'}}</td>
+                                </tr>
+                        {% endfor %}
+                            </tbody>
+                            <tfoot>
+                            <td class="text-center" colspan="2"><b>Cant. de Dias: {{dias}}</b></td>
+                            <td class="text-right"><b>{{turnos}}</b></td>
+                            <td class="text-right" colspan="2"><b>{{otorgados}}</td>
+                            <td class="text-right" colspan="2"><b>{{noatendidos}}</td>
+                            <td class="text-right" colspan="2"><b>{{atendidos}}</td>
+                            <td class="text-right" colspan="2"><b>{{noasistidos}}</td>
+                            <td class="text-right" colspan="2"><b>{{rechazados}}</td>
+                            </tfoot>
+                        </table>
+            
+                    </div>
+                </div> 
+            </div>
+        </div>
+    {% endif %}
+
+    <br>
+    <a class="btn btn-secondary float-left volver" href="{{ path('estadistica_index') }}">Volver a la Lista</a>
+
 {% endblock %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">{{ gc_draw(piechart, 'div_chart') }}</script>
+{#
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var jsChart = document.querySelector('.jsChart');
+            var muestro = jsChart.dataset.isAuthenticated;
+
+            if (muestro == true) {
+                console.log('Muestro');
+                var head = document.getElementsByTagName('head')[0];
+                var script = document.createElement('script');
+
+                script.src = "https://www.gstatic.com/charts/loader.js"
+                {{ gc_draw(piechart, 'div_chart') }}
+            
+            }
+
+        });    
+#}
+
+{% endblock %}     

@@ -1,4 +1,7 @@
 {
+    "cmen/google-charts-bundle": {
+        "version": "3.2.1"
+    },
     "doctrine/annotations": {
         "version": "1.0",
         "recipe": {
@@ -94,7 +97,7 @@
         "version": "2.2.3"
     },
     "php": {
-        "version": "7.3"
+        "version": "7.4"
     },
     "psr/cache": {
         "version": "1.0.1"
