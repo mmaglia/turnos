@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit TurnoRechazado{% endblock %}
+
+{% block body %}
+    <h1>Edit TurnoRechazado</h1>
+
+    {{ include('turno_rechazado/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('turno_rechazado_index') }}">back to list</a>
+
+    {{ include('turno_rechazado/_delete_form.html.twig') }}
+{% endblock %}

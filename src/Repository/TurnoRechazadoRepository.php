@@ -19,6 +19,17 @@ class TurnoRechazadoRepository extends ServiceEntityRepository
         parent::__construct($registry, TurnoRechazado::class);
     }
 
+   /**
+     * Retorna todos los registros ordenados por $column
+     */
+    public function findAllOrderedByColum($column, $sort = 'ASC')
+    {
+        return $this->createQueryBuilder('t')
+            ->addOrderBy('t.' . $column, $sort)
+            ->getQuery()
+            ->getResult();
+    }     
+
     // /**
     //  * @return TurnoRechazado[] Returns an array of TurnoRechazado objects
     //  */

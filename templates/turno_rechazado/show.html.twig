@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}TurnoRechazado{% endblock %}
+
+{% block body %}
+    <h1>TurnoRechazado</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ turno_rechazado.id }}</td>
+            </tr>
+            <tr>
+                <th>FechaHoraRechazo</th>
+                <td>{{ turno_rechazado.fechaHoraRechazo ? turno_rechazado.fechaHoraRechazo|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>FechaHoraTurno</th>
+                <td>{{ turno_rechazado.fechaHoraTurno ? turno_rechazado.fechaHoraTurno|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Motivo</th>
+                <td>{{ turno_rechazado.motivo }}</td>
+            </tr>
+            <tr>
+                <th>MotivoRechazo</th>
+                <td>{{ turno_rechazado.motivoRechazo }}</td>
+            </tr>
+            <tr>
+                <th>EmailEnviado</th>
+                <td>{{ turno_rechazado.emailEnviado ? 'Yes' : 'No' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('turno_rechazado_index') }}">back to list</a>
+
+    <a href="{{ path('turno_rechazado_edit', {'id': turno_rechazado.id}) }}">edit</a>
+
+    {{ include('turno_rechazado/_delete_form.html.twig') }}
+{% endblock %}

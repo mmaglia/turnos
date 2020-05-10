@@ -1,0 +1,84 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Turnos Rechazados{% endblock %}
+
+{% block body %}
+
+    <div class="row">
+        <div id="porcentajeAgendaAsignada" class="col col-3 text-left"></div>
+        <div class="col col-6 text-center">
+            <h1>Lista de Turnos Rechazados</h1>
+        </div>
+        <div class="col col-3 text-right">
+            <a href="{{path('turno_rechazado_index')}}" title="Actualizar Lista" class="d-print-none"><i class="fas fa-sync-alt"></i></a>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <a onclick="window.print()" title="Imprimir Lista" class="d-print-none"><i class="fas fa-print fa-lg"></i></a>
+        </div>
+    </div>
+
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') %}
+                    <th>Oficina</th>
+                {% endif %}
+                <th>Rechazado</th>
+                <th>Turno</th>
+                <th>Persona</th>
+                <th>DNI</th>
+                <th>Motivo</th>
+                <th>Motivo Rechazo</th>
+                <th class="text-center">Email Enviado</th>
+{#                <th>Acciones</th> #}
+            </tr>
+        </thead>
+        <tbody>
+        {% set cant = 0 %}
+        {% for turno_rechazado in turno_rechazados %}
+            {% set cant = cant + 1 %}
+            <tr>
+                {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') %}
+                    <td>{{ turno_rechazado.oficina }}</td>
+                {% endif %}
+                <td>{{ turno_rechazado.fechaHoraRechazo ? turno_rechazado.fechaHoraRechazo|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ turno_rechazado.fechaHoraTurno ? turno_rechazado.fechaHoraTurno|date('Y-m-d H:i:s') : '' }}</td>
+                <td {# Armo el tooltip considerando si existe persona vinculada al turno y si la persona registró el teléfono #}
+                    {% if turno_rechazado.persona is not null and turno_rechazado.persona != '' and turno_rechazado.persona.telefono is not null and turno_rechazado.persona.telefono != ''%}
+                        title="Correo:  {{ turno_rechazado.persona.email }}. Tel. Contacto: {{ turno_rechazado.persona.telefono }}"
+                    {% elseif turno_rechazado.persona is not null and turno_rechazado.persona != '' and (turno_rechazado.persona.telefono is null or turno_rechazado.persona.telefono == '') %}
+                            title="Correo:  {{ turno_rechazado.persona.email }}"
+                    {% endif %}
+                >
+                {{  turno_rechazado.persona is null or turno_rechazado.persona == '' ? '' : turno_rechazado.persona.apellido ~ ', ' ~ turno_rechazado.persona.nombre}}
+                
+                </td>
+                <td>{{ turno_rechazado.persona is null or turno_rechazado.persona == '' ? '' : turno_rechazado.persona.dni }}</td>
+                <td>{{ turno_rechazado.motivo }}</td>
+                <td>{{ turno_rechazado.motivoRechazo }}</td>
+                <td class="text-center">{{ turno_rechazado.emailEnviado ? '<i class="fas fa-check"></i>' : '' }}</td>
+{#                
+                <td>
+                    <a href="{{ path('turno_rechazado_show', {'id': turno_rechazado.id}) }}">show</a>
+                    <a href="{{ path('turno_rechazado_edit', {'id': turno_rechazado.id}) }}">edit</a>
+                </td>
+#}
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="7">no records found</td>
+            </tr>
+        {% endfor %}
+        <div class="card border-primary mb-3 align-bottom float-right" style="max-width: 18rem; font-size: .8rem; background-color: rgb(255, 200, 200);">
+            <div class="card-body border-primary text-dark float-right" style="max-width: 18rem; padding: 0.3rem; background-color: rgb(255, 200, 200);">
+                <div class="card-body text-dark" style="font-size: 1rem;">
+                    Cantidad de Rechazos:
+                    <strong>{{ cant }}</strong>
+                </div>
+            </div>
+        </div>
+
+        </tbody>
+    </table>
+
+{% endblock %}

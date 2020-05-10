@@ -10,23 +10,22 @@
     <div class="js-role-auditoria_gestion" data-is-authenticated="{{ is_granted('ROLE_AUDITORIA_GESTION') ? true : false }}"></div>
 
 
-        <div class="row">
-            <div id="porcentajeAgendaAsignada" class="col col-3 text-left blockquote-footer">
-                Agenda Asignada:
-                <div id="spinner" class="spinner-grow spinner-grow-sm" role="status">
-                    <span class="sr-only">Calculando...</span>
-                </div>
-            </div>
-            <div class="col col-6 text-center">
-                <h1>Lista de Turnos</h1>    
-            </div>
-            <div class="col col-3 text-right">
-                <a href="{{path('turno_index')}}" title="Actualizar Lista" class="d-print-none"><i class="fas fa-sync-alt"></i></a>
-                &nbsp;&nbsp;&nbsp;&nbsp;
-                <a onclick="window.print()" title="Imprimir Lista" class="d-print-none"><i class="fas fa-print fa-lg"></i></a>
+    <div class="row">
+        <div id="porcentajeAgendaAsignada" class="col col-3 text-left blockquote-footer">
+            Agenda Asignada:
+            <div id="spinner" class="spinner-grow spinner-grow-sm" role="status">
+                <span class="sr-only">Calculando...</span>
             </div>
         </div>
-    <div>
+        <div class="col col-6 text-center">
+            <h1>Lista de Turnos</h1>    
+        </div>
+        <div class="col col-3 text-right">
+            <a href="{{path('turno_index')}}" title="Actualizar Lista" class="d-print-none"><i class="fas fa-sync-alt"></i></a>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <a onclick="window.print()" title="Imprimir Lista" class="d-print-none"><i class="fas fa-print fa-lg"></i></a>
+        </div>
+    </div>
 
     <br>
 
@@ -93,7 +92,7 @@
                                 {% if turno.estado == 1%}
                                     <a href="{{ path('turno_atendido', {'id': turno.id}) }}" title="Marcar como atendido"><i class="fas fa-user-check"></i></a>
                                     &nbsp;&nbsp;&nbsp;&nbsp;
-                                    <a href="{{ path('turno_no_asistido', {'id': turno.id}) }}" title="Marcar como No Asistido"><i class="fas fa-user-slash text-danger"></i></a>
+                                    <a href="{{ path('turno_no_asistido', {'id': turno.id}) }}" title="Marcar como Ausente"><i class="fas fa-user-slash text-danger"></i></a>
                                     &nbsp;
                                     <a href="{{ path('turno_rechazado', {'id': turno.id}) }}" title="Rechazar"><i class="fas fa-thumbs-down text-danger"></i></a>
                                 {% elseif turno.estado == 2 %}

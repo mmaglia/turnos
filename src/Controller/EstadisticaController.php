@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
+use Psr\Log\LoggerInterface;
 use CMEN\GoogleChartsBundle\GoogleCharts\Charts\PieChart;
 
 class EstadisticaController extends AbstractController
@@ -40,7 +41,7 @@ class EstadisticaController extends AbstractController
     /**
      * @Route("/estadistica/show", name="estadistica_show", methods={"GET", "POST"})
      */
-    public function show(Request $request, OficinaRepository $oficinaRepository, TurnoRepository $turnoRepository): Response
+    public function show(Request $request, OficinaRepository $oficinaRepository, TurnoRepository $turnoRepository, LoggerInterface $logger): Response
     {
         // Recibe variables del Formulario
         $desde = $request->request->get('start');
@@ -58,7 +59,7 @@ class EstadisticaController extends AbstractController
 
         if (!isset($oficinaId)) {
             // Busca la oficina a la que pertenece el Usuario
-            $oficinaId = $this->getUser()->getOficina();
+            $oficinaId = $this->getUser()->getOficina()->getId();
             if (!$oficinaId) {
                 // Por seguridad, si el usuario no tiene vinculada oficina pre establece "TODAS"
                 $oficinaId = 0;
@@ -153,16 +154,16 @@ class EstadisticaController extends AbstractController
             $pieChart = new PieChart();
             $pieChart->getData()->setArrayToDataTable(
                 [['Estado', 'Cantidad'],
-                ['Otorgados',     $estadisticaGeneral['otorgados']],
                 ['No Atendidos',      $estadisticaGeneral['noatendidos']],
                 ['Atendidos',  $estadisticaGeneral['atendidos']],
-                ['No Asistidos', $estadisticaGeneral['noasistidos']],
+                ['Ausentes', $estadisticaGeneral['noasistidos']],
                 ['Rechazados',    $estadisticaGeneral['rechazados']]
                 ]
             );
-            $pieChart->getOptions()->setTitle('Estado de los Turnos Ocupados');
-            $pieChart->getOptions()->setHeight(300);
-            $pieChart->getOptions()->setWidth(500);
+            $pieChart->getOptions()->setTitle('Turnos Ocupados');
+            $pieChart->getOptions()->setWidth(400);
+            $pieChart->getOptions()->setHeight('auto');
+            $pieChart->getOptions()->getLegend()->setAlignment('center');
             $pieChart->getOptions()->getTitleTextStyle()->setBold(true);
             $pieChart->getOptions()->getTitleTextStyle()->setColor('#006600');
             $pieChart->getOptions()->getTitleTextStyle()->setItalic(true);
@@ -173,6 +174,19 @@ class EstadisticaController extends AbstractController
             $pieChart = new PieChart();
             $pieChart->getData()->setArrayToDataTable([['Estado', 'Cantidad']]);                
         }
+
+        // Audito la acción
+        $logger->info('Se emite informe de estadísticas', [
+            'Desde' => substr($desde, 0, 10), 
+            'Hasta' => substr($hasta, 0, 10), 
+            'Oficina' => $oficina,
+            'General' => (count($estadisticaGeneral) ? 'Si' : 'No'),
+            'Semanal' => (count($estadisticaSemanal) ? 'Si' : 'No'),
+            'Detallada' => (count($estadisticaDiaria) ? 'Si' : 'No'),
+            'Usuario' => $this->getUser()->getUsuario()
+            ]
+        );
+
 
         return $this->render('estadistica/show.html.twig', [
             'desde' => substr($desde, 0, 10),

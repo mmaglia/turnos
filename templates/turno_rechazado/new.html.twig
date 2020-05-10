@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New TurnoRechazado{% endblock %}
+
+{% block body %}
+    <h1>Create new TurnoRechazado</h1>
+
+    {{ include('turno_rechazado/_form.html.twig') }}
+
+    <a href="{{ path('turno_rechazado_index') }}">back to list</a>
+{% endblock %}

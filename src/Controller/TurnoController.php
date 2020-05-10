@@ -435,10 +435,10 @@ class TurnoController extends AbstractController
     public function no_asistido(Turno $turno, LoggerInterface $logger): Response
     {
         if ($turno->getEstado() == 1) {
-            // Marca el turno como no asistido
+            // Marca el turno como Ausente
             $turno->setEstado(3); // Rechazado
             $this->getDoctrine()->getManager()->flush();
-            $logger->info(('Marca como No Asistido'), [
+            $logger->info(('Marca como Ausente'), [
                 'Oficina' => $turno->getOficina()->getOficinayLocalidad(), 
                 'Turno' => $turno->getTurno(), 
                 'Persona' => $turno->getPersona()->getPersona(),
