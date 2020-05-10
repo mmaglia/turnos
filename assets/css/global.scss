@@ -24,11 +24,11 @@ h1 {
 }
 
 h2 {
-    font-size: 1.2rem;
+    font-size: 1.4rem;
     color: #006600;
-    font-weight: lighter;
+    font-weight: normal;
     text-align: center;
-    border-bottom: 1.5px solid #006600;
+//    border-bottom: 1.5px solid #006600;
 }
 
 h6 {
@@ -137,7 +137,11 @@ label {
       background-color: #fff;
     }
 
-    header, footer, aside, nav, form, iframe, .menu, .hero, .adslot {
+//    header, footer, aside, nav, form, iframe, .menu, .hero, .adslot {
+//        display: none;
+//    }
+
+    header, footer, aside, nav, iframe, .menu, .hero, .adslot {
         display: none;
     }
 

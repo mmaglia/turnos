@@ -3,14 +3,16 @@
 {% block title %}Nuevo Turno{% endblock %}
 
 {% block body %}
-    <div class="col-2">
-        <img src="{{asset('images/escudo.gif')}}" class="rounded float-left" alt="Poder Judicial" height="85">
+    <div class="row mt-3 mb-5">
+        <div class="col-3"><img src="{{asset('images/logo.png')}}" class="rounded float-left" alt="Poder Judicial" height="85"></div>
+        <div class="col-6">
+            <h1>Solicitud de Turnos</h1>
+            <h2>Selección de Fecha y Hora</h2>
+        </div>
+        <div class="col-3"></div>
     </div>
-    <br>
-
-    <h1>Solicitud de Turnos</h1>
-    <h2>Selección de Fecha y Hora</h2>
     <h6 class="float-right">Paso 3/4</h6>
+    <br>
 
     <!--<form name="selectorFechaHora" method="post"> <div class="form-group row"> <div class="col-sm-4 col-form-label col-form-label-lg"> <div id="fechaHora"> <div class="form-group"> <label for="txtFechaHora" id="lblFechaHora" class="required">Fecha hora</label> <input type="text" id="txtFechaHora" name="txtFechaHora]" required="required" class="js-datepicker form-control"/> <input type="hidden" id="turnoSeleccionado" name="turnoSeleccionado]" value="esfI4LQo3JbaRY6cDMyfQ3GXhmHGyxzJnGoKynt8Xgw"/> </div> </div> </div> <div class="col-sm-8 col-form-label col-form-label-lg"> <div class="form-group"> <label class="required" for="turno3_oficina" id="lblHorarios">Seleccione la hora</label> <select id="horarios" name="horario" required="required" class="form-control"></select> </div> </div> </div> </form>-->
     <form class="selectorFechaHora" name="selectorFechaHora" method="post">
