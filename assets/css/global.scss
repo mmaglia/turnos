@@ -130,7 +130,6 @@ label {
 
 
 @media print {
-
     body {
       margin: 0;
       color: #000;
@@ -148,9 +147,7 @@ label {
     .btn {
         display: none;
     }
-
     //a::after {
     //    content: " (Impreso desde el Sistema de Gestión de Turnos)";
     //  }
-  
 }

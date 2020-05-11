@@ -8,15 +8,15 @@
     <br>
     {# Resumen General #}
     {% if estadisticaGeneral | length > 0 %}
-        <div class="container">
+        <div class="container-fluid">
             <div class="row">
                 <div class="col-6">
                     <div class="card border-primary mb-3" style="max-width: 35rem;">
-                        <div class="card-header">Resumen del Período {{desde}} al {{hasta}}</div>
+                        <div class="card-header"><strong>Resumen del Período {{desde}} al {{hasta}}</strong></div>
                         <div class="card-body text-primary">
                             <div class="row">
                                 <div class="col-sm-6 text-right">
-                                    Cantidad de Turnos:
+                                    Turnos Disponibles:
                                     <br>
                                     Otorgados:
                                     <br>
@@ -60,32 +60,31 @@
                 </div> 
 
                 <div class="col-6 float-right jsChart" data-is-authenticated="{{ piechart | length > 0 ? 'true' : 'false' }}">
-                    <div class="card border-primary mb-3" style="max-width: 90rem;">
-                        <div class="card-header">Vista General del Período {{desde}} al {{hasta}}</div>
+                    <div class="card border-primary mb-3" style="max-width: 60rem;">
+                        <div class="card-header"><strong>Vista General del Período {{desde}} al {{hasta}}</strong></div>
                         <div class="card-body text-primary">
                             <center><div id="div_chart"></div></center>
                         </div>
                     </div>
                 </div>
-                <div class="col-2"></div>
             </div>
         </div>
     {% endif %}
 
     {% if estadisticaSemanal | length > 0 %}
-    <div class="container">
+    <div class="container-fluid">
         <div class="row">   
             {# Resumen Semanal #}
             <div class="col-12">
                 <div class="card border-primary mb-3" style="max-width: 90rem;">
-                    <div class="card-header">Vista Semanal </div>
+                    <div class="card-header"><strong>Vista Semanal de Turnos</strong></div>
                     <div class="card-body text-primary">
                         <table class="table table-hover table-bordered">
                             <thead>
                                 <tr>
                                     <th class="text-center">Desde</th>
                                     <th class="text-center">Hasta</th>
-                                    <th class="text-right">Cant. Turnos</th>
+                                    <th class="text-right">Disponibles</th>
                                     <th class="text-right" colspan="2">Otorgados</th>
                                     <th class="text-right" colspan="2">No Atendidos</th>
                                     <th class="text-right" colspan="2">Atendidos</th>
@@ -136,18 +135,18 @@
   
     {% if estadisticaDiaria | length > 0 %}
         {# Resumen Diario #}   
-        <div class="container"> 
+        <div class="container-fluid"> 
             <div class="row">
                     <div class="col-12">
                     <div class="card border-primary mb-3">
-                        <div class="card-header">Vista Detallada </div>
+                        <div class="card-header"><strong>Vista Detallada de Turnos</strong></div>
                         <div class="card-body text-primary">
                             <table class="table table-hover table-bordered">
                                 <thead>
                                     <tr>
                                         <th class="text-center">Desde</th>
                                         <th class="text-center">Hasta</th>
-                                        <th class="text-right">Cant. Turnos</th>
+                                        <th class="text-right">Disponibles</th>
                                         <th class="text-right" colspan="2">Otorgados</th>
                                         <th class="text-right" colspan="2">No Atendidos</th>
                                         <th class="text-right" colspan="2">Atendidos</th>
@@ -197,7 +196,7 @@
     {% endif %}
 
     <br>
-    <div class="container"> 
+    <div class="container-fluid"> 
         <div class="row">
             <div class="col-12">
                 <a class="btn btn-secondary float-left volver" href="{{ path('estadistica_index') }}">Volver</a>

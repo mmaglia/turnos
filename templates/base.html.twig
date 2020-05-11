@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
     <head>
         <meta charset="UTF-8">
         <title>{% block title %}Turnos Web{% endblock %}</title>
@@ -41,23 +41,23 @@
                 <div class="collapse navbar-collapse" id="collapsibleNavId">
                     <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-light" href="#" id="dropdownId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Turnos</a>
-                            <div class="dropdown-menu" aria-labelledby="dropdownId">
+                            <a class="nav-link dropdown-toggle text-light" href="#" id="dropdownTurnosId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Turnos</a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownTurnosId">
                                 <a class="dropdown-item" href="{{ path('turno_index') }}">Gestionar</a>
                                 <a class="dropdown-item" href="{{ path('turno_rechazado_index') }}">Rechazados</a>
                             </div>
                         </li>
 
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-light" href="#" id="dropdownId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Informes</a>
-                            <div class="dropdown-menu" aria-labelledby="dropdownId">
+                            <a class="nav-link dropdown-toggle text-light" href="#" id="dropdownInformesId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Informes</a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownInformesId">
                                 <a class="dropdown-item" href="{{ path('estadistica_index') }}">Estadísticas</a>
                             </div>
                         </li>
                         {% if is_granted('ROLE_ADMIN') %}
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-light" href="#" id="dropdownId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Administrar</a>
-                                <div class="dropdown-menu" aria-labelledby="dropdownId">
+                                <a class="nav-link dropdown-toggle text-light" href="#" id="dropdownAdministrarId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Administrar</a>
+                                <div class="dropdown-menu" aria-labelledby="dropdownAdministrarId">
                                     <a class="dropdown-item" href="{{ path('localidad_index') }}">Localidades</a>
                                     <a class="dropdown-item" href="{{ path('oficina_index') }}">Oficinas</a>
                                     <a class="dropdown-item" href="{{ path('usuario_index') }}">Gestionar Usuarios</a>
@@ -83,7 +83,7 @@
                 {% endif %}
             </nav>
                 
-            </br></br></br>
+            <br><br><br>
         {% endif %}
 
         {% if   is_granted('IS_AUTHENTICATED_FULLY') 
@@ -121,16 +121,15 @@
         </div>
         {% block javascripts %}
             {{ encore_entry_script_tags('js/app') }}
-            <script src="{{ asset('js/locales/bootstrap-datepicker.es.min.js') }}" type="text/javascript"></script>
+            <script src="{{ asset('js/locales/bootstrap-datepicker.es.min.js') }}"></script>
         {% endblock %}
+        <footer class="footer text-center">
+            <br><br>
+            <p>&copy; 2020 <a target="_blank" href="http://www.justiciasantafe.gov.ar/js/index.php"> Poder Judicial de la Provincia de Santa Fe</a> - República Argentina. Todos los derechos reservados
+                {% if app.environment == 'dev' %}
+                    <strong class="text-danger ml-3">TESTING</strong>
+                {% endif %}
+            </p>
+        </footer>
     </body>
-    <footer class="footer text-center">
-        <br><br>
-        <p>&copy; 2020 <a target="_blank" href="http://www.justiciasantafe.gov.ar/js/index.php"> Poder Judicial de la Provincia de Santa Fe</a> - República Argentina. Todos los derechos reservados
-            {% if app.environment == 'dev' %}
-                <strong class="text-danger ml-3">TESTING</strong>
-            {% endif %}
-        </p>
-        </div>
-    </footer>
 </html>

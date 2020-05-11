@@ -56,7 +56,7 @@ class TurnoRechazarType extends AbstractType
                         'label'    => 'Notificar por Correo',
                         'mapped'   => false,
                         'required' => false,
-                        'attr' => ['checked'   => 'checked']
+//                        'attr' => ['checked'   => 'checked']
                         ]);        
     
                 }

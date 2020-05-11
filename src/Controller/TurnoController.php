@@ -455,7 +455,12 @@ class TurnoController extends AbstractController
     public function rechazado(Request $request, Turno $turno, MailerInterface $mailer, LoggerInterface $logger): Response
     {
         if ($turno->getEstado() == 1) {
+
+            $motivoRechazo = $_ENV['MOTIVO_RECHAZO'];
+
             $form = $this->createForm(TurnoRechazarType::class, $turno);
+            $form->get('motivoRechazo')->setData($motivoRechazo);
+            $form->get('enviarMail')->setData(false);
             $form->handleRequest($request);
     
             if ($form->isSubmitted() && $form->isValid()) {
