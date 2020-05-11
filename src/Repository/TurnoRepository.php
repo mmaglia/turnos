@@ -277,6 +277,4 @@ class TurnoRepository extends ServiceEntityRepository
         return $result[0];
     }
 
-
-
 }

@@ -52,6 +52,7 @@
                             <a class="nav-link dropdown-toggle text-light" href="#" id="dropdownInformesId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Informes</a>
                             <div class="dropdown-menu" aria-labelledby="dropdownInformesId">
                                 <a class="dropdown-item" href="{{ path('estadistica_index') }}">Estadísticas</a>
+                                <a class="dropdown-item" href="{{ path('estadistica_evolucion_diaria') }}">Evolución Diaria de Ocupación</a>
                             </div>
                         </li>
                         {% if is_granted('ROLE_ADMIN') %}

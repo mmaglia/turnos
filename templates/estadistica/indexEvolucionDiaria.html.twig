@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Estadistícas de Turnos{% endblock %}
+
+{% block body %}
+    <h1>Evolución Diaria</h1>
+    <br>
+
+        <div class="row">
+            <div class="col"></div>
+            <center>
+                <div class="col-12 form-group input-daterange input-group">
+                    <form method="post" action="{{ path('estadistica_show_evolucion_diaria') }}">
+                        <div id="fechaHora" class="selectorFechaHora" name="selectorFechaHora">
+                            <label for="txtFechaDesde" id="lblDesde" class="required">Desde</label>
+                            <input type="text" id="txtFechaHora" name="start" required="required" class="js-datepicker form-control" value="{{desde}}"/>
+                            <br>
+                            <label for="txtFechaHasta" id="lblHasta" class="required">Hasta</label>
+                            <input type="text" id="txtFechaHora" name="end" required="required" class="js-datepicker form-control" value="{{hasta}}"/>
+                        </div>
+                        <br> 
+                        {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') %}
+                            <label for="cboOficina" class="required">Oficina</label>
+                            <select class="form-control" id="oficinas" name="oficinas">
+                                <option value="0">TODAS LAS OFICINAS</option>
+                                <option disabled>────────────────────────────</option>
+                                {% for oficina in oficinas %}
+                                    <option value="{{oficina.id}}">{{oficina.oficina}}</option>
+                                {% endfor %}
+                            </select>
+                        {% endif %}
+
+                        <br><br>
+                        <center><button class="btn btn-primary">{{ button_label|default('Generar Estadística') }}</button></center>
+                    </form>
+                </div>
+            </center>
+            <div class="col"></div>
+        </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(function() {
+            $(document).ready(function(){            
+                $('#fechaHora input').datepicker({
+                    format: "dd/mm/yyyy",
+                    language: "es",
+                    todayBtn: true,
+                    orientation: "bottom right",
+                    daysOfWeekDisabled: "0,6",
+                    daysOfWeekHighlighted: "0",
+                    autoclose: true,
+                    multidate: false
+                });                  
+            });
+        });
+    </script>  
+    
+{% endblock %}     

@@ -1,0 +1,92 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Estadística de Turnos{% endblock %}
+
+{% block body %}
+    <h1>Evolución Diaria de Ocupación de Turnos {{ oficina }} </h1>
+    <h2>Período del {{desde}} al {{hasta}}</h2>
+    <center><h4>(en proceso de desarrollo)</h4></center>
+    <br>
+    {# Resumen Diario #}   
+    {% if estadistica | length > 0 %}
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-4">
+                    <div class="card border-primary mb-3">
+                        <div class="card-header"><strong>Ocupación Diaria de Turnos</strong></div>
+                        <div class="card-body text-primary">
+                            <table class="table table-hover table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">Fecha</th>
+                                        <th class="text-center">Cantidad</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                            {% set cantidad = 0 %}
+                            {% for dia in estadistica %}
+                                    {% set cantidad = cantidad + dia['cantidad'] %}
+                                    <tr>
+                                        <td class="text-center">{{ dia['fecha'] }}</td>
+                                        <td class="text-right">{{ dia['cantidad'] }}</td>
+                                    </tr>
+                                {% endfor %}
+                                    <tr>
+                                        <td class="text-center"><b>Cant. de Dias: {{estadistica | length}}</b></td>
+                                        <td class="text-right"><b>{{cantidad}}</b></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div> 
+                </div>
+
+                <div class="col-8 float-right jsChart" data-is-authenticated="{{ grafico | length > 0 ? 'true' : 'false' }}">
+                    <div class="card border-primary mb-3" style="max-width: 90rem;">
+                        <div class="card-header"><strong>Vista de Ocupación de Turnos del Período {{desde}} al {{hasta}}</strong></div>
+                        <div class="card-body text-primary">
+                            <center><div id="div_chart"></div></center>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    {% endif %}
+
+    <br>
+    <div class="container-fluid"> 
+        <div class="row">
+            <div class="col-12">
+                <a class="btn btn-secondary float-left volver" href="{{ path('estadistica_evolucion_diaria') }}">Volver</a>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">{{ gc_draw(grafico, 'div_chart') }}</script>
+{#
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var jsChart = document.querySelector('.jsChart');
+            var muestro = jsChart.dataset.isAuthenticated;
+
+            if (muestro == true) {
+                console.log('Muestro');
+                var head = document.getElementsByTagName('head')[0];
+                var script = document.createElement('script');
+
+                script.src = "https://www.gstatic.com/charts/loader.js"
+                {{ gc_draw(piechart, 'div_chart') }}
+            
+            }
+
+        });    
+#}
+
+{% endblock %}     
