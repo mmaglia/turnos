@@ -42,5 +42,22 @@ class TurnosDiariosRepository extends ServiceEntityRepository
         return $result;
     }
 
+    public function findByOficinaByFecha($oficina_id, $fecha)
+    {
+        $result = $this->getEntityManager()
+        ->createQuery("
+            SELECT t
+            FROM App\Entity\TurnosDiarios t
+            WHERE t.oficina = :oficina_id and t.fecha = :fecha
+            "
+        )
+        ->setParameter(':oficina_id', $oficina_id)
+        ->setParameter(':fecha', $fecha)
+        ->getOneOrNullResult();
+        
+        return $result;
+    }
+
+
 
 }

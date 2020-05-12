@@ -261,7 +261,12 @@ class TurnoRepository extends ServiceEntityRepository
                         (SELECT count(*) FROM turno WHERE $filtroOficina fecha_hora BETWEEN :desde AND :hasta and persona_id IS NOT NULL and estado = 1) as NoAtendidos,
                         (SELECT count(*) FROM turno WHERE $filtroOficina fecha_hora BETWEEN :desde AND :hasta and persona_id IS NOT NULL and estado = 2) as Atendidos,
                         (SELECT count(*) FROM turno WHERE $filtroOficina fecha_hora BETWEEN :desde AND :hasta and persona_id IS NOT NULL and estado = 3) as NoAsistidos,
-                        (SELECT count(*) FROM turno_rechazado WHERE $filtroOficina fecha_hora_turno BETWEEN :desde AND :hasta) as Rechazados                    
+                        (SELECT count(*) FROM turno_rechazado tr WHERE $filtroOficina fecha_hora_turno BETWEEN :desde AND :hasta AND EXISTS (
+                            SELECT 1 FROM turno t WHERE t.fecha_hora = tr.fecha_hora_turno and t.oficina_id = tr.oficina_id AND t.persona_id IS NOT NULL)
+                        ) as Rechazados_Ocupados,
+                        (SELECT count(*) FROM turno_rechazado tr WHERE $filtroOficina fecha_hora_turno BETWEEN :desde AND :hasta AND EXISTS (
+                            SELECT 1 FROM turno t WHERE t.fecha_hora = tr.fecha_hora_turno and t.oficina_id = tr.oficina_id AND t.persona_id IS NULL)
+                        ) as Rechazados_Libres
             ";
         
         $em = $this->getEntityManager();

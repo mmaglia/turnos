@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Persona;
 use App\Entity\Turno;
+use App\Entity\TurnosDiarios;
 use App\Entity\TurnoRechazado;
 use App\Form\PersonaType;
 use App\Form\Turno3Type;
@@ -14,6 +15,7 @@ use App\Form\TurnoRechazarType;
 use App\Repository\LocalidadRepository;
 use App\Repository\OficinaRepository;
 use App\Repository\TurnoRepository;
+use App\Repository\TurnosDiariosRepository;
 use DateInterval;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
@@ -213,7 +215,7 @@ class TurnoController extends AbstractController
     /**
      * @Route("/TurnosWeb/confirmacion", name="turno_new5", methods={"GET","POST"})
      */
-    public function new5(SessionInterface $session, Request $request, TurnoRepository $turnoRepository, LoggerInterface $logger): Response
+    public function new5(SessionInterface $session, Request $request, TurnoRepository $turnoRepository, TurnosDiariosRepository $turnosDiariosRepository, LoggerInterface $logger): Response
     {
         $persona = $session->get('persona');
         $turno = $session->get('turno');
@@ -236,9 +238,24 @@ class TurnoController extends AbstractController
                 // Turno Libre. Grabo.
                 $turnoActualizar->setMotivo($turno->getMotivo());
                 $turnoActualizar->setPersona($persona);
+                
+                // Cuento turnos que se ocupan por día (con propósitos estadísticos)
+                $cuentoTurnosdelDia = $turnosDiariosRepository->findByOficinaByFecha($turnoActualizar->getOficina(), date('d/m/Y'));
+                if ($cuentoTurnosdelDia) {
+                    // Acumulo 
+                    $cuentoTurnosdelDia->setCantidad($cuentoTurnosdelDia->getCantidad() + 1);
+                } else {
+                    // Primer turno del día
+                    $cuentoTurnosdelDia = new TurnosDiarios();
+                    $cuentoTurnosdelDia->setOficina($turnoActualizar->getOficina());
+                    $cuentoTurnosdelDia->setFecha(new \DateTime(date("Y-m-d")));
+                    $cuentoTurnosdelDia->setCantidad(1);
+                }
+               
                 $entityManager = $this->getDoctrine()->getManager();
                 $entityManager->merge($turnoActualizar);
                 $entityManager->persist($persona);
+                $entityManager->persist($cuentoTurnosdelDia);
                 $entityManager->flush();
                 $this->addFlash('success', 'Su turno ha sido otorgado satisfactoriamente');        
                 $logger->info('Turno Otorgado', [

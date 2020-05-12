@@ -27,11 +27,12 @@
                                     Ausentes:
                                     <br>
                                     Rechazados:
+                                    <br>
                                 </div>
                                 <div class="col-sm text-right">
                                     {{ estadisticaGeneral['total'] }}
                                     <br>
-                                    {{ estadisticaGeneral['otorgados'] }}
+                                    {{ estadisticaGeneral['otorgados'] + estadisticaGeneral['rechazados_libres']}}
                                     <br>
                                     {{ estadisticaGeneral['noatendidos'] }}
                                     <br>
@@ -39,23 +40,50 @@
                                     <br>
                                     {{ estadisticaGeneral['noasistidos'] }}
                                     <br>
-                                    {{ estadisticaGeneral['rechazados'] }}
+                                    {{ estadisticaGeneral['rechazados_libres']}}
+                                    <br>
                                 </div>
                                 <div class="col-sm-4 text-right" style="color:gray">
                                     &nbsp;
                                     <br>
-                                    {{ (estadisticaGeneral['noatendidos'] / estadisticaGeneral['total'] * 100) | round(2)}}%
+                                    {{ ((estadisticaGeneral['otorgados'] + estadisticaGeneral['rechazados_libres']) / estadisticaGeneral['total'] * 100) | round(2)}}%
                                     <br>
                                     {{ (estadisticaGeneral['noatendidos'] / estadisticaGeneral['otorgados'] * 100) | round(2)}}%
                                     <br>
-                                    {{ (estadisticaGeneral['atendidos'] / estadisticaGeneral['otorgados'] * 100) | round(2)}}%
+                                    {{ (estadisticaGeneral['atendidos'] / (estadisticaGeneral['otorgados'] + estadisticaGeneral['rechazados_libres']) * 100) | round(2)}}%
                                     <br>
-                                    {{ (estadisticaGeneral['noasistidos'] / estadisticaGeneral['otorgados'] * 100) | round(2)}}%
+                                    {{ (estadisticaGeneral['noasistidos'] / (estadisticaGeneral['otorgados'] + estadisticaGeneral['rechazados_libres']) * 100) | round(2)}}%
                                     <br>
-                                    {{ (estadisticaGeneral['rechazados'] / estadisticaGeneral['otorgados'] * 100) | round(2)}}%
+                                    {{ ((estadisticaGeneral['rechazados_libres']) / (estadisticaGeneral['otorgados'] + estadisticaGeneral['rechazados_libres']) * 100) | round(2)}}% 
                                 </div>
                             </div>
                         </div>
+
+                        <center>
+                        <div class="card bg-light mb-2" style="max-width: 24rem; font-size:.85rem">
+                            <div class="card-header"><strong>Total de Rechazados: {{ estadisticaGeneral['rechazados_ocupados'] + estadisticaGeneral['rechazados_libres'] }}</strong></div>
+                            <div class="card-body text-primary">
+                                <div class="row">
+                                    <div class="col-sm-6 text-right">   
+                                        Vueltos a Ocupar:
+                                        <br>
+                                        Libres:
+                                    </div>
+                                    <div class="col-sm text-right">
+                                        {{ estadisticaGeneral['rechazados_ocupados'] }}
+                                        <br>
+                                        {{ estadisticaGeneral['rechazados_libres'] }}
+                                    </div>
+    
+                                        <div class="col-sm-4 text-right" style="color:gray">
+{#                                        {{ (estadisticaGeneral['noasistidos'] / estadisticaGeneral['otorgados'] * 100) | round(2)}}% #}
+                                        <br>
+{#                                        {{ (estadisticaGeneral['rechazados_ocupados'] / estadisticaGeneral['otorgados'] * 100) | round(2)}}% #}
+                                    </div>
+                            </div>
+                          </div>  
+                          <div class="card-footer text-muted">Se consideran los turnos que quedaron libres para considerarlos como turnos rechazados</div>                                  
+                        </center>
                     </div>
                 </div> 
 
@@ -96,22 +124,22 @@
                         {% set semanas, turnos, otorgados, noatendidos, atendidos, noasistidos, rechazados = 0, 0, 0, 0, 0, 0, 0 %}
                         {% for semana in estadisticaSemanal %}
                                 {% set semanas, turnos, otorgados, noatendidos, atendidos, noasistidos, rechazados = semanas + 1, turnos + semana['total']
-                                , otorgados + semana['otorgados'], noatendidos + semana['noatendidos'], atendidos + semana['atendidos'], noasistidos + semana['noasistidos'], rechazados + semana['rechazados']
+                                , otorgados + semana['otorgados'] + semana['rechazados_libres'], noatendidos + semana['noatendidos'], atendidos + semana['atendidos'], noasistidos + semana['noasistidos'], rechazados + semana['rechazados_libres']
                                 %}
                                 <tr>
                                     <td class="text-center">{{ semana['desde'] | slice(0, 10)}}</td>
                                     <td class="text-center">{{ semana['hasta'] | slice(0, 10)}}</td>
                                     <td class="text-right">{{ semana['total'] }}</td>
-                                    <td class="text-right">{{ semana['otorgados'] }}</td>
-                                    <td class="text-right text-secondary">{{ semana['otorgados'] > 0 ? '(' ~ ((semana['otorgados'] / semana['total'] * 100) | round(2)) ~ '%)'}}</td>
+                                    <td class="text-right">{{ semana['otorgados'] +  semana['rechazados_libres'] }}</td>
+                                    <td class="text-right text-secondary">{{ semana['otorgados'] > 0 ? '(' ~ (((semana['otorgados'] + semana['rechazados_libres']) / semana['total']) * 100) | round(2) ~ '%)'}}</td>
                                     <td class="text-right">{{ semana['noatendidos'] }}</td>
-                                    <td class="text-right text-secondary">{{ semana['otorgados'] > 0 ? '(' ~ ((semana['noatendidos'] / semana['otorgados'] * 100) | round(2)) ~ '%)'}}</td>
+                                    <td class="text-right text-secondary">{{ semana['otorgados'] > 0 ? '(' ~ ((semana['noatendidos'] / (semana['otorgados'] + semana['rechazados_libres']) * 100) | round(2)) ~ '%)'}}</td>
                                     <td class="text-right">{{ semana['atendidos'] }}</td>
-                                    <td class="text-right text-secondary">{{ semana['otorgados'] > 0 ? '(' ~ ((semana['atendidos'] / semana['otorgados'] * 100) | round(2)) ~ '%)'}}</td>
+                                    <td class="text-right text-secondary">{{ semana['otorgados'] > 0 ? '(' ~ ((semana['atendidos'] / (semana['otorgados'] + semana['rechazados_libres']) * 100) | round(2)) ~ '%)'}}</td>
                                     <td class="text-right">{{ semana['noasistidos'] }}</td>
-                                    <td class="text-right text-secondary">{{ semana['otorgados'] > 0 ? '(' ~ ((semana['noasistidos'] / semana['otorgados'] * 100) | round(2)) ~ '%)'}}</td>
-                                    <td class="text-right">{{ semana['rechazados'] }}</td>
-                                    <td class="text-right text-secondary">{{ semana['otorgados'] > 0 ? '(' ~ ((semana['rechazados'] / semana['otorgados'] * 100) | round(2)) ~ '%)'}}</td>
+                                    <td class="text-right text-secondary">{{ semana['otorgados'] > 0 ? '(' ~ ((semana['noasistidos'] / (semana['otorgados'] + semana['rechazados_libres']) * 100) | round(2)) ~ '%)'}}</td>
+                                    <td class="text-right">{{ semana['rechazados_libres'] }}</td>
+                                    <td class="text-right text-secondary">{{ semana['otorgados'] > 0 ? '(' ~ ((semana['rechazados_libres'] / (semana['otorgados'] + semana['rechazados_libres']) * 100) | round(2)) ~ '%)'}}</td>
                                 </tr>
                         {% endfor %}
                         </tbody>
@@ -158,22 +186,22 @@
                             {% set dias, turnos, otorgados, noatendidos, atendidos, noasistidos, rechazados = 0, 0, 0, 0, 0, 0, 0 %}
                             {% for dia in estadisticaDiaria %}
                                     {% set dias, turnos, otorgados, noatendidos, atendidos, noasistidos, rechazados = dias + 1, turnos + dia['total']
-                                    , otorgados + dia['otorgados'], noatendidos + dia['noatendidos'], atendidos + dia['atendidos'], noasistidos + dia['noasistidos'], rechazados + dia['rechazados']
+                                    , otorgados + dia['otorgados'] + dia['rechazados_libres'], noatendidos + dia['noatendidos'], atendidos + dia['atendidos'], noasistidos + dia['noasistidos'], rechazados + dia['rechazados_libres']
                                     %}
                                     <tr>
                                         <td class="text-center">{{ dia['desde'] | slice(0, 10)}}</td>
                                         <td class="text-center">{{ dia['hasta'] | slice(0, 10)}}</td>
                                         <td class="text-right">{{ dia['total'] }}</td>
-                                        <td class="text-right">{{ dia['otorgados'] }}</td>
-                                        <td class="text-right text-secondary">{{ dia['otorgados'] > 0 ? '(' ~ ((dia['otorgados'] / dia['total'] * 100) | round(2)) ~ '%)'}}</td>
+                                        <td class="text-right">{{ dia['otorgados'] + dia['rechazados_libres']}}</td>
+                                        <td class="text-right text-secondary">{{ dia['otorgados'] > 0 ? '(' ~ (((dia['otorgados'] + dia['rechazados_libres']) / dia['total'] * 100) | round(2)) ~ '%)'}}</td>
                                         <td class="text-right">{{ dia['noatendidos'] }}</td>
-                                        <td class="text-right text-secondary">{{ dia['otorgados'] > 0 ? '(' ~ ((dia['noatendidos'] / dia['otorgados'] * 100) | round(2)) ~ '%)'}}</td>
+                                        <td class="text-right text-secondary">{{ dia['otorgados'] > 0 ? '(' ~ ((dia['noatendidos'] / (dia['otorgados'] + dia['rechazados_libres']) * 100) | round(2)) ~ '%)'}}</td>
                                         <td class="text-right">{{ dia['atendidos'] }}</td>
-                                        <td class="text-right text-secondary">{{ dia['otorgados'] > 0 ? '(' ~ ((dia['atendidos'] / dia['otorgados'] * 100) | round(2)) ~ '%)'}}</td>
+                                        <td class="text-right text-secondary">{{ dia['otorgados'] > 0 ? '(' ~ ((dia['atendidos'] / (dia['otorgados'] + dia['rechazados_libres']) * 100) | round(2)) ~ '%)'}}</td>
                                         <td class="text-right">{{ dia['noasistidos'] }}</td>
-                                        <td class="text-right text-secondary">{{ dia['otorgados'] > 0 ? '(' ~ ((dia['noasistidos'] / dia['otorgados'] * 100) | round(2)) ~ '%)'}}</td>
-                                        <td class="text-right">{{ dia['rechazados'] }}</td>
-                                        <td class="text-right text-secondary">{{ dia['otorgados'] > 0 ? '(' ~ ((dia['rechazados'] / dia['otorgados'] * 100) | round(2)) ~ '%)'}}</td>
+                                        <td class="text-right text-secondary">{{ dia['otorgados'] > 0 ? '(' ~ ((dia['noasistidos'] / (dia['otorgados'] + dia['rechazados_libres']) * 100) | round(2)) ~ '%)'}}</td>
+                                        <td class="text-right">{{ dia['rechazados_libres'] }}</td>
+                                        <td class="text-right text-secondary">{{ dia['otorgados'] > 0 ? '(' ~ ((dia['rechazados_libres'] / (dia['otorgados'] + dia['rechazados_libres']) * 100) | round(2)) ~ '%)'}}</td>
                                     </tr>
                             {% endfor %}
                                     <tr>

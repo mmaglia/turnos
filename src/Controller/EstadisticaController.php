@@ -186,7 +186,7 @@ class EstadisticaController extends AbstractController
                 ['No Atendidos', $estadisticaGeneral['noatendidos']],
                 ['Atendidos',  $estadisticaGeneral['atendidos']],
                 ['Ausentes', $estadisticaGeneral['noasistidos']],
-                ['Rechazados', $estadisticaGeneral['rechazados']]
+                ['Rechazados', $estadisticaGeneral['rechazados_libres']],
                 ]
             );
             $pieChart->getOptions()->setTitle('Turnos Ocupados');

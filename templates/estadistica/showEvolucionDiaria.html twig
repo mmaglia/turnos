@@ -5,7 +5,6 @@
 {% block body %}
     <h1>Evolución Diaria de Ocupación de Turnos {{ oficina }} </h1>
     <h2>Período del {{desde}} al {{hasta}}</h2>
-    <center><h4>(en proceso de desarrollo)</h4></center>
     <br>
     {# Resumen Diario #}   
     {% if estadistica | length > 0 %}
@@ -47,6 +46,7 @@
                         <div class="card-body text-primary">
                             <center><div id="div_chart"></div></center>
                         </div>
+                    <div class="card-footer text-muted text-center">La vista representa la cantidad de turnos que se otorgaron por día. Es independientemente de la fecha del turno.</div>                                  
                     </div>
                 </div>
             </div>
