@@ -224,14 +224,14 @@ class TurnoController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $turnoActualizar = $turnoRepository->findTurno($turno->getOficina()->getId(), $turno->getFechaHora());
+            $turnoActualizar = $turnoRepository->findTurnoLibre($turno->getOficina()->getId(), $turno->getFechaHora());
 
             // Verifico si el turno no se ocupó
             // OJO que si la concurrencia es alta este control no es infalible!
             // Entre el find() y el flush() hay un marco microtemporal
             // En caso de fallar el control, el primero en grabar será sobreescrito por el segundo.
             // El primero recibió notificación del turno por correo pero la Oficina no lo va a tener registrado.
-            if ($turnoActualizar->getPersona()) {
+            if (!$turnoActualizar) {
                 // Turno Ocupado
                 return $this->redirectToRoute('turnoOcupado');
             } else {
@@ -321,8 +321,8 @@ class TurnoController extends AbstractController
             $email = (new TemplatedEmail())
                 ->from($fromAdrress)
                 ->to($turno->getPersona()->getEmail())
-                ->addBcc('mmaglianesi@justiciasantafe.gov.ar')
-                ->addBcc('jialarcon@justiciasantafe.gov.ar')
+//                ->addBcc('mmaglianesi@justiciasantafe.gov.ar')
+//                ->addBcc('jialarcon@justiciasantafe.gov.ar')
                 ->subject('Poder Judicial Santa Fe - Confirmación de Turno')
 
                 // path of the Twig template to render
@@ -489,8 +489,8 @@ class TurnoController extends AbstractController
                     $email = (new TemplatedEmail())
                         ->from($fromAdrress)
                         ->to($turno->getPersona()->getEmail())
-                        ->addBcc('mmaglianesi@justiciasantafe.gov.ar')
-                        ->addBcc('jialarcon@justiciasantafe.gov.ar')
+//                        ->addBcc('mmaglianesi@justiciasantafe.gov.ar')
+//                        ->addBcc('jialarcon@justiciasantafe.gov.ar')
                         ->subject('Poder Judicial Santa Fe - Solicitud de Turno Cancelada')
                         ->htmlTemplate('turno/correoTurnoRechazado.html.twig')
                         ->context([

@@ -44,7 +44,7 @@
                 <td>{{ oficina.telefono }}</td>
                 <td class="text-center">{{ oficina.habilitada ? '<i class="fas fa-check"></i>' : '' }} </td>
                 <td>{{ oficina.ultimoTurno ? oficina.ultimoTurno|date('Y-m-d H:i') : '' }}</td>
-                <td class="table-bordered table-secondary text-center d-print-none" width="160px" style="background-color: rgb(245, 245, 245);">
+                <td class="table-bordered table-secondary text-center d-print-none" style="width:160px; background-color: rgb(245, 245, 245);">
                     <a href="{{ path('oficina_show', {'id': oficina.id}) }}" title="Ver"><i class="fas fa-eye"></i></a>
                     &nbsp;&nbsp;
                     <a href="{{ path('oficina_edit', {'id': oficina.id}) }}" title="Editar"><i class="fas fa-pen"></i></a>

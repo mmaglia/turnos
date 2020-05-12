@@ -83,30 +83,46 @@ class OficinaController extends AbstractController
         $form = $this->createForm(AddTurnosType::class, [
             'fechaInicio' => $aPartirde,
             'minutosDesplazamiento' => $minutosDesplazamiento,
+            'cantTurnosSuperpuestos' => 1,
             'cantidadDias' => $cantidadDias,
+            'soloUnTurno' => false,
             ] );
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $fechaInicio = $request->request->get('add_turnos')['fechaInicio'];
+            $feriados = $request->request->get('add_turnos')['feriados'];
             $minutosDesplazamiento = $request->request->get('add_turnos')['minutosDesplazamiento'];
+            // Si se opta por "Sólo un turno por rango horario" cantTurnosSuperpuestos puede no llegar como parámetro. Para ese caso se establece por defecto el valor 1.
+            $cantTurnos = (isset($request->request->get('add_turnos')['cantTurnosSuperpuestos']) ? $request->request->get('add_turnos')['cantTurnosSuperpuestos'] : 1);
             $cantidadDias = $request->request->get('add_turnos')['cantidadDias'];
+            $soloUnTurno = isset($request->request->get('add_turnos')['soloUnTurno']);
+
+            if ($soloUnTurno) {
+                $cantTurnos = 1; // Me aseguro que sólo se genere un turno por rango si no se quiere más que eso
+            }
+
+            $aFeriados = explode(',', $feriados);
 
             // Establece las 0hs del día seleccionado en formato DateTime
             $aPartirde = new \DateTime(substr($fechaInicio,-4) . '-' . substr($fechaInicio,3,2) . '-' . substr($fechaInicio, 0,2));
             $aPartirde->sub(new DateInterval('P1D')); // Resta un día al día de comienzo porque incremento al comienzo del bucle siguiente
-
             $entityManager = $this->getDoctrine()->getManager();
 
             // Recorre cada día del intervalo indicado
             $j=0;
             for ($i=1; $i <= $cantidadDias; $i++){
-
+                    
                 // Incrementa fecha en un 1 día
                 $nuevoTurno = $aPartirde->add(new DateInterval('P1D'));
 
                 // Verifico que no sea sábado (6) o domingo (7)
                 if ($nuevoTurno->format('N') >= 6) {
+                    continue; // Salteo el día
+                }
+
+                // Verifico que no esté en la lista de feriados
+                if (in_array($nuevoTurno->format('d/m/Y'), $aFeriados)) {
                     continue; // Salteo el día
                 }
 
@@ -121,17 +137,23 @@ class OficinaController extends AbstractController
                 
                 // Recorre intervalos para el día en proceso
                 while (true) {
-                    // Verifica que el turno no exsite
-                    if (!$turnoRepository->findTurno($oficina, $nuevoTurno)) {
-                        $j++;
+                    $existeTurno = false;
+                    if ($soloUnTurno) {
+                        // Verifica si el turno existe
+                        $existeTurno = count($turnoRepository->findTurno($oficina, $nuevoTurno));
+                    }
 
-                        // Genera el alta del turno
-                        $turno = new Turno();
-                        $turno->setFechaHora($nuevoTurno);
-                        $turno->setOficina($oficina);
-                        $turno->setEstado(1);
-                        $entityManager->persist($turno);       
-                        $this->getDoctrine()->getManager()->flush();
+                    if (!$existeTurno || !$soloUnTurno) {
+                        // Genera el alta del turno (simple por inexistencia previa o múltiples para el mismo horario)
+                        for ($k=1; $k <= $cantTurnos; $k++) {
+                            $j++;
+                            $turno = new Turno();
+                            $turno->setFechaHora($nuevoTurno);
+                            $turno->setOficina($oficina);
+                            $turno->setEstado(1);
+                            $entityManager->persist($turno);       
+                            $this->getDoctrine()->getManager()->flush();
+                        }
                     }
 
                     $nuevoTurno = $aPartirde->add(new DateInterval('PT' . $frecuencia . 'M'));
@@ -145,18 +167,19 @@ class OficinaController extends AbstractController
 
             $this->addFlash('info', $oficina . ': ' . $j . ' turnos nuevos. Ultimo turno Generado: ' . $nuevoTurno->format('d/m/Y'));
 
-
-            $logger->info('Turnos Creados por Oficina', [
+            $logger->info('Creación de Nuevos Turnos', [
                 'Oficina' => $oficina->getOficinayLocalidad(), 
                 'Desde' => $fechaInicio,
                 'Hasta' => $nuevoTurno->format('d/m/Y'),
+                'Feriados' => $feriados,
+                'Cant. Turnos Superpuestos' => $cantTurnos,
                 'Minutos Desplazamiento' => $minutosDesplazamiento,
                 'Cant. de Días' => $cantidadDias,
+                'Sólo un Turno' => $soloUnTurno,
                 'Turnos Generados' => $j,
                 'Usuario' => $this->getUser()->getUsuario()
                 ]
             );
-
 
             // TODO ver de notificar la cantidad de turnos creados
             return $this->redirectToRoute('oficina_index');
@@ -169,6 +192,7 @@ class OficinaController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+
 
     /**
      * @Route("/{id}/borraDiaAgendaTurnosbyOficina", name="borraDiaAgendaTurnosbyOficina", methods={"GET", "POST"})

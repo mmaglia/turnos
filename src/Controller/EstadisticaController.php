@@ -295,7 +295,7 @@ class EstadisticaController extends AbstractController
             ]
         );
 
-        return $this->render('estadistica/showEvolucionDiaria.html twig', [
+        return $this->render('estadistica/showEvolucionDiaria.html.twig', [
             'desde' => substr($desde, 0, 10),
             'hasta' => substr($hasta, 0, 10),
             'oficina' => $oficina,

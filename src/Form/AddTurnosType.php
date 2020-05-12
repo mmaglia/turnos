@@ -3,9 +3,11 @@
 namespace App\Form;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 
 class AddTurnosType extends AbstractType
 {
@@ -16,21 +18,49 @@ class AddTurnosType extends AbstractType
             'widget' => 'single_text',
             'html5' => false,
             'format' => 'dd/MM/yyyy',
-            'label' => 'Seleccione Fecha de Inicio',
-            'attr' => ['class' => 'text-primary js-datepicker'],
+            'label' => 'Fecha de Inicio',
+            'attr' => ['class' => 'text-primary js-datepicker', 'autofocus' => true],
             'required' =>true,
             ])
-        ->add('minutosDesplazamiento', NumberType::class,
-        [   'label' => 'Minutos de Desplazamiento (0 si no quiere desplazar)',
+        ->add('feriados', DateType::class, [
+            'widget' => 'single_text',
+            'help' => 'Indique las fechas para las que no desea generar turnos (feriados y días no laborables)',
+            'html5' => false,
+            'format' => 'dd/MM/yyyy',
+            'label' => 'Fechas exceptuadas',
+            'attr' => ['class' => 'text-primary js-datepicker'],
+            'required' =>false,
+            ])
+        ->add('minutosDesplazamiento', NumberType::class, [
+            'label' => 'Minutos de Desplazamiento',
+            'help' => '0 si no quiere desplazar',
             'html5' => true,
             'required' => true,
             'attr' => ['max' => '30', 'min' => '0', 'size' => 2]
-        ])        
-        ->add('cantidadDias', NumberType::class,
-            [   'label' => 'Cantidad de Días',
-                'html5' => true,
-                'required' => true,
-                'attr' => ['max' => '90', 'size' => 2, 'autofocus' => true]
+            ])        
+        ->add('cantTurnosSuperpuestos', NumberType::class, [
+            'label' => 'Cantidad de Turnos a generar (o añadir) por cada rango horario',
+            'help' => '¿Cuántos turnos desea para la misma hora?',
+            'html5' => true,
+            'required' => true,
+            'attr' => ['max' => '30', 'min' => '1', 'size' => 2]
+            ])            
+        ->add('cantidadDias', NumberType::class, [
+            'label' => 'Cantidad de Días',
+            'help' => 'Indique días corridos',
+            'html5' => true,
+            'required' => true,
+            'attr' => ['max' => '90', 'size' => 2]
+            ])
+        ->add('soloUnTurno', CheckboxType::class, [
+            'label' => 'Sólo un turno por rango horario.',
+            'help' => 'Si el turno ya existe en el rango horario no se creará ninguno nuevo.',
+            'required' => false,
+            'attr' => ['class' => 'text-danger']
+            ])    
+        ->add('save', SubmitType::class, [
+            'label' => 'Confirmar',
+            'attr' => ['class' => 'btn btn-primary float-right']
             ])
         ;
     }

@@ -148,7 +148,14 @@ class TurnoRepository extends ServiceEntityRepository
 
         // Convierto arreglo multi asociativo a un asociativo simple (Doctrine retorna un array por cada registro)
         $horariosDisponibles = array();
+        $hora = '';
         foreach($result as $item) {
+            if ($item['hora'] == $hora) {
+                continue; // Salteo el horario porque ya lo incluyó
+            } else {
+                $hora = $item['hora'];
+            }
+
             $horariosDisponibles[] = $item['hora'];
         }
 
@@ -180,10 +187,28 @@ class TurnoRepository extends ServiceEntityRepository
         )
         ->setParameter(':oficina_id', $oficina_id)
         ->setParameter(':fecha_hora', $fecha_hora)
-        ->getOneOrNullResult();
+        ->getResult();
         
         return $result;
     }
+
+
+    public function findTurnoLibre($oficina_id, $fecha_hora)
+    {
+        $result = $this->getEntityManager()
+        ->createQuery('
+            SELECT t
+            FROM App\Entity\Turno t
+            WHERE t.oficina = :oficina_id and t.fechaHora = :fecha_hora and t.persona is null
+            '
+        )
+        ->setParameter(':oficina_id', $oficina_id)
+        ->setParameter(':fecha_hora', $fecha_hora)
+        ->getResult();
+        
+        return $result[0];
+    }
+
 
 
     public function deleteTurnosByDiaByOficina($oficina_id, $desde, $hasta)

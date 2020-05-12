@@ -1,48 +1,86 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Editar Oficina{% endblock %}
+{% block title %}Agregar Turnos{% endblock %}
 
 {% block body %}
-    <h1>Nuevos Turnos para {{ oficina.oficina }} ({{ oficina.localidad }})</h1>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Oficina</th>
-                <td>{{ oficina.oficina }} ({{ oficina.localidad }})</td>
-            </tr>
-            <tr>
-                <th>Hora Inicio Atencion</th>
-                <td>{{ oficina.horaInicioAtencion ? oficina.horaInicioAtencion|date('H:i') : '' }}</td>
-            </tr>
-            <tr>
-                <th>Hora Fin Atencion</th>
-                <td>{{ oficina.horaFinAtencion ? oficina.horaFinAtencion|date('H:i') : '' }}</td>
-            </tr>
-            <tr>
-                <th>Frecuencia Atencion</th>
-                <td>{{ oficina.frecuenciaAtencion }}</td>
-            </tr>
-            <tr>
-                <th>Ultimo Turno</th>
-                <td>{{ fechaHoraUltimoTurno ? fechaHoraUltimoTurno|date('d/m/Y H:i') : '' }}</td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                Generación Masiva de Turnos
+            </div>
+            <div class="card-body">
+                <h5 class="card-title text-center">{{ oficina.oficina }} ({{ oficina.localidad }})</h5>
+                <div class="row">
+                    <div class="col-2"></div>
+                    <div class="col-8">
+                        <div class="card bg-light mb-2" style="font-size: .8rem;">
+                            <div class="card-header"><strong>Datos de la Oficina</strong></div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-6 text-right">
+                                            Hora Inicio Atencion <br>
+                                            Hora Fin Atencion <br>
+                                            Frecuencia Atencion <br>
+                                            Ultimo Turno <br>
+                                    </div>
+                                    <div class="col-6">
+                                        <strong>{{ oficina.horaInicioAtencion ? oficina.horaInicioAtencion|date('H:i') : '' }} <br>
+                                                {{ oficina.horaFinAtencion ? oficina.horaFinAtencion|date('H:i') : '' }} <br>
+                                                {{ oficina.frecuenciaAtencion }} <br>
+                                                {{ fechaHoraUltimoTurno ? fechaHoraUltimoTurno|date('d/m/Y H:i') : '' }} </strong><br>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>       
+                    </div>
+                </div>         
+                <p class="card-text text-justify">Los turnos se crean a partir de la fecha indicada. Por defecto se propone el día siguiente al último existente en la agenda de la oficina. Es decir <strong>a partir del {{ aPartirde ? aPartirde|date('d/m/Y') : '' }}</strong> y por la cantidad de días que usted indique a continuación. </p>
+                <p class="card-text text-justify">Puede optar por indicar un día de inicio cualquiera. Por ejemplo puede añadir turnos a días generados previamente.</p>
+                <p class="card-text text-justify">Puede optar también por establecer los minutos de desplazamiento con respecto a la hora de inicio de atención o no.</p>
+                <p class="card-text text-justify">Los turnos se crean para todos los días de lunes a viernes (no considera feriados). Puede eliminar un día en particular para toda una localidad desde la gestión de localidades o desde este mismo módulo para una Oficina en particular.</p>
+                <p class="card-text text-justify">Poder defecto la generación admite más de un mismo turno en el mismo horario. <strong>Si ya existen turnos para el mismo día y horario este proceso añadirá nuevos turnos</strong>. Si usted no desea que sea así asegúrse de marcar <i>"Sólo un turno por rango horario"</i>.</p>
+      
+                {{ form_start(form) }}
+                <div class="my-custom-class-for-errors">
+                    {{ form_errors(form) }}
+                </div>
+    
+                <div class="row">
+                    <div class="col-2">
+                        {{ form_row(form.fechaInicio) }}
+                    </div>
+                    <div class="col-10">
+                        {{ form_row(form.feriados) }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-4">
+                        {{ form_row(form.minutosDesplazamiento) }}
+                    </div>
+                    <div class="col-4" id="cantTurnosSuperpuestos">
+                        {{ form_row(form.cantTurnosSuperpuestos) }}
+                    </div>
+                    <div class="col-4">
+                        {{ form_row(form.cantidadDias) }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12" id="soloUnTurno">
+                        {{ form_row(form.soloUnTurno) }}
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-4 float-left"><a  class="btn btn-secondary volver" href="{{ path('oficina_index') }}">Volver a la  lista</a></div>
+                    <div class="col-4"></div>
+                    <div class="col-4 float-right">{{ form_end(form) }}</div>
+                </div>
 
-    <div class="card border-primary mb-3">
-        <div class="card-body text-primary">
-          <h5 class="card-title">Generación de Nuevos Turnos</h5>
-          <p>Este proceso creará automáticamente turnos nuevos para: <strong>{{ oficina.oficina }} ({{ oficina.localidad }}) </strong>.</p> 
-          <p>Los turnos se crearán a partir de la fecha indicada. Por defecto se propone el día siguiente al último existente en la agenda de la oficina. Es decir <strong>a partir del {{ aPartirde ? aPartirde|date('d/m/Y') : '' }}</strong> y por la cantidad de días que usted indique a continuación. </p>
-          <p>Sin embargo puede optar por indicar un día de inicio cualquiera si usted desea, por ejemplo, añadir turnos a días generados previamente. Para ello podrá establecer los minutos de desplazamiento con respecto a la hora de inicio de atención. <strong>Se cuidadoso. Que no se superpongan los nuevos turnos con turnos previamente asignados.</strong></p>
-          <p>Se crearán para todos los días de lunes a viernes (no considera feriados). Puede eliminar un día en particular para toda una localidad desde la gestión de localidades.</p>
-          <p><strong>Sólo se crearán los turnos si no existe superposición horario con turnos previos.</strong></p>
-          {{ include('oficina/_form.html.twig', {'button_label': 'Generar Turnos'}) }}
-        </div>
-      </div>    
-    <br>
-    <a  class="btn btn-secondary float-left volver" href="{{ path('oficina_index') }}">Volver a la  lista</a>
+    
+            </div>
+        </div>  
+        
+    </div>
 
 {% endblock %}
 
@@ -52,7 +90,9 @@
         $(function () {
             $(document).ready(function () {
                 jQuery(document).ready(function() {
-                    $('.js-datepicker').datepicker({
+                    // .js-datepicker
+                    //#
+                    $('#add_turnos_fechaInicio').datepicker({
                         format: "dd/mm/yyyy",
                         language: "es",
                         daysOfWeekDisabled: "0,6",
@@ -61,9 +101,32 @@
                         autoclose: true,
                         todayBtn: true,
                     });
+
+                    $('#add_turnos_feriados').datepicker({
+                        format: "dd/mm/yyyy",
+                        language: "es",
+                        daysOfWeekDisabled: "0,6",
+                        daysOfWeekHighlighted: "0",
+                        todayHighlight: true,
+                        autoclose: false,
+                        clearBtn: true,
+                        todayBtn: true,
+                        multidate: true
+                    });
+
                 });
             })
-            $('label.required').attr('class', 'text-danger .required')
+//            $('label.required').attr('class', '.required')
+            $('label.required').append('<sup><strong>&nbsp;*</strong></sup>');
+
+            $('#soloUnTurno input').click(function() {                
+                if ($(this).prop("checked")) { 
+                    $('#cantTurnosSuperpuestos input').attr("disabled", true);
+                } else {
+                    $('#cantTurnosSuperpuestos input').removeAttr("disabled");
+                }
+            })
+
         });
     </script>
 {% endblock %}

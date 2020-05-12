@@ -48,13 +48,13 @@
                                     <br>
                                     {{ ((estadisticaGeneral['otorgados'] + estadisticaGeneral['rechazados_libres']) / estadisticaGeneral['total'] * 100) | round(2)}}%
                                     <br>
-                                    {{ (estadisticaGeneral['noatendidos'] / estadisticaGeneral['otorgados'] * 100) | round(2)}}%
+                                    {{ estadisticaGeneral['noatendidos'] > 0 ? (estadisticaGeneral['noatendidos'] / estadisticaGeneral['otorgados'] * 100) | round(2)}}%
                                     <br>
-                                    {{ (estadisticaGeneral['atendidos'] / (estadisticaGeneral['otorgados'] + estadisticaGeneral['rechazados_libres']) * 100) | round(2)}}%
+                                    {{ estadisticaGeneral['atendidos'] > 0 ? (estadisticaGeneral['atendidos'] / (estadisticaGeneral['otorgados'] + estadisticaGeneral['rechazados_libres']) * 100) | round(2)}}%
                                     <br>
-                                    {{ (estadisticaGeneral['noasistidos'] / (estadisticaGeneral['otorgados'] + estadisticaGeneral['rechazados_libres']) * 100) | round(2)}}%
+                                    {{ estadisticaGeneral['noasistidos'] > 0 ? (estadisticaGeneral['noasistidos'] / (estadisticaGeneral['otorgados'] + estadisticaGeneral['rechazados_libres']) * 100) | round(2)}}%
                                     <br>
-                                    {{ ((estadisticaGeneral['rechazados_libres']) / (estadisticaGeneral['otorgados'] + estadisticaGeneral['rechazados_libres']) * 100) | round(2)}}% 
+                                    {{ estadisticaGeneral['rechazados_libres'] > 0 ? ((estadisticaGeneral['rechazados_libres']) / (estadisticaGeneral['otorgados'] + estadisticaGeneral['rechazados_libres']) * 100) | round(2)}}% 
                                 </div>
                             </div>
                         </div>
@@ -82,7 +82,7 @@
                                     </div>
                             </div>
                           </div>  
-                          <div class="card-footer text-muted">Se consideran los turnos que quedaron libres para considerarlos como turnos rechazados</div>                                  
+                          <div class="card-footer text-muted">Los turnos rechazados que quedaron libres son considerados como turnos rechazados</div>                                  
                         </center>
                     </div>
                 </div> 
