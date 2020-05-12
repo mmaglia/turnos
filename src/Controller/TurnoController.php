@@ -553,7 +553,7 @@ class TurnoController extends AbstractController
     public function oficinasByLocalidad($localidad_id, OficinaRepository $oficinaRepository)
     {
         $em = $this->getDoctrine()->getManager();
-        $oficinas = $oficinaRepository->findOficinaByLocalidad($localidad_id);
+        $oficinas = $oficinaRepository->findOficinasHabilitadasByLocalidad($localidad_id);
         return new JsonResponse($oficinas);
     }
 

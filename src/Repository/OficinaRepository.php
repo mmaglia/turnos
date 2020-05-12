@@ -23,7 +23,7 @@ class OficinaRepository extends ServiceEntityRepository
     {
         return $this->getEntityManager()
             ->createQuery('
-                SELECT o.id, o.oficina, l.localidad as localidad, o.horaInicioAtencion, o.horaFinAtencion, o.frecuenciaAtencion, o.telefono, 
+                SELECT o.id, o.oficina, l.localidad as localidad, o.horaInicioAtencion, o.horaFinAtencion, o.frecuenciaAtencion, o.telefono, o.habilitada,
                         (select max(t.fechaHora) from App\Entity\Turno t where t.oficina = o) as ultimoTurno 
                 FROM App\Entity\Oficina o left join o.localidad l
                 ORDER BY o.id'
@@ -36,6 +36,18 @@ class OficinaRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('o')
             ->select('o.id, o.oficina as oficina')
             ->andWhere('o.localidad = :val')
+            ->setParameter('val', $localidad_id)
+            ->orderBy('oficina')
+            ->getQuery()
+            ->getArrayResult();
+        ;
+    }
+
+    public function findOficinasHabilitadasByLocalidad($localidad_id)
+    {
+        return $this->createQueryBuilder('o')
+            ->select('o.id, o.oficina as oficina')
+            ->andWhere('o.habilitada = true and o.localidad = :val')
             ->setParameter('val', $localidad_id)
             ->orderBy('oficina')
             ->getQuery()

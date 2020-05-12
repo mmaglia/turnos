@@ -20,6 +20,8 @@ class OficinaType extends AbstractType
             ->add('frecuenciaAtencion')
             ->add('localidad', null,  ['required' => false])
             ->add('telefono', TextType::class, ['label' => 'Teléfono de Contacto', 'required'   => false, 'attr' => array('maxlength' => '50')])
+            ->add('habilitada')
+
         ;
     }
 

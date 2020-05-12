@@ -58,6 +58,11 @@ class Oficina
      */
     private $telefono;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $habilitada;
+
     public function __construct()
     {
         $this->turnos = new ArrayCollection();
@@ -211,6 +216,18 @@ class Oficina
     public function getOficinayLocalidad() {
         return $this->oficina . ' (' . $this->getLocalidad() . ')';
 
+    }
+
+    public function getHabilitada(): ?bool
+    {
+        return $this->habilitada;
+    }
+
+    public function setHabilitada(bool $habilitada): self
+    {
+        $this->habilitada = $habilitada;
+
+        return $this;
     }
 
 }
