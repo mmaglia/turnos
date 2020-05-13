@@ -56,7 +56,7 @@ class TurnoType extends AbstractType
                     'expanded' => true, // render check-boxes
                     'label'    => 'Estado del Turno',
                     'choices'  => [
-                        'No atendido' => '1',
+                        'Sin Atender' => '1',
                         'Atendido' => '2',
                         'No asistió' => '3',
                         'Rechazado' => '4',

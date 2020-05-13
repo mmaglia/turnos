@@ -33,14 +33,13 @@ class AddTurnosType extends AbstractType
             ])
         ->add('minutosDesplazamiento', NumberType::class, [
             'label' => 'Minutos de Desplazamiento',
-            'help' => '0 si no quiere desplazar',
+            'help' => 'Cero (0) si no quiere desplazar',
             'html5' => true,
             'required' => true,
             'attr' => ['max' => '30', 'min' => '0', 'size' => 2]
             ])        
         ->add('cantTurnosSuperpuestos', NumberType::class, [
             'label' => 'Cantidad de Turnos a generar (o añadir) por cada rango horario',
-            'help' => '¿Cuántos turnos desea para la misma hora?',
             'html5' => true,
             'required' => true,
             'attr' => ['max' => '30', 'min' => '1', 'size' => 2]

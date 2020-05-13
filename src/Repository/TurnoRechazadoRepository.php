@@ -22,12 +22,22 @@ class TurnoRechazadoRepository extends ServiceEntityRepository
    /**
      * Retorna todos los registros ordenados por $column
      */
-    public function findAllOrderedByColum($column, $sort = 'ASC')
+    public function findAllOrderedByColum($column, $sort = 'ASC', $oficina = null)
     {
-        return $this->createQueryBuilder('t')
-            ->addOrderBy('t.' . $column, $sort)
-            ->getQuery()
-            ->getResult();
+        
+        if ($oficina) {
+            return $this->createQueryBuilder('t')
+                ->andWhere('t.oficina = :oficina')
+                ->setParameter('oficina', $oficina)
+                ->addOrderBy('t.' . $column, $sort)
+                ->getQuery()
+                ->getResult();
+        } else {
+            return $this->createQueryBuilder('t')
+                ->addOrderBy('t.' . $column, $sort)
+                ->getQuery()
+                ->getResult();
+        }
     }     
 
     // /**

@@ -15,11 +15,11 @@ class OficinaType extends AbstractType
     {
         $builder
             ->add('oficina')
-            ->add('horaInicioAtencion',  null, ['required' => true])
-            ->add('horaFinAtencion', null, ['required' => true] )
-            ->add('frecuenciaAtencion')
+            ->add('horaInicioAtencion',  null, ['required' => true, 'label' => 'Hora Inicio Atención' ])
+            ->add('horaFinAtencion', null, ['required' => true, 'label' => 'Hora Fin Atención' ])
+            ->add('frecuenciaAtencion', null, ['label' => 'Frecuencia de Atención' ])
             ->add('localidad', null,  ['required' => false])
-            ->add('telefono', TextType::class, ['label' => 'Teléfono de Contacto', 'required'   => false, 'attr' => array('maxlength' => '50')])
+            ->add('telefono', TextType::class, ['label' => 'Teléono de Contacto', 'required'   => false, 'attr' => array('maxlength' => '50')])
             ->add('habilitada')
 
         ;

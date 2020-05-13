@@ -20,8 +20,19 @@ class TurnoRechazadoController extends AbstractController
      */
     public function index(TurnoRechazadoRepository $turnoRechazadoRepository): Response
     {
+
+        if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_AUDITORIA_GESTION')) {
+            $turnos_rechazados = $turnoRechazadoRepository->findAllOrderedByColum('fechaHoraTurno');
+        } else {
+            if ($this->isGranted('ROLE_USER')) {
+                // Busca los rechazads correspondientes a la oficina del usuario logueado
+                $oficinaUsuario = $this->getUser()->getOficina();
+                $turnos_rechazados = $turnoRechazadoRepository->findAllOrderedByColum('fechaHoraTurno', null, $oficinaUsuario);
+            }
+        }
+
         return $this->render('turno_rechazado/index.html.twig', [
-            'turno_rechazados' => $turnoRechazadoRepository->findAllOrderedByColum('fechaHoraTurno')
+            'turno_rechazados' => $turnos_rechazados
         ]);
     }
 

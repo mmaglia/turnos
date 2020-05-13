@@ -80,7 +80,7 @@
                     <td>{{ turno.persona is null or turno.persona == '' ? '' : turno.persona.dni }}</td>
                     <td>{{ turno.motivo }}</td>
                     <td class="text-center">{% if turno.persona is not null %}
-                            {% if turno.estado == 1 %}          No Atendido
+                            {% if turno.estado == 1 %}          Sin Atender
                                 {% elseif turno.estado == 2 %}  Atendido
                                 {% elseif turno.estado == 3 %}  No Asistió
                                 {% elseif turno.estado == 4 %}  Rechazado
