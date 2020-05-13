@@ -37,7 +37,7 @@
         <div class="card-body border-primary text-dark float-right" style="max-width: 18rem; padding: 0.3rem; background-color: rgb(245, 245, 245);">
             <div class="card-body text-dark" style="font-size: 1rem;">
                 Cantidad de Turnos:
-                <strong>{{ turnos | length }}</strong>
+                <strong>{{ turnos.getTotalItemCount }}</strong>
             </div>
         </div>
     </div>
@@ -118,6 +118,13 @@
             {% endfor %}
             </tbody>
         </table>
+
+        <div class="float-right">
+            {{ knp_pagination_render(turnos) }}
+        </div>
+        <div class="float-left blockquote-footer">
+            Viendo 20 de {{ turnos.getTotalItemCount }} Turnos
+        </div>
 
     {% endblock %}
 

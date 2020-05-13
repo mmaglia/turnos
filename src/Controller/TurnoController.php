@@ -16,6 +16,7 @@ use App\Repository\LocalidadRepository;
 use App\Repository\OficinaRepository;
 use App\Repository\TurnoRepository;
 use App\Repository\TurnosDiariosRepository;
+use Knp\Component\Pager\PaginatorInterface;
 use DateInterval;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
@@ -34,7 +35,7 @@ class TurnoController extends AbstractController
     /**
      * @Route("/turno", name="turno_index", methods={"GET", "POST"})
      */
-    public function index(Request $request, TurnoRepository $turnoRepository, SessionInterface $session): Response
+    public function index(Request $request, TurnoRepository $turnoRepository, PaginatorInterface $paginator, SessionInterface $session): Response
     {
 
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY'); // Deniega acceso si el usuario no está autenticado (por seguridad)
@@ -81,15 +82,15 @@ class TurnoController extends AbstractController
             // Busca los turnos en función a los estados de todas las oficinas
             if ($filtroOficina)
             {
-                $turnosOtorgados = $turnoRepository->findWithRoleUser($rango, $estado, $filtroOficina);
+                $turnosOtorgados = $pagination = $paginator->paginate($turnoRepository->findWithRoleUser($rango, $estado, $filtroOficina), $request->query->getInt('page', 1), 100);
             } else {
-                $turnosOtorgados = $turnoRepository->findByRoleAdmin($rango, $estado);
+                $turnosOtorgados = $pagination = $paginator->paginate($turnoRepository->findByRoleAdmin($rango, $estado), $request->query->getInt('page', 1), 100);
             }
         } else {
             if ($this->isGranted('ROLE_USER')) {
                 // Busca los turnos en función a los estados de la oficina a la que pertenece el usuario
                 $oficinaUsuario = $this->getUser()->getOficina();
-                $turnosOtorgados = $turnoRepository->findWithRoleUser($rango, $estado, $oficinaUsuario);
+                $turnosOtorgados = $pagination = $paginator->paginate($turnoRepository->findWithRoleUser($rango, $estado, $oficinaUsuario), $request->query->getInt('page', 1), 100);
             }
         }
 
