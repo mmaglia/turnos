@@ -16,11 +16,11 @@ class MainController extends AbstractController
     public function index(ConfigRepository $configRepository)
     {
 
-        $textoPortada = $configRepository->findByClave('Portada')->getHtml();
+//        $textoPortada = $configRepository->findByClave('Portada')->getHtml();
 
         return $this->render('main/index.html.twig', [
             'controller_name' => 'MainController',
-            'textoPortada' => $textoPortada
+//            'textoPortada' => $textoPortada
         ]);
     }
 }
