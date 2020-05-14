@@ -40,6 +40,7 @@ class UsuarioType extends AbstractType
             'choices'  => [
                 'Consultor' => 'ROLE_CONSULTOR',
                 'Editor' => 'ROLE_EDITOR',
+                'Administrador de Portada' => 'ROLE_EDITOR',
                 'Auditoría de Gestión' => 'ROLE_AUDITORIA_GESTION',
                 'Administrador' => 'ROLE_ADMIN',
                 'Super Admin' => 'ROLE_SUPER_ADMIN'

@@ -39,7 +39,7 @@ security:
         - { path: ^((?!TurnosWeb).)*$, role: ROLE_USER }       
 
     role_hierarchy:
-        ROLE_CONSULTOR:     [ROLE_USER]
+        ROLE_CONSULTOR:     [ROLE_USER, ROLE_COVER_MANAGER]
         ROLE_EDITOR:        [ROLE_CONSULTOR]
         ROLE_ADMIN:         [ROLE_EDITOR]
         ROLE_SUPER_ADMIN:   [ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]        
