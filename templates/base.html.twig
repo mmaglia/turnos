@@ -55,6 +55,12 @@
                                 <a class="dropdown-item" href="{{ path('estadistica_evolucion_diaria') }}">Evolución Diaria de Ocupación</a>
                             </div>
                         </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-light" href="#" id="dropdownAyudaId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Ayuda</a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownAyudaId">
+                                <a class="dropdown-item" href="{{ asset('docs/Manual_de_Usuario.pdf') }}" target="_blank">Manual de Usuario</a>
+                            </div>
+                        </li>
                         {% if is_granted('ROLE_ADMIN') %}
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle text-light" href="#" id="dropdownAdministrarId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Administrar</a>
