@@ -547,13 +547,21 @@ class TurnoController extends AbstractController
         }
     }
 
+    /**
+     * @Route("/TurnosWeb/localidad_circunscripcion/{circunscripcion_id}", name="localidad_by_circunscripcion", requirements = {"circunscripcion_id" = "\d+"}, methods={"GET", "POST"})
+     */
+    public function localidadByCircunscripcion($circunscripcion_id, LocalidadRepository $localidadRepository )
+    {
+        $localidades = $localidadRepository->findLocalidadesByCircunscripcion($circunscripcion_id);
+        return new JsonResponse($localidades);
+    }
+
 
     /**
-     * @Route("/TurnosWeb/oficina_localidad/{localidad_id}", name="oficinas_by_localidad", requirements = {"localidad_id" = "\d+"}, methods={"POST"})
+     * @Route("/TurnosWeb/oficina_localidad/{localidad_id}", name="oficinas_by_localidad", requirements = {"localidad_id" = "\d+"}, methods={"GET", "POST"})
      */
     public function oficinasByLocalidad($localidad_id, OficinaRepository $oficinaRepository)
     {
-        $em = $this->getDoctrine()->getManager();
         $oficinas = $oficinaRepository->findOficinasHabilitadasByLocalidad($localidad_id);
         return new JsonResponse($oficinas);
     }

@@ -28,6 +28,11 @@ class Localidad
      */
     private $oficinas;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Circunscripcion", inversedBy="localidad")
+     */
+    private $circunscripcion;
+
     public function __construct()
     {
         $this->oficinas = new ArrayCollection();
@@ -84,5 +89,17 @@ class Localidad
     public function __toString()
     {
         return $this->localidad;
+    }
+
+    public function getCircunscripcion(): ?Circunscripcion
+    {
+        return $this->circunscripcion;
+    }
+
+    public function setCircunscripcion(?Circunscripcion $circunscripcion): self
+    {
+        $this->circunscripcion = $circunscripcion;
+
+        return $this;
     }
 }

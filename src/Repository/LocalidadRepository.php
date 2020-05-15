@@ -18,4 +18,17 @@ class LocalidadRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Localidad::class);
     }
+
+    public function findLocalidadesByCircunscripcion($circunscripcion_id)
+    {
+        return $this->createQueryBuilder('o')
+            ->select('o.id, o.localidad as localidad')
+            ->andWhere('o.circunscripcion = :val')
+            ->setParameter('val', $circunscripcion_id)
+            ->orderBy('localidad')
+            ->getQuery()
+            ->getArrayResult();
+        ;
+    }   
+    
 }

@@ -21,8 +21,37 @@
     {{ parent() }}
     <script>
         $(function() {
+            var textoListaCircunscripcionVacia = '<option value="" disabled selected>Seleccione una Circunscripción</option>';
             var textoListaLocalidadVacia = '<option value="" disabled selected>Seleccione una Localidad</option>';
             var textoListaOficinaVacia = '<option value="" disabled selected>Seleccione una Oficina</option>';
+
+            $('#turno3_circunscripcion').change(function() {
+                var circunscripcion_id = $(this).val();
+                var localidad_id = $(this).val();
+                if (circunscripcion_id != '') {
+                    $.ajax({
+                        url:"/TurnosWeb/localidad_circunscripcion/" + circunscripcion_id,
+                        method: "POST",
+                        dataType: "json",
+                        success: function(data) {
+                            if (Array.isArray(data) && data.length) {
+                                $('#turno3_localidad').html('');
+                                $('#turno3_localidad').append(textoListaLocalidadVacia);
+                                $.each(data,function(key, registro) {
+                                    $("#turno3_localidad").append('<option value='+registro.id+'>'+registro.localidad+'</option>');
+                                });   
+                            } else {
+                                $('#turno3_localidad').html('<option value="" disabled selected>Ninguna Localidad Actualmente Disponible</option>');
+                            }
+                        }
+                    })
+                } else {
+                    $('#turno3_localidad').html('');
+                }
+
+                $('#turno3_localidad').change();
+            });
+
 
             $('#turno3_localidad').change(function() {
                 var localidad_id = $(this).val();
@@ -47,7 +76,8 @@
                     $('#turno3_oficina').html('');
                 }
             });
-            
+
+            $('#turno3_localidad').html(textoListaLocalidadVacia);
             $('#turno3_oficina').html(textoListaOficinaVacia);
 
         });

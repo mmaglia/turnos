@@ -16,10 +16,16 @@ class Turno3Type extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
+            ->add('circunscripcion', EntityType::class, [
+                'class' => 'App\Entity\Circunscripcion',
+                'placeholder' => 'Seleccione la Circunscripción',
+                'attr' => ['autofocus' => true],
+                'required' => true,
+                'mapped' => false
+                ])
             ->add('localidad', EntityType::class, [
                 'class' => 'App\Entity\Localidad',
                 'placeholder' => 'Seleccione una Localidad',
-                'attr' => ['autofocus' => true],
                 'required' => true,
                 'mapped' => false
                 ])
