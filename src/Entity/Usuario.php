@@ -39,7 +39,7 @@ class Usuario implements UserInterface
     private $dni;
 
     /**
-     * @ORM\Column(type="string", length=50, nullable=true)
+     * @ORM\Column(type="string", length=120, nullable=true)
      */
     private $apellido;
 

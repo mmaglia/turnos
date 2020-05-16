@@ -82,10 +82,10 @@
                     {% if app.environment == 'dev' %}
                         <div class="text-danger mr-5"><strong>Testing</strong></div>
                     {% endif %}
-                    <div class="float-lg-right">
+                    <div class="float-lg-right" style="font-size: .8rem; color: #EEE">
                         {{ app.user.getApellido()}}
                         {% if app.user.getNombre() %}
-                            , {{ app.user.getNombre() }}
+                            {{ app.user.getNombre() }}
                         {% endif %}
                     </div>                   
                 {% endif %}
