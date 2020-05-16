@@ -571,7 +571,6 @@ class TurnoController extends AbstractController
      */
     public function oficinas(OficinaRepository $oficinaRepository)
     {
-        $em = $this->getDoctrine()->getManager();
         $oficinas = $oficinaRepository->findAllOficinas();
         return new JsonResponse($oficinas);
     }

@@ -43,13 +43,17 @@
                             } else {
                                 $('#turno3_localidad').html('<option value="" disabled selected>Ninguna Localidad Actualmente Disponible</option>');
                             }
+
+                            // Limpio lista de Oficinas porque cambiaron
+                            $('#turno3_oficina').html(textoListaOficinaVacia);
+
+                            // Actualizo lista de Localidades
+                            $('#turno3_localidad').change();
                         }
                     })
                 } else {
                     $('#turno3_localidad').html('');
                 }
-
-                $('#turno3_localidad').change();
             });
 
 
@@ -69,7 +73,7 @@
                                 });   
                             } else {
                                 $('#turno3_oficina').html('<option value="" disabled selected>Ninguna Oficina Actualmente Disponible</option>');
-                            }
+                            }                           
                         }
                     })
                 } else {
