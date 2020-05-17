@@ -1,0 +1,117 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Estadística de Turnos{% endblock %}
+
+{% block body %}
+    <h1>Informe de Ocupación de Agendas </h1>
+    <h2>{{subtitulo}}</h2>
+    <br>
+    {# Resumen Diario #}   
+    {% if ocupacion | length > 0 %}
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-2"></div>
+                <div class="col-8 float-right jsChart" data-is-authenticated="{{ grafico | length > 0 ? 'true' : 'false' }}">
+                    <div class="card border-primary mb-3">
+                        <div class="card-body text-primary">
+                            <center><div id="div_chart"></div></center>
+                        </div>
+                    <div class="card-footer text-muted text-center">La vista representa los turnos ocupados con relación a la cantidad total de turnos disponibles.</div>                                  
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-2"></div>
+            <div class="col-8">
+                <div class="card border-primary mb-3">
+                    <div class="card-header"><strong>Nivel de Ocupación de la Agenda</strong></div>
+                    <div class="card-body text-primary">
+                        <table class="table table-hover table-bordered">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">Oficina</th>
+                                    <th class="text-center">Ocupación</th>
+                                    {% if tipoInforme == 1%}
+                                        <th class="text-center">Ultimo Turno Disponible</th>
+                                    {% endif %}
+                                    {% if tipoInforme == 2%}
+                                        <th class="text-center">Turnos Otorgados</th>
+                                    {% endif %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                        {% set cantidad = 0 %}
+                        {% for oficina in ocupacion %}
+                                {% set cantidad = cantidad + oficina['ocupacion'] %}
+                                <tr>
+                                    <td class="">{{ oficina['oficina'] }} ({{oficina['localidad']}})</td>
+                                    <td class="text-right">{{ oficina['ocupacion'] | round(2) }}%</td>
+                                    {% if tipoInforme == 1%}
+                                        <td class="text-center">{{ oficina['ultimoTurno'] }}</td>
+                                    {% endif %}
+                                    {% if tipoInforme == 2%}
+                                        <td class="text-right">{{ oficina['otorgados'] }}</td>
+                                    {% endif %}
+
+
+                                </tr>
+                            {% endfor %}
+                                <tr>
+                                    <td class="text-center"><b>Cant. de Oficinas: {{ocupacion | length}}</b></td>
+                                    {% if tipoInforme == 1%}
+                                        <td class="text-right"><b>{{(ocupacionGlobal * 100) | round(2) }}%</b></td>
+                                    {% endif %}
+                                    {% if tipoInforme == 2%}
+                                        <td class="text-right"></td>
+                                    {% endif %}
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    {% if tipoInforme == 1%}
+                        <div class="card-footer text-muted text-center">{{ (ocupacionGlobal * 100) | round(2) }}% representa el nivel de ocupación global considerando todas las agendas existentes.</div>
+                    {% endif %}
+                </div> 
+            </div>
+        </div>
+
+    {% endif %}
+
+    <br>
+    <div class="container-fluid"> 
+        <div class="row">
+            <div class="col-12">
+                <a class="btn btn-secondary float-left volver" href="{{ path('estadistica_evolucion_diaria') }}">Volver</a>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">{{ gc_draw(grafico, 'div_chart') }}</script>
+{#
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var jsChart = document.querySelector('.jsChart');
+            var muestro = jsChart.dataset.isAuthenticated;
+
+            if (muestro == true) {
+                console.log('Muestro');
+                var head = document.getElementsByTagName('head')[0];
+                var script = document.createElement('script');
+
+                script.src = "https://www.gstatic.com/charts/loader.js"
+                {{ gc_draw(piechart, 'div_chart') }}
+            
+            }
+
+        });    
+#}
+
+{% endblock %}     

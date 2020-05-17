@@ -3,8 +3,8 @@
 namespace App\Controller;
 
 use App\Repository\TurnoRepository;
-use App\Repository\TurnosDiariosRepository;
 use App\Repository\OficinaRepository;
+use App\Repository\TurnosDiariosRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -65,7 +65,22 @@ class EstadisticaController extends AbstractController
             'oficinaUsuario' => $oficinaUsuario
         ]);
     }
+ 
     
+    /**
+     * @Route("/estadistica/informeOcupacionAgenda", name="informe_ocupacion_agenda", methods={"GET", "POST"})
+     */
+    public function informeOcupacionAgenda(OficinaRepository $oficinaRepository): Response
+    {
+
+        // Propone fecha (día actual)
+        $desde = new \DateTime(date("Y-m-d") . " 00:00:00");
+       
+        return $this->render('estadistica/indexInformeOcupacionDiaria.html.twig', [
+            'desde' => $desde->format('d/m/Y'),
+        ]);
+    }
+     
 
     /**
      * @Route("/estadistica/show", name="estadistica_show", methods={"GET", "POST"})
@@ -300,6 +315,107 @@ class EstadisticaController extends AbstractController
             'hasta' => substr($hasta, 0, 10),
             'oficina' => $oficina,
             'estadistica' => $estadistica,
+            'grafico' => $grafico
+        ]);
+    }
+
+
+    /**
+     * @Route("/estadistica/showOcupacionDiaria", name="informe_show_ocupacion_diaria", methods={"GET", "POST"})
+     */
+    public function showOcupacionDiaria(Request $request, OficinaRepository $oficinaRepository, TurnoRepository $turnoRepository, LoggerInterface $logger): Response
+    {
+        // Recibe variables del Formulario
+        $desde = $request->request->get('start');
+        $tipoInforme = $request->request->get('inlineRadioOptions');
+
+        // Obtengo oficinas
+        $oficinas = $oficinaRepository->findAllWithUltimoTurno();
+
+        // Obtengo nivel ocupación global de la agenda
+        $nivelOcupacionAgendaGlobal = $turnoRepository->findCantidadTurnosAsignados() / $turnoRepository->findCantidadTurnosExistentes();
+
+        // Defino donde retorno los resultados
+        $datosOcupacion = [];
+
+        if ($tipoInforme == 1) {
+            // Agenda Completa
+            $subtitulo = 'Agenda Completa';
+            foreach ($oficinas as $ofi) {
+                $nivelOcupacionAgenda = $turnoRepository->findCantidadTurnosAsignados($ofi['id']) / $turnoRepository->findCantidadTurnosExistentes($ofi['id']);
+                $datosOcupacion[] = ['id' => $ofi['id'], 'oficina' => $ofi['oficina'], 'localidad' => $ofi['localidad'], 'ultimoTurno' => $ofi['ultimoTurno'], 'habilitada' => $ofi['habilitada'], 'ocupacion' => $nivelOcupacionAgenda * 100];
+            }
+        }
+
+        if ($tipoInforme == 2) {
+            // Agenda de un día específico
+            $subtitulo = 'Día Consultado: ' . $desde; 
+
+            //Transforma fecha a objetos DateTime
+            $DTdesde = new \DateTime(substr($desde, 6, 4) . '-' . substr($desde,3,2) . '-' . substr($desde, 0,2) . " 00:00:00");
+
+            $diaPrimerDia = $DTdesde;
+            $diaDesde = $diaPrimerDia->format('d/m/Y H:i:s');
+            $diaHasta = $diaPrimerDia->modify('+0 days')->format('d/m/Y 23:59:59');
+            foreach ($oficinas as $ofi) {
+                $estadistica = $turnoRepository->findEstadistica($diaDesde,$diaHasta, $ofi['id']);
+                $datosOcupacion[] = ['id' => $ofi['id'], 'oficina' => $ofi['oficina'], 'localidad' => $ofi['localidad'], 'ultimoTurno' => $ofi['ultimoTurno'], 'habilitada' => $ofi['habilitada'], 
+                'desde' => $estadistica['desde'], 'hasta' => $estadistica['hasta'], 'total' => $estadistica['total'], 'otorgados' => $estadistica['otorgados'], 'noatendidos' => $estadistica['noatendidos'], 'atendidos' => $estadistica['atendidos'], 'noasistidos' => $estadistica['noasistidos'], 'rechazados_ocupados' => $estadistica['rechazados_ocupados'], 'rechazados_libres' => $estadistica['rechazados_libres'],                
+                'ocupacion' => ($estadistica['total'] > 0 ? $estadistica['otorgados'] / $estadistica['total'] * 100 : 0)];
+            }
+        }
+        if (count($datosOcupacion)) {
+            // Obtengo una lista de columnas de los elementos sobre los que quiero ordenar los resultados
+            foreach ($datosOcupacion as $clave => $fila) {
+                $oficina[$clave] = $fila['oficina'];
+                $localidad[$clave] = $fila['localidad'];
+                $ocupacion[$clave] = $fila['ocupacion'];
+            }
+
+            // Ordeno los datos
+            array_multisort($ocupacion, SORT_NUMERIC, SORT_DESC, $localidad, SORT_ASC, $oficina, SORT_ASC, $datosOcupacion);
+        }
+    
+        // Gráfico General
+        //https://www.gstatic.com/charts/47/css/core/tooltip.css
+        $datosGrafico = [['Oficina', 'Cantidad']];
+        
+        foreach($datosOcupacion as $ocupacion) {
+            $datosGrafico[] = [$ocupacion['oficina'] . '(' . $ocupacion['localidad'] . ')', $ocupacion['ocupacion']];
+        }
+
+
+        $grafico = new ColumnChart();
+        $grafico->getData()->setArrayToDataTable($datosGrafico);
+
+        $grafico->getOptions()->getHAxis()->setTitle('');
+        $grafico->getOptions()->getHAxis()->setTextPosition('none');
+        $grafico->getOptions()->getLegend()->setPosition('none');
+        $grafico->getOptions()->getTitleTextStyle()->setFontName('Helvetica');
+        $grafico->getOptions()->getTitleTextStyle()->setFontSize(20);
+
+        $grafico->getOptions()->setTitle('Ocupación de Agendas de Turnos');
+        $grafico->getOptions()->setOrientation('horizontal');
+        $grafico->getOptions()->setHeight(350);
+        $grafico->getOptions()->setWidth(600);
+        $grafico->getOptions()->setColors(['#060']);
+        $grafico->getOptions()->getVAxis()->setMaxValue(100);
+        $grafico->getOptions()->getVAxis()->setTitle('Nivel de Ocupación (%)');
+        $grafico->getOptions()->getLegend()->setPosition('none');
+
+        // Audito la acción
+        $logger->info('Se emite informe de estadísticas', [
+            'Tipo de Informe' => $subtitulo,
+            'Fecha' => substr($desde, 0, 10), 
+            'Usuario' => $this->getUser()->getUsuario()
+            ]
+        );
+
+        return $this->render('estadistica/showInformeOcupacionDiaria.html.twig', [
+            'tipoInforme' => $tipoInforme,
+            'subtitulo' => $subtitulo,
+            'ocupacionGlobal' => $nivelOcupacionAgendaGlobal,
+            'ocupacion' => $datosOcupacion,
             'grafico' => $grafico
         ]);
     }
