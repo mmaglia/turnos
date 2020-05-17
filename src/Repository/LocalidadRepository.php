@@ -19,6 +19,17 @@ class LocalidadRepository extends ServiceEntityRepository
         parent::__construct($registry, Localidad::class);
     }
 
+    /**
+     * Se modifica el findAll para darle un orden alfabético
+     */
+    public function findAll()
+    {
+        return $this->createQueryBuilder('l')
+            ->addOrderBy('l.localidad', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
     public function findLocalidadesByCircunscripcion($circunscripcion_id)
     {
         return $this->createQueryBuilder('o')
@@ -28,7 +39,7 @@ class LocalidadRepository extends ServiceEntityRepository
             ->orderBy('localidad')
             ->getQuery()
             ->getArrayResult();
-        ;
-    }   
-    
+
+    }
+
 }
