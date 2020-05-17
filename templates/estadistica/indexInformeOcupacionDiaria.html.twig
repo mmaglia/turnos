@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Informe Ocupación{% endblock %}
+
+{% block body %}
+    <h1>Informe de Ocupación de Agendas</h1>
+    <br>
+        <div class="row">
+            <div class="col-5"></div>
+            <div class="col-4 text-center form-group input-daterange input-group">
+                <form method="post" action="{{ path('informe_show_ocupacion_diaria') }}">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="opt1" value="1" checked>
+                        <label class="form-check-label" for="opt1">Agenda Completa</label>
+                    </div>
+                    <div class="form-check form-check-inline mb-5">
+                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="opt2" value="2">
+                        <label class="form-check-label" for="opt2">Un día en particular</label>
+                    </div>
+                    <div id="fechaHora" class="selectorFechaHora text-center" name="selectorFechaHora">
+                        <label for="txtFechaDesde" id="lblDesde">Seleccione un día</label>
+                        <input type="text" id="txtFechaHora" name="start" required="required" class="js-datepicker form-control" value="{{desde}}" disabled/>
+                        <br>
+                    </div>
+                    <br><br>
+                    <center><button class="btn btn-primary">{{ button_label|default('Generar Informe') }}</button></center>
+                </form>
+            </div>
+        </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(function() {
+            $(document).ready(function(){            
+                $('#fechaHora input').datepicker({
+                    format: "dd/mm/yyyy",
+                    language: "es",
+                    todayBtn: true,
+                    orientation: "bottom right",
+                    daysOfWeekDisabled: "0,6",
+                    daysOfWeekHighlighted: "0",
+                    autoclose: true,
+                    multidate: false
+                });                  
+
+                // Deshabilita selección de fecha
+                $('#opt1').click(function() {
+                    $('#fechaHora input').attr("disabled", true);
+                });
+
+                // Habilita seleción de fecha
+                $('#opt2').click(function() {
+                    $('#fechaHora input').removeAttr("disabled");
+                });
+    
+            });            
+        });
+    </script>  
+    
+{% endblock %}     
