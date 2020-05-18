@@ -47,11 +47,20 @@ class TurnoController extends AbstractController
             $filtroEstado = 1;
             $filtroOficina = '';
         } else {
-            if (is_null($request->request->get('filterMoment'))) { // Verifica si ingresa sin indicación de filtro (refresco de la opción de cambio de estado)
-                // Mantiene el filtro actual
+            if (is_null($request->request->get('filterMoment'))) { // Verifica si ingresa sin indicación de filtro (refresco de la opción de cambio de estado o llamada desde otro lado)
+                // Mantiene filtro de estado y momento
                 $filtroMomento = $session->get('filtroMomentoTurnos');
                 $filtroEstado = $session->get('filtroEstadoTurnos');
-                $filtroOficina = $session->get('filtroOficina');
+
+                // Analiza el parámetro de Oficina
+                if ($request->query->get('cboOficina')) {
+                    // La llamada viene por GET (Ej. enlace desde. "enlaestadística/Ocupación de Agenda")
+                    $filtroOficina = $request->query->get('cboOficina');
+                } else {
+                    // Se produjo un cambio desde el panel de acciones. Se recarga la vista con los parámetros de filtro tal como están.                    
+                    // Mantiene el filtro actual
+                    $filtroOficina = $session->get('filtroOficinaTurnos');
+                }
             } else {
                 // Activa el filtro seleccionado
                 $filtroMomento = $request->request->get('filterMoment');
@@ -108,6 +117,9 @@ class TurnoController extends AbstractController
      * @Route("/turno/new", name="turno_new", methods={"GET","POST"})
      */
     function new (Request $request, LocalidadRepository $localidadRepository): Response {
+        // Deniega acceso si no tiene un rol de editor o superior
+        $this->denyAccessUnlessGranted('ROLE_EDITOR');
+
         $turno = new Turno();
         $form = $this->createForm(TurnoType::class, $turno);
         $form->handleRequest($request);
@@ -392,11 +404,15 @@ class TurnoController extends AbstractController
      */
     public function edit(Request $request, Turno $turno): Response
     {
+        // Deniega acceso si no tiene un rol de editor o superior
+        $this->denyAccessUnlessGranted('ROLE_EDITOR');
+
         $form = $this->createForm(TurnoType::class, $turno);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->getDoctrine()->getManager()->flush();
+            $this->addFlash('success', 'Se han guardado los cambios');
 
             return $this->redirectToRoute('turno_index');
         }
@@ -412,10 +428,14 @@ class TurnoController extends AbstractController
      */
     public function atendido(Turno $turno, LoggerInterface $logger): Response
     {
+        // Deniega acceso si no tiene un rol de editor o superior
+        $this->denyAccessUnlessGranted('ROLE_EDITOR');
+
         if ($turno->getEstado() == 1 || $turno->getEstado() == 2) {
             // Alterna estado de Atendido (de No Atendido (1) a Atendido (2) o de Atendido (2) a No Atendido (1))
             $turno->setEstado( ($turno->getEstado() % 2) + 1);
             $this->getDoctrine()->getManager()->flush();
+            $this->addFlash('success', ($turno->getEstado() == 2 ? 'El turno se ha marcado como Atendido' : 'El turno se marcado como No Atendido'));
             $logger->info(($turno->getEstado() == 2 ? 'Marca como Atendido' : 'Marca como No Atendido'), [
                 'Oficina' => $turno->getOficina()->getOficinayLocalidad(), 
                 'Turno' => $turno->getTurno(), 
@@ -423,6 +443,7 @@ class TurnoController extends AbstractController
                 'Usuario' => $this->getUser()->getUsuario()
                 ]
             );
+
             return $this->redirectToRoute('turno_index');
         }
     }
@@ -432,9 +453,13 @@ class TurnoController extends AbstractController
      */
     public function delete(Request $request, Turno $turno, LoggerInterface $logger): Response
     {
+        // Deniega acceso si no tiene un rol de editor o superior
+        $this->denyAccessUnlessGranted('ROLE_EDITOR');
+
         if ($this->isCsrfTokenValid('delete' . $turno->getId(), $request->request->get('_token'))) {
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->remove($turno);
+            $this->addFlash('danger', 'Se ha borrado el turno');
             $logger->info('Turno Borrado', [
                 'Oficina' => $turno->getOficina()->getOficinayLocalidad(), 
                 'Turno' => $turno->getTurno(),
@@ -452,10 +477,14 @@ class TurnoController extends AbstractController
      */
     public function no_asistido(Turno $turno, LoggerInterface $logger): Response
     {
+        // Deniega acceso si no tiene un rol de editor o superior
+        $this->denyAccessUnlessGranted('ROLE_EDITOR');
+
         if ($turno->getEstado() == 1) {
             // Marca el turno como Ausente
             $turno->setEstado(3); // Rechazado
             $this->getDoctrine()->getManager()->flush();
+            $this->addFlash('success', 'El turno se ha marcado como Ausente');
             $logger->info(('Marca como Ausente'), [
                 'Oficina' => $turno->getOficina()->getOficinayLocalidad(), 
                 'Turno' => $turno->getTurno(), 
@@ -472,6 +501,9 @@ class TurnoController extends AbstractController
      */
     public function rechazado(Request $request, Turno $turno, MailerInterface $mailer, LoggerInterface $logger): Response
     {
+        // Deniega acceso si no tiene un rol de editor o superior
+        $this->denyAccessUnlessGranted('ROLE_EDITOR');
+
         if ($turno->getEstado() == 1) {
 
             $motivoRechazo = $_ENV['MOTIVO_RECHAZO'];
@@ -510,6 +542,7 @@ class TurnoController extends AbstractController
                 }
 
                 // Rechaza el turno liberándolo para que otra persona lo pueda tomar
+                $this->addFlash('warning', 'Se ha rechazado el turno');
                 $logger->info(('Marca como Rechazado'), [
                     'Oficina' => $turno->getOficina()->getOficinayLocalidad(), 
                     'Turno' => $turno->getTurno(), 

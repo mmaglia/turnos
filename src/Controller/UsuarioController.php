@@ -14,7 +14,6 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 /**
  * @Route("/usuario")
- * @IsGranted("ROLE_ADMIN")
  */
 class UsuarioController extends AbstractController
 {
@@ -32,6 +31,9 @@ class UsuarioController extends AbstractController
      * @Route("/new", name="usuario_new", methods={"GET","POST"})
      */
     function new (Request $request, UserPasswordEncoderInterface $passwordEncoder): Response {
+        // Deniega acceso si no tiene un rol de editor o superior
+        $this->denyAccessUnlessGranted('ROLE_EDITOR');
+
         $usuario = new Usuario();
         $form = $this->createForm(UsuarioType::class, $usuario);
         $form->handleRequest($request);
@@ -75,6 +77,9 @@ class UsuarioController extends AbstractController
      */
     public function edit(Request $request, Usuario $usuario, UserPasswordEncoderInterface $passwordEncoder): Response
     {
+        // Deniega acceso si no tiene un rol de editor o superior
+        $this->denyAccessUnlessGranted('ROLE_EDITOR');
+
         $form = $this->createForm(UsuarioType::class, $usuario);
         $form->handleRequest($request);
 
@@ -101,6 +106,9 @@ class UsuarioController extends AbstractController
      */
     public function delete(Request $request, Usuario $usuario): Response
     {
+        // Deniega acceso si no tiene un rol de editor o superior
+        $this->denyAccessUnlessGranted('ROLE_EDITOR');
+
         if ($this->isCsrfTokenValid('delete' . $usuario->getId(), $request->request->get('_token'))) {
             $entityManager = $this->getDoctrine()->getManager();
 

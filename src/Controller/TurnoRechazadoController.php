@@ -41,6 +41,9 @@ class TurnoRechazadoController extends AbstractController
      */
     public function new(Request $request): Response
     {
+        // Deniega acceso si no tiene un rol de editor o superior
+        $this->denyAccessUnlessGranted('ROLE_EDITOR');
+
         $turnoRechazado = new TurnoRechazado();
         $form = $this->createForm(TurnoRechazadoType::class, $turnoRechazado);
         $form->handleRequest($request);
@@ -74,6 +77,9 @@ class TurnoRechazadoController extends AbstractController
      */
     public function edit(Request $request, TurnoRechazado $turnoRechazado): Response
     {
+        // Deniega acceso si no tiene un rol de editor o superior
+        $this->denyAccessUnlessGranted('ROLE_EDITOR');
+
         $form = $this->createForm(TurnoRechazadoType::class, $turnoRechazado);
         $form->handleRequest($request);
 
@@ -94,6 +100,9 @@ class TurnoRechazadoController extends AbstractController
      */
     public function delete(Request $request, TurnoRechazado $turnoRechazado): Response
     {
+        // Deniega acceso si no tiene un rol de editor o superior
+        $this->denyAccessUnlessGranted('ROLE_EDITOR');
+
         if ($this->isCsrfTokenValid('delete'.$turnoRechazado->getId(), $request->request->get('_token'))) {
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->remove($turnoRechazado);

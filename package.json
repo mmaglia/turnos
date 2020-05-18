@@ -4,7 +4,7 @@
         "@symfony/webpack-encore": "^0.28.2",
         "bootstrap": "^4.4.1",
         "core-js": "^3.0.0",
-        "jquery": "^3.4.1",
+        "jquery": "3.4.1",
         "node-sass": "^4.13.1",
         "popper.js": "^1.16.1",
         "regenerator-runtime": "^0.13.2",
@@ -27,5 +27,8 @@
         "mkdirp": "^1.0.4",
         "moment": "^2.24.0",
         "typeface-roboto": "^0.0.75"
+    },
+    "resolutions": {
+      "bootstrap-datepicker/jquery": "3.4.1"
     }
 }

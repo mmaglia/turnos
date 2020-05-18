@@ -39,6 +39,9 @@ class OficinaController extends AbstractController
      */
     public function new(Request $request): Response
     {
+        // Deniega acceso si no tiene un rol de editor o superior
+        $this->denyAccessUnlessGranted('ROLE_EDITOR');
+
         $oficina = new Oficina();
         $form = $this->createForm(OficinaType::class, $oficina);
         $form->handleRequest($request);
@@ -62,6 +65,8 @@ class OficinaController extends AbstractController
      */
     public function addTurnos(Request $request, Oficina $oficina, TurnoRepository $turnoRepository, LoggerInterface $logger): Response
     {
+        // Deniega acceso si no tiene un rol de editor o superior
+        $this->denyAccessUnlessGranted('ROLE_EDITOR');
 
         $ultimoTurno = $turnoRepository->findUltimoTurnoByOficina($oficina);
 
@@ -199,6 +204,8 @@ class OficinaController extends AbstractController
      */
     public function borraDiaAgendaTurnosbyOficina(Request $request, Oficina $oficina, TurnoRepository $turnoRepository, LoggerInterface $logger): Response
     {
+        // Deniega acceso si no tiene un rol de editor o superior
+        $this->denyAccessUnlessGranted('ROLE_EDITOR');
 
         //Construyo el formulario al vuelo
         $data = array(

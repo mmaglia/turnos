@@ -41,6 +41,18 @@
             </div>
         </div>
     </div>
+    
+        {# Muestra mensajes de tipo flash #}
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="row mt-3">
+                    <div class="col-12"></div>
+                    <div class="col-12 text-center">
+                        <div class="alert alert-{{ label }}">{{ message }}</div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endfor %}
 
     <table class="table table-hover">
         <thead>
@@ -113,7 +125,7 @@
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="4">No hay turnos</td>
+                    <td colspan="7">No hay turnos</td>
                 </tr>
             {% endfor %}
             </tbody>
@@ -144,6 +156,9 @@
                 var oficinaID = '{{ filtroOficina }}';
 
                 getNivelOcupacionAgenda(oficinaID);
+
+                // Procesa ocultamiento mensajes tipo flash
+                $(".alert").delay(1000).slideUp(500);
 
                 if (isRoleAdmin || isRoleAuditoriaGestion) {
                     // Armo lista de Oficinas para su selección por filtro

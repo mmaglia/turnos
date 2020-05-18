@@ -21,8 +21,10 @@
             <tr>
                 <th>Id</th>
                 <th>Localidad</th>
-                <th>Acciones</th>
-            </tr>
+                {% if is_granted('ROLE_EDITOR') %} 
+                    <th>Acciones</th>
+                {% endif %}
+                </tr>
         </thead>
         <tbody>
         {% for localidad in localidads %}
@@ -30,24 +32,28 @@
             <tr>
                 <td>{{ localidad.id }}</td>
                 <td>{{ localidad.localidad }}</td>
-                <td class="table-bordered table-secondary text-center d-print-none" width="140px" style="background-color: rgb(245, 245, 245);">
-                    &nbsp;&nbsp;
-                    <a href="{{ path('localidad_show', {'id': localidad.id}) }}" title="Ver"><i class="fas fa-eye"></i></a>
-                    &nbsp;&nbsp;
-                    <a href="{{ path('localidad_edit', {'id': localidad.id}) }}" title="Editar"><i class="fas fa-pen"></i></a>
-                    &nbsp;&nbsp;
-                    <a href="{{ path('borraDiaAgendaTurnosbyLocalidad', {'id': localidad.id}) }}" title="Eliminar un día de la Agenda de todas las oficinas {{ localidad.localidad }}"><i class="far fa-calendar-minus"></i></a>
-                </td>
+                {% if is_granted('ROLE_EDITOR') %} 
+                    <td class="table-bordered table-secondary text-center d-print-none" style="width: 140px; background-color: rgb(245, 245, 245);">
+                        &nbsp;&nbsp;
+                        <a href="{{ path('localidad_show', {'id': localidad.id}) }}" title="Ver"><i class="fas fa-eye"></i></a>
+                        &nbsp;&nbsp;
+                        <a href="{{ path('localidad_edit', {'id': localidad.id}) }}" title="Editar"><i class="fas fa-pen"></i></a>
+                        &nbsp;&nbsp;
+                        <a href="{{ path('borraDiaAgendaTurnosbyLocalidad', {'id': localidad.id}) }}" title="Eliminar un día de la Agenda de todas las oficinas {{ localidad.localidad }}"><i class="far fa-calendar-minus"></i></a>
+                    </td>
+                {% endif %}
             </tr>
         {% else %}
             <tr>
-                <td colspan="3">no records found</td>
+                <td colspan="3">no hay localidades</td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
 
-    <a class="btn btn-primary float-right" href="{{ path('localidad_new') }}">Crear nueva Localidad</a>
+    {% if is_granted('ROLE_EDITOR') %} 
+        <a class="btn btn-primary float-right" href="{{ path('localidad_new') }}">Crear nueva Localidad</a>
+    {% endif %}
 {% endblock %}
 
 {% block javascripts %}

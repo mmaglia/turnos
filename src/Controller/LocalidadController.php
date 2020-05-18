@@ -34,6 +34,9 @@ class LocalidadController extends AbstractController
      */
     public function new(Request $request): Response
     {
+        // Deniega acceso si no tiene un rol de editor o superior
+        $this->denyAccessUnlessGranted('ROLE_EDITOR');
+
         $localidad = new Localidad();
         $form = $this->createForm(LocalidadType::class, $localidad);
         $form->handleRequest($request);
@@ -67,6 +70,9 @@ class LocalidadController extends AbstractController
      */
     public function edit(Request $request, Localidad $localidad): Response
     {
+        // Deniega acceso si no tiene un rol de editor o superior
+        $this->denyAccessUnlessGranted('ROLE_EDITOR');
+
         $form = $this->createForm(LocalidadType::class, $localidad);
         $form->handleRequest($request);
 
@@ -87,6 +93,9 @@ class LocalidadController extends AbstractController
      */
     public function delete(Request $request, Localidad $localidad): Response
     {
+        // Deniega acceso si no tiene un rol de editor o superior
+        $this->denyAccessUnlessGranted('ROLE_EDITOR');
+
         if ($this->isCsrfTokenValid('delete'.$localidad->getId(), $request->request->get('_token'))) {
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->remove($localidad);
@@ -101,6 +110,9 @@ class LocalidadController extends AbstractController
      */
     public function borraDiaAgendaTurnosbyLocalidad(Request $request, TurnoRepository $turnoRepository, OficinaRepository $oficinaRepository, Localidad $localidad, LoggerInterface $logger): Response
     {
+        // Deniega acceso si no tiene un rol de editor o superior
+        $this->denyAccessUnlessGranted('ROLE_EDITOR');
+
         //Construyo el formulario al vuelo
         $data = array(
             'fecha' => (new \DateTime(date("Y-m-d"))), // Campos del formulario
