@@ -48,8 +48,8 @@ class EstadisticaController extends AbstractController
     {
 
         // Propone fechas (dese el día actual hasta un 1 mes más adelante)
-        $desde = new \DateTime(date("Y-m-d") . " 00:00:00");
-        $hasta = new \DateTime("+1 months");
+        $desde = new \DateTime("-1 months");
+        $hasta = new \DateTime(date("Y-m-d") . " 00:00:00");
 
         // Busca los turnos en función a los estados de la oficina a la que pertenece el usuario
         if ($this->isGranted('ROLE_USER')) {
