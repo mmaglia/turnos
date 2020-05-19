@@ -25,7 +25,7 @@ class LocalidadController extends AbstractController
     public function index(LocalidadRepository $localidadRepository): Response
     {
         return $this->render('localidad/index.html.twig', [
-            'localidads' => $localidadRepository->findAll(),
+            'localidads' => $localidadRepository->findAllOrdenado(),
         ]);
     }
 
@@ -45,7 +45,7 @@ class LocalidadController extends AbstractController
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($localidad);
             $entityManager->flush();
-
+            $this->addFlash('info', 'Se ha creado la localidad: ' . $localidad->getLocalidad());
             return $this->redirectToRoute('localidad_index');
         }
 

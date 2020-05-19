@@ -4,7 +4,20 @@
 
 {% block body %}
     <h1>Lista de Usuarios</h1>
+    {% if is_granted('ROLE_EDITOR') %} 
+        <a class="btn btn-primary float-right btn-top" href="{{ path('usuario_new') }}">Crear Nuevo Usuario</a>
+    {% endif %}
 
+    {% for label, messages in app.flashes %}
+		{% for message in messages %}
+			<div class="row">
+				<div class="col-8"></div>
+				<div class="col-4 text-right">
+					<div class="alert alert-{{ label }}">{{ message }}</div>
+				</div>
+			</div>
+		{% endfor %}
+	{% endfor %}
     <table class="table">
         <thead>
             <tr>
@@ -51,7 +64,7 @@
             </tr>
         {% else %}
             <tr>
-                <td colspan="13">no hay registros</td>
+                <td colspan="13">No hay registros</td>
             </tr>
         {% endfor %}
         </tbody>
@@ -60,5 +73,17 @@
     {% if is_granted('ROLE_EDITOR') %} 
         <a class="btn btn-primary float-right" href="{{ path('usuario_new') }}">Crear Nuevo Usuario</a>
     {% endif %}
+
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+	<script>
+		$(function () {
+            $(document).ready(function () {
+                $(".alert").delay(3500).slideUp(2000);
+            });
+        });
+	</script>
 
 {% endblock %}
