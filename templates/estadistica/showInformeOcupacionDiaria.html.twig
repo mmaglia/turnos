@@ -10,20 +10,15 @@
     {% if ocupacion | length > 0 %}
         <div class="container-fluid">
             <div class="row">
-                <div class="col-2"></div>
-                <div class="col-8 float-right jsChart" data-is-authenticated="{{ grafico | length > 0 ? 'true' : 'false' }}">
-                    <div class="card border-primary mb-3">
-                        <div class="card-body text-primary">
+                <div class="col-12 float-right jsChart" data-is-authenticated="{{ grafico | length > 0 ? 'true' : 'false' }}">
+                    <div class="mb-3">
                             <center><div id="div_chart"></div></center>
-                        </div>
                     <div class="card-footer text-muted text-center">La vista representa los turnos ocupados con relación a la cantidad total de turnos disponibles.</div>                                  
-                    </div>
                 </div>
             </div>
         </div>
         <div class="row">
-            <div class="col-2"></div>
-            <div class="col-8">
+            <div class="col-12">
                 <div class="card border-primary mb-3">
                     <div class="card-header"><strong>Nivel de Ocupación de la Agenda para cada Oficina</strong></div>
                     <div class="card-body text-primary">
@@ -36,14 +31,23 @@
                                         <th class="text-center">Ultimo Turno Disponible</th>
                                     {% endif %}
                                     {% if tipoInforme == 2%}
-                                        <th class="text-center">Turnos Otorgados</th>
+                                        <th class="text-right" colspan="2">Otorgados</th>
+                                        <th class="text-right" colspan="2">No Atendidos</th>
+                                        <th class="text-right" colspan="2">Atendidos</th>
+                                        <th class="text-right" colspan="2">Ausentes</th>
+                                        <th class="text-right" colspan="2">Rechazados</th>
                                     {% endif %}
                                 </tr>
                             </thead>
                             <tbody>
                         {% set cantidad = 0 %}
+                        {% set oficinas, turnos, otorgados, noatendidos, atendidos, noasistidos, rechazados = 0, 0, 0, 0, 0, 0, 0 %}
+
                         {% for oficina in ocupacion %}
                                 {% set cantidad = cantidad + oficina['otorgados'] %}
+                                {% set oficinas, turnos, otorgados, noatendidos, atendidos, noasistidos, rechazados = oficinas + 1, turnos + oficina['otorgados']
+                                , otorgados + oficina['otorgados'] + oficina['rechazados_libres'], noatendidos + oficina['noatendidos'], atendidos + oficina['atendidos'], noasistidos + oficina['noasistidos'], rechazados + oficina['rechazados_libres']
+                                %}
                                 <tr>
                                     <td class="">
                                         <a href="{{ path('turno_index', {'cboOficina': oficina['id']}) }}" target="_blank" title="Abrir Agenda de la Oficina">{{ oficina['oficina'] }} ({{oficina['localidad']}})</a>
@@ -53,7 +57,16 @@
                                         <td class="text-center">{{ oficina['ultimoTurno'] }}</td>
                                     {% endif %}
                                     {% if tipoInforme == 2%}
-                                        <td class="text-right">{{ oficina['otorgados'] }}</td>
+                                        <td class="text-right">{{ oficina['otorgados'] + oficina['rechazados_libres']}}</td>
+                                        <td class="text-right text-secondary">{{ oficina['otorgados'] > 0 ? '(' ~ (((oficina['otorgados'] + oficina['rechazados_libres']) / oficina['total'] * 100) | round(2)) ~ '%)'}}</td>
+                                        <td class="text-right">{{ oficina['noatendidos'] }}</td>
+                                        <td class="text-right text-secondary">{{ oficina['otorgados'] > 0 ? '(' ~ ((oficina['noatendidos'] / (oficina['otorgados'] + oficina['rechazados_libres']) * 100) | round(2)) ~ '%)'}}</td>
+                                        <td class="text-right">{{ oficina['atendidos'] }}</td>
+                                        <td class="text-right text-secondary">{{ oficina['otorgados'] > 0 ? '(' ~ ((oficina['atendidos'] / (oficina['otorgados'] + oficina['rechazados_libres']) * 100) | round(2)) ~ '%)'}}</td>
+                                        <td class="text-right">{{ oficina['noasistidos'] }}</td>
+                                        <td class="text-right text-secondary">{{ oficina['otorgados'] > 0 ? '(' ~ ((oficina['noasistidos'] / (oficina['otorgados'] + oficina['rechazados_libres']) * 100) | round(2)) ~ '%)'}}</td>
+                                        <td class="text-right">{{ oficina['rechazados_libres'] }}</td>
+                                        <td class="text-right text-secondary">{{ oficina['otorgados'] > 0 ? '(' ~ ((oficina['rechazados_libres'] / (oficina['otorgados'] + oficina['rechazados_libres']) * 100) | round(2)) ~ '%)'}}</td>
                                     {% endif %}
 
 
@@ -71,7 +84,12 @@
                                         <td></td>
                                     {% endif %}
                                     {% if tipoInforme == 2%}
-                                        <td class="text-right"><b>{{cantidad}}</b></td>
+                                        <td class="text-right" colspan="2"><b>{{otorgados}}</td>
+                                        <td class="text-right" colspan="2"><b>{{noatendidos}}</td>
+                                        <td class="text-right" colspan="2"><b>{{atendidos}}</td>
+                                        <td class="text-right" colspan="2"><b>{{noasistidos}}</td>
+                                        <td class="text-right" colspan="2"><b>{{rechazados}}</td>
+
                                     {% endif %}
                                 </tr>
                             </tbody>

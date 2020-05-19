@@ -396,12 +396,12 @@ class EstadisticaController extends AbstractController
 
         $grafico->getOptions()->setTitle('Ocupación de Agendas de Turnos');
         $grafico->getOptions()->setOrientation('horizontal');
+        $grafico->getOptions()->getChartArea()->setWidth('75%');
         $grafico->getOptions()->setHeight(350);
-        $grafico->getOptions()->setWidth(600);
+//        $grafico->getOptions()->setWidth('30%');
         $grafico->getOptions()->setColors(['#060']);
         $grafico->getOptions()->getVAxis()->setMaxValue(100);
         $grafico->getOptions()->getVAxis()->setTitle('Nivel de Ocupación (%)');
-        $grafico->getOptions()->getLegend()->setPosition('none');
 
         // Audito la acción
         $logger->info('Se emite informe de estadísticas', [
