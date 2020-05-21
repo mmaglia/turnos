@@ -10,36 +10,46 @@
                 Generación Masiva de Turnos
             </div>
             <div class="card-body">
-                <h5 class="card-title text-center">{{ oficina.oficina }} ({{ oficina.localidad }})</h5>
+                <h5 class="card-title text-center">{{ oficinasSeleccionadas ? 'Oficinas múltiples seleccionadas' : oficina.oficina (oficina.localidad) }}</h5>
                 <div class="row">
                     <div class="col-2"></div>
                     <div class="col-8">
                         <div class="card bg-light mb-2" style="font-size: .8rem;">
-                            <div class="card-header"><strong>Datos de la Oficina</strong></div>
+                            {% if not oficinasSeleccionadas %}<div class="card-header"><strong>Datos de la Oficina</strong></div>{% endif %}
                             <div class="card-body">
-                                <div class="row">
-                                    <div class="col-6 text-right">
-                                            Hora Inicio Atención <br>
-                                            Hora Fin Atención <br>
-                                            Frecuencia Atención <br>
-                                            Ultimo Turno <br>
+                                {% if not oficinasSeleccionadas %}
+                                    <div class="row">
+                                        <div class="col-6 text-right">
+                                                Hora Inicio Atención <br>
+                                                Hora Fin Atención <br>
+                                                Frecuencia Atención <br>
+                                                Ultimo Turno <br>
+                                        </div>
+                                        <div class="col-6">
+                                            <strong>{{ oficina.horaInicioAtencion ? oficina.horaInicioAtencion|date('H:i') : '' }} <br>
+                                                    {{ oficina.horaFinAtencion ? oficina.horaFinAtencion|date('H:i') : '' }} <br>
+                                                    {{ oficina.frecuenciaAtencion }} <br>
+                                                    {{ fechaHoraUltimoTurno ? fechaHoraUltimoTurno|date('d/m/Y H:i') : '' }} </strong><br>
+                                        </div>
                                     </div>
-                                    <div class="col-6">
-                                        <strong>{{ oficina.horaInicioAtencion ? oficina.horaInicioAtencion|date('H:i') : '' }} <br>
-                                                {{ oficina.horaFinAtencion ? oficina.horaFinAtencion|date('H:i') : '' }} <br>
-                                                {{ oficina.frecuenciaAtencion }} <br>
-                                                {{ fechaHoraUltimoTurno ? fechaHoraUltimoTurno|date('d/m/Y H:i') : '' }} </strong><br>
-                                    </div>
-                                </div>
+                                {% else %}
+                                    <p class="text-justify">La configuración que defina a continuación se aplicará de igual forma a las <strong>{{oficinasSeleccionadas | length}} oficinas que ha seleccionado</strong>.</p>
+                                    <p class="text-justify">Se considerán los parámetros de hora de inicio, hora de fin y frecuencia para cada Oficina en particular.</p>
+                                    <p class="text-justify">La fecha de inicio será a partir del último turno para cada oficina en particular.</p>
+                                {% endif %}
                             </div>
                         </div>       
                     </div>
-                </div>         
-                <p class="card-text text-justify">Los turnos se crean a partir de la fecha indicada. Por defecto se propone el día siguiente al último existente en la agenda de la oficina. Es decir <strong>a partir del {{ aPartirde ? aPartirde|date('d/m/Y') : '' }}</strong> y por la cantidad de días que usted indique a continuación. </p>
-                <p class="card-text text-justify">Puede optar por indicar un día de inicio cualquiera. Por ejemplo puede añadir turnos a días generados previamente.</p>
-                <p class="card-text text-justify">Puede optar también por establecer los minutos de desplazamiento con respecto a la hora de inicio de atención o no.</p>
+                </div>      
+                {% if not oficinasSeleccionadas %}   
+                    <p class="card-text text-justify">Los turnos se crean a partir de la fecha indicada. Por defecto se propone el día siguiente al último existente en la agenda de la oficina. Es decir <strong>a partir del {{ aPartirde ? aPartirde|date('d/m/Y') : '' }}</strong> y por la cantidad de días que usted indique a continuación. </p>
+                    <p class="card-text text-justify">Puede optar por indicar un día de inicio cualquiera. Por ejemplo puede añadir turnos a días generados previamente.</p>
+                {% endif %}
+                <p class="card-text text-justify">Puede optar por establecer los minutos de desplazamiento con respecto a la hora de inicio de atención o no.</p>
                 <p class="card-text text-justify">Los turnos se crean para todos los días de lunes a viernes (no considera feriados). Puede eliminar un día en particular para toda una localidad desde la gestión de localidades o desde este mismo módulo para una Oficina en particular.</p>
-                <p class="card-text text-justify">Por defecto la generación admite más de un mismo turno en el mismo horario. <strong>Si ya existen turnos para el mismo día y horario este proceso añadirá nuevos turnos</strong>. Si usted no desea que sea así asegúrse de marcar <i>"Sólo un turno por rango horario"</i>.</p>
+                {% if not oficinasSeleccionadas %}                
+                    <p class="card-text text-justify">Por defecto la generación admite más de un mismo turno en el mismo horario. <strong>Si ya existen turnos para el mismo día y horario este proceso añadirá nuevos turnos</strong>. Si usted no desea que sea así asegúrse de marcar <i>"Sólo un turno por rango horario"</i>.</p>
+                {% endif %}
       
                 {{ form_start(form) }}
                 <div class="my-custom-class-for-errors">
@@ -90,6 +100,7 @@
         $(function () {
             $(document).ready(function () {
                 jQuery(document).ready(function() {
+
                     // .js-datepicker
                     //#
                     $('#add_turnos_fechaInicio').datepicker({
@@ -113,6 +124,12 @@
                         todayBtn: true,
                         multidate: true
                     });
+
+                    if ( {{oficinasSeleccionadas | length}} > 0) {
+                        $('#add_turnos_fechaInicio').val('');
+                        $('#add_turnos_fechaInicio').attr('disabled', true);
+                        $('#soloUnTurno').hide();
+                    }
 
                 });
             })

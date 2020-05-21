@@ -16,55 +16,65 @@
         {% endfor %}
     {% endfor %}
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Oficina</th>
-                <th>Localidad</th>
-                <th>Hora Inicio Atención</th>
-                <th>Hora Fin Atención</th>
-                <th>Frecuencia Atención (minutos)</th>
-                <th>Teléfono</th>
-                <th class="text-center">Habilitada</th>
-                <th>Ultimo Turno</th>
-                {% if is_granted('ROLE_EDITOR') %} 
-                    <th>Acciones</th>
-                {% endif %}
-            </tr>
-        </thead>
-        <tbody>
-        {# Lee y muestra todos los mensajes flash #}
-        {% for oficina in oficinas %}
-            <tr>
-                <td>{{ oficina.id }}</td>
-                <td>{{ oficina.oficina }}</td>
-                <td>{{ oficina.localidad }}</td>
-                <td>{{ oficina.horaInicioAtencion ? oficina.horaInicioAtencion|date('H:i') : '' }}</td>
-                <td>{{ oficina.horaFinAtencion ? oficina.horaFinAtencion|date('H:i') : '' }}</td>
-                <td>{{ oficina.frecuenciaAtencion }}</td>
-                <td>{{ oficina.telefono }}</td>
-                <td class="text-center">{{ oficina.habilitada ? '<i class="fas fa-check"></i>' : '' }} </td>
-                <td>{{ oficina.ultimoTurno ? oficina.ultimoTurno|date('Y-m-d H:i') : '' }}</td>
-                {% if is_granted('ROLE_EDITOR') %} 
-                    <td class="table-bordered table-secondary text-center d-print-none" style="width:160px; background-color: rgb(245, 245, 245);">
-                        <a href="{{ path('oficina_show', {'id': oficina.id}) }}" title="Ver"><i class="fas fa-eye"></i></a>
-                        &nbsp;&nbsp;
-                        <a href="{{ path('oficina_edit', {'id': oficina.id}) }}" title="Editar"><i class="fas fa-pen"></i></a>
-                        &nbsp;&nbsp;
-                        <a href="{{ path('oficina_addTurnos', {'id': oficina.id}) }}" title="Crear Nuevos Turnos para {{ oficina.oficina }} ({{oficina.localidad}})"><i class="far fa-calendar-plus"></i></a>
-                        &nbsp;&nbsp;
-                        <a href="{{ path('borraDiaAgendaTurnosbyOficina', {'id': oficina.id}) }}" title="Elimina un día de la Agenda de {{ oficina.oficina }} ({{oficina.localidad}})"><i class="far fa-calendar-minus"></i></a>
-                    </td>
-                {% endif %}
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="6">no hay registros</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    <form id="frmOficinas" method="post" action="{{ path('oficina_addTurnosOficinas') }}">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" id="selectAll" /></th>
+                    <th>Id</th>
+                    <th>Oficina</th>
+                    <th>Localidad</th>
+                    <th>Hora Inicio Atención</th>
+                    <th>Hora Fin Atención</th>
+                    <th>Frecuencia Atención (minutos)</th>
+                    <th>Teléfono</th>
+                    <th class="text-center">Habilitada</th>
+                    <th>Ultimo Turno</th>
+                    {% if is_granted('ROLE_EDITOR') %} 
+                        <th>Acciones</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+            {# Lee y muestra todos los mensajes flash #}
+            {% for oficina in oficinas %}
+                <tr>
+                    <td><input type="checkbox" name="oficinaID[]" value="{{ oficina.id }}"></td>
+                    <td>{{ oficina.id }}</td>
+                    <td>{{ oficina.oficina }}</td>
+                    <td>{{ oficina.localidad }}</td>
+                    <td>{{ oficina.horaInicioAtencion ? oficina.horaInicioAtencion|date('H:i') : '' }}</td>
+                    <td>{{ oficina.horaFinAtencion ? oficina.horaFinAtencion|date('H:i') : '' }}</td>
+                    <td>{{ oficina.frecuenciaAtencion }}</td>
+                    <td>{{ oficina.telefono }}</td>
+                    <td class="text-center">{{ oficina.habilitada ? '<i class="fas fa-check"></i>' : '' }} </td>
+                    <td>{{ oficina.ultimoTurno ? oficina.ultimoTurno|date('Y-m-d H:i') : '' }}</td>
+                    {% if is_granted('ROLE_EDITOR') %} 
+                        <td class="table-bordered table-secondary text-center d-print-none" style="width:160px; background-color: rgb(245, 245, 245);">
+                            <a href="{{ path('oficina_show', {'id': oficina.id}) }}" title="Ver"><i class="fas fa-eye"></i></a>
+                            &nbsp;&nbsp;
+                            <a href="{{ path('oficina_edit', {'id': oficina.id}) }}" title="Editar"><i class="fas fa-pen"></i></a>
+                            &nbsp;&nbsp;
+                            <a href="{{ path('oficina_addTurnos', {'id': oficina.id}) }}" title="Crear Nuevos Turnos para {{ oficina.oficina }} ({{oficina.localidad}})"><i class="far fa-calendar-plus"></i></a>
+                            &nbsp;&nbsp;
+                            <a href="{{ path('borraDiaAgendaTurnosbyOficina', {'id': oficina.id}) }}" title="Elimina un día de la Agenda de {{ oficina.oficina }} ({{oficina.localidad}})"><i class="far fa-calendar-minus"></i></a>
+                        </td>
+                    {% endif %}
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="6">no hay registros</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {% if is_granted('ROLE_EDITOR') %} 
+            <a class="btn btn-primary float-left" href="#" onclick="document.getElementById('frmOficinas').submit();">Crear Nuevos Turnos para las Oficinas Seleccionadas</a>
+        {% endif %}
+
+    </form>
+
 
     {% if is_granted('ROLE_EDITOR') %} 
         <a class="btn btn-primary float-right" href="{{ path('oficina_new') }}">Crear Nueva Oficina</a>
@@ -87,6 +97,11 @@
             $(document).ready(function(){            
                 $(document).ready(function(){
                     $(".alert").delay(3500).slideUp(2000);
+                  
+                    $('#selectAll').click(function(e){
+                        var table= $(e.target).closest('table');
+                        $('td input:checkbox',table).prop('checked',this.checked);
+                    });
                 });
             });
         });

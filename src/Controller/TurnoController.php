@@ -168,6 +168,12 @@ class TurnoController extends AbstractController
     public function new3(SessionInterface $session, Request $request): Response
     {
         $persona = $session->get('persona');
+
+        // Si viene sin instancia de persona lo redirige al paso de selección de persona
+        if (!$persona) {
+            return $this->redirectToRoute('turno_new2');
+        }
+
         $turno = new Turno();
         $turno->setPersona($persona);
         $form = $this->createForm(Turno3Type::class, $turno);
@@ -195,6 +201,15 @@ class TurnoController extends AbstractController
     {
         $persona = $session->get('persona');
         $turno = $session->get('turno');
+
+        // Si viene sin instancia de persona lo redirige al paso de selección de persona
+        if (!$persona) {
+            return $this->redirectToRoute('turno_new2');
+        }
+        // Si viene sin instancia de turno o sin oficina seleccionada lo redirige al paso de selección de oficina
+        if (!$turno || !$turno->getOficina()) {
+            return $this->redirectToRoute('turno_new3');
+        }
 
         $oficinaId = $turno->getOficina()->getId();
         $primerDiaDisponible = $turnoRepository->findPrimerDiaDisponibleByOficina($oficinaId);
@@ -233,10 +248,24 @@ class TurnoController extends AbstractController
         $persona = $session->get('persona');
         $turno = $session->get('turno');
 
+        // Si viene sin instancia de persona lo redirige al paso de selección de persona
+        if (!$persona) {
+            return $this->redirectToRoute('turno_new2');
+        }
+        // Si viene sin instancia de turno o sin oficina seleccionada lo redirige al paso de selección de oficina
+        if (!$turno || !$turno->getOficina()) {
+            return $this->redirectToRoute('turno_new3');
+        }
+        // Si viene sin fecha y hora seleccionada lo redirige al paso de seleccción de fecha y hora
+        if (!$turno->getFechaHora()) {
+            return $this->redirectToRoute('turno_new4');
+        }
+
         $form = $this->createForm(Turno5Type::class, $turno);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            
             $turnoActualizar = $turnoRepository->findTurnoLibre($turno->getOficina()->getId(), $turno->getFechaHora());
 
             // Verifico si el turno no se ocupó
