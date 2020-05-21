@@ -80,12 +80,14 @@ class OficinaRepository extends ServiceEntityRepository
 
     public function findUltimoTurnoById($oficinaId)
     {
-        return $this->getEntityManager()
+        $result = $this->getEntityManager()
             ->createQuery("SELECT (select max(t.fechaHora) from App\Entity\Turno t where t.oficina = o) as ultimoTurno 
                             FROM App\Entity\Oficina o 
                             WHERE o.id = $oficinaId 
                             ")
             ->getOneOrNullResult();
+
+        return $result['ultimoTurno'];
     }
 
 }

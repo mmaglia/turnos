@@ -10,7 +10,7 @@
                 Generación Masiva de Turnos
             </div>
             <div class="card-body">
-                <h5 class="card-title text-center">{{ oficinasSeleccionadas ? 'Oficinas múltiples seleccionadas' : oficina.oficina (oficina.localidad) }}</h5>
+                <h5 class="card-title text-center">{{ oficinasSeleccionadas ? 'Oficinas múltiples seleccionadas' : oficina.oficina ~ '(' ~ oficina.localidad ~ ')' }}</h5>
                 <div class="row">
                     <div class="col-2"></div>
                     <div class="col-8">
@@ -45,6 +45,7 @@
                     <p class="card-text text-justify">Los turnos se crean a partir de la fecha indicada. Por defecto se propone el día siguiente al último existente en la agenda de la oficina. Es decir <strong>a partir del {{ aPartirde ? aPartirde|date('d/m/Y') : '' }}</strong> y por la cantidad de días que usted indique a continuación. </p>
                     <p class="card-text text-justify">Puede optar por indicar un día de inicio cualquiera. Por ejemplo puede añadir turnos a días generados previamente.</p>
                 {% endif %}
+                <p class="card-text text-justify">Puede optar entre generar turnos hasta un día en particular o por una cantidad de días corridos a partir de la fecha de inicio.</p>
                 <p class="card-text text-justify">Puede optar por establecer los minutos de desplazamiento con respecto a la hora de inicio de atención o no.</p>
                 <p class="card-text text-justify">Los turnos se crean para todos los días de lunes a viernes (no considera feriados). Puede eliminar un día en particular para toda una localidad desde la gestión de localidades o desde este mismo módulo para una Oficina en particular.</p>
                 {% if not oficinasSeleccionadas %}                
@@ -56,30 +57,50 @@
                     {{ form_errors(form) }}
                 </div>
     
-                <div class="row">
-                    <div class="col-2">
-                        {{ form_row(form.fechaInicio) }}
+                    <div class="row">
+                        <div class="col-4">
+                            <fieldset class="border p-2">
+                                <legend class="w-auto text-primary">Desde</legend>
+                                {{ form_row(form.fechaInicio) }}
+                            </fieldset>
+                        </div>
+                        <div class="col-8">
+                            <fieldset class="border p-2">
+                                <legend class="w-auto text-primary">Hasta</legend>
+                                <div class="row">
+                                    <div class="col-6">
+                                        {{ form_row(form.fechaFin) }}
+                                    </div>
+                                    <div class="col-6">
+                                        {{ form_row(form.cantidadDias) }}
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
                     </div>
-                    <div class="col-10">
-                        {{ form_row(form.feriados) }}
+
+                <fieldset class="border p-2">
+                    <legend class="w-auto text-primary">Feriados y días no laborables</legend>
+                    <div class="row">
+                        <div class="col-12">
+                            {{ form_row(form.feriados) }}
+                        </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-4">
-                        {{ form_row(form.minutosDesplazamiento) }}
+                </fieldset>
+                <fieldset class="border p-2">
+                    <legend class="w-auto text-primary">Criterios de Generación</legend>
+                    <div class="row">
+                        <div class="col-3">
+                            {{ form_row(form.minutosDesplazamiento) }}
+                        </div>
+                        <div class="col-6" id="cantTurnosSuperpuestos">
+                            {{ form_row(form.cantTurnosSuperpuestos) }}
+                        </div>
+                        <div class="col-3" id="soloUnTurno">
+                            {{ form_row(form.soloUnTurno) }}
+                        </div>
                     </div>
-                    <div class="col-4" id="cantTurnosSuperpuestos">
-                        {{ form_row(form.cantTurnosSuperpuestos) }}
-                    </div>
-                    <div class="col-4">
-                        {{ form_row(form.cantidadDias) }}
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-12" id="soloUnTurno">
-                        {{ form_row(form.soloUnTurno) }}
-                    </div>
-                </div>
+                </fieldset>
                 <div class="row mt-4">
                     <div class="col-4 float-left"><a  class="btn btn-secondary volver" href="{{ path('oficina_index') }}">Volver a la  lista</a></div>
                     <div class="col-4"></div>
@@ -99,10 +120,6 @@
     <script>
         $(function () {
             $(document).ready(function () {
-                jQuery(document).ready(function() {
-
-                    // .js-datepicker
-                    //#
                     $('#add_turnos_fechaInicio').datepicker({
                         format: "dd/mm/yyyy",
                         language: "es",
@@ -125,23 +142,40 @@
                         multidate: true
                     });
 
+                    $('#add_turnos_fechaFin').datepicker({
+                        format: "dd/mm/yyyy",
+                        language: "es",
+                        daysOfWeekDisabled: "0,6",
+                        daysOfWeekHighlighted: "0",
+                        todayHighlight: true,
+                        autoclose: true,
+                        todayBtn: true,
+                    });
+
                     if ( {{oficinasSeleccionadas | length}} > 0) {
                         $('#add_turnos_fechaInicio').val('');
                         $('#add_turnos_fechaInicio').attr('disabled', true);
                         $('#soloUnTurno').hide();
                     }
-
-                });
             })
-//            $('label.required').attr('class', '.required')
+            
+            // Agrega un * a todos los campos que son requeridos
             $('label.required').append('<sup><strong>&nbsp;*</strong></sup>');
 
+            // Si elige sólo un turno se deshabilita cant. de turnos por rango horario
             $('#soloUnTurno input').click(function() {                
                 if ($(this).prop("checked")) { 
                     $('#cantTurnosSuperpuestos input').attr("disabled", true);
                 } else {
                     $('#cantTurnosSuperpuestos input').removeAttr("disabled");
                 }
+            })
+
+            $('#add_turnos_fechaFin').change(function() {
+                $('#add_turnos_cantidadDias').val('')
+            })
+            $('#add_turnos_cantidadDias').change(function() { 
+                $('#add_turnos_fechaFin').val('')
             })
 
         });

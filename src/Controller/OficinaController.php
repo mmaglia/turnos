@@ -52,7 +52,7 @@ class OficinaController extends AbstractController
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($oficina);
             $entityManager->flush();
-            $this->addFlash('info', 'Se ha creado la oficina: ' . $oficina->getOficina() . ' - ' . $oficina->getLocalidad());
+
             return $this->redirectToRoute('oficina_index');
         }
 
@@ -67,7 +67,8 @@ class OficinaController extends AbstractController
      */
     public function addTurnos(Request $request, Oficina $oficina, TurnoRepository $turnoRepository, LoggerInterface $logger, OficinaRepository $oficinaRepository, SessionInterface $session, int $id=1): Response
     {
-        
+        $session->set('oficinasSeleccionadas', null);
+ 
         // Deniega acceso si no tiene un rol de editor o superior
         $this->denyAccessUnlessGranted('ROLE_EDITOR');
 
@@ -78,47 +79,57 @@ class OficinaController extends AbstractController
             $oficinasSeleccionadas = $session->get('oficinasSeleccionadas');
         }
 
+        // Propone como fecha de generación el día siguiente al último turno
         $ultimoTurno = $turnoRepository->findUltimoTurnoByOficina($oficina);
-
         // Controla que existan turnos previos.
         if ($ultimoTurno) {
             $fechaHoraUltimoTurno = $ultimoTurno[0]->getFechaHora();
         } else { // Sino establece el día actual como punto de partida
             $fechaHoraUltimoTurno = new DateTime('now');
         }
-
         $aPartirde = new DateTime($fechaHoraUltimoTurno->format('Y-m-d'));
         $aPartirde = $aPartirde->add(new DateInterval('P1D')); // Suma un día al día actual
 
-        // Establece valores por defecto
+        // Establece valores por defecto y arma el Formulario
         $frecuencia = $oficina->getFrecuenciaAtencion();
         $cantidadDias = 90;
         $minutosDesplazamiento = 0;
-
         $form = $this->createForm(AddTurnosType::class, [
             'fechaInicio' => $aPartirde,
             'minutosDesplazamiento' => $minutosDesplazamiento,
             'cantTurnosSuperpuestos' => 1,
             'cantidadDias' => $cantidadDias,
             'soloUnTurno' => false,
-            ] );
+            ]);
         $form->handleRequest($request);
 
+        // Procesa Datos del Formulario
         if ($form->isSubmitted() && $form->isValid()) {
-            while (true) {
+
+            $feriados = $request->request->get('add_turnos')['feriados'];
+            $aFeriados = explode(',', $feriados);
+            
+            $minutosDesplazamiento = $request->request->get('add_turnos')['minutosDesplazamiento'];
+
+            // Si se opta por "Sólo un turno por rango horario" cantTurnosSuperpuestos puede no llegar como parámetro. Para ese caso se establece por defecto el valor 1.
+            $cantTurnos = (isset($request->request->get('add_turnos')['cantTurnosSuperpuestos']) ? $request->request->get('add_turnos')['cantTurnosSuperpuestos'] : 1);
+
+            $entityManager = $this->getDoctrine()->getManager();
+
+            while (true) {                
                 if ($oficinasSeleccionadas) {
                     // Establece los valores de fecha de Inicio y Frecuencia por cada Oficina que se seleccionó
                     $oficina = $oficinaRepository->findById($oficinasSeleccionadas[$indiceOficinasSeleccionadas]);
                     $frecuencia = $oficina->getFrecuenciaAtencion();
+                    $fechaHoraUltimoTurno = $oficinaRepository->findUltimoTurnoById($oficinasSeleccionadas[$indiceOficinasSeleccionadas]);
                     // Controla que existan turnos previos
-                    if ($ultimoTurno) {
-                        $fechaHoraUltimoTurno = $oficinaRepository->findUltimoTurnoById($oficinasSeleccionadas[$indiceOficinasSeleccionadas]);   //$oficina->get $ultimoTurno[0]->getFechaHora();
+                    if ($fechaHoraUltimoTurno) {
+                        $aPartirde = new DateTime($fechaHoraUltimoTurno);
                     } else { // Sino establece el día actual como punto de partida
-                        $fechaHoraUltimoTurno = new DateTime('now');
+                        $aPartirde = new DateTime('now');
                     }
-                    $fechaInicio = new DateTime($fechaHoraUltimoTurno['ultimoTurno']);
-                    $aPartirde = $fechaInicio;
-//                    $fechaInicio = $fechaInicio->add(new DateInterval('P1D')); // Suma un día al día generado por la Oficina
+                    $fechaInicio = $aPartirde->format('d/m/Y');
+
                     $soloUnTurno = false; // Evito un control innecesario de buscar si existe el turno. Todos son turnos nuevos.
                 }
                 else {
@@ -130,24 +141,25 @@ class OficinaController extends AbstractController
                     $aPartirde->sub(new DateInterval('P1D')); // Resta un día al día de comienzo porque incremento al comienzo del bucle siguiente
                 }
 
-                $feriados = $request->request->get('add_turnos')['feriados'];
-                $minutosDesplazamiento = $request->request->get('add_turnos')['minutosDesplazamiento'];
-                // Si se opta por "Sólo un turno por rango horario" cantTurnosSuperpuestos puede no llegar como parámetro. Para ese caso se establece por defecto el valor 1.
-                $cantTurnos = (isset($request->request->get('add_turnos')['cantTurnosSuperpuestos']) ? $request->request->get('add_turnos')['cantTurnosSuperpuestos'] : 1);
-                $cantidadDias = $request->request->get('add_turnos')['cantidadDias'];
-
-                if ($soloUnTurno) {
-                    $cantTurnos = 1; // Me aseguro que sólo se genere un turno por rango si no se quiere más que eso
+                // Obtiene cantidad de días para la generación
+                if ($request->request->get('add_turnos')['cantidadDias']) {
+                    $cantidadDias = $request->request->get('add_turnos')['cantidadDias'];
+                } else {
+                    // Si se optó por una fecha 'Hasta' se calcula la diferencia en días entre el inicio y el fin
+                    $fechaFin = $request->request->get('add_turnos')['fechaFin'];
+                    $fechaFin = new \DateTime(substr($fechaFin,-4) . '-' . substr($fechaFin,3,2) . '-' . substr($fechaFin, 0,2));
+                    $cantidadDias = $fechaFin->diff(($aPartirde))->days;
                 }
 
-                $aFeriados = explode(',', $feriados);
-
-                $entityManager = $this->getDoctrine()->getManager();
+                // Me aseguro que sólo se genere un turno por rango si no se quiere más que eso (sobre todo por si viene por generaicón múltiple)
+                if ($soloUnTurno) {
+                    $cantTurnos = 1; 
+                }
 
                 // Recorre cada día del intervalo indicado
-                $j=0;
-                for ($i=1; $i <= $cantidadDias; $i++){
-                        
+                $totalTurnosGenerados = 0;
+                $nuevoTurno = $aPartirde;
+                for ($dia = 1; $dia <= $cantidadDias; $dia++){    
                     // Incrementa fecha en un 1 día
                     $nuevoTurno = $aPartirde->add(new DateInterval('P1D'));
 
@@ -179,47 +191,48 @@ class OficinaController extends AbstractController
                         }
 
                         if (!$existeTurno || !$soloUnTurno) {
-                            // Genera el alta del turno (simple por inexistencia previa o múltiples para el mismo horario)
+                            // Genera el alta del turno (simple por inexistencia previa o múltiples para el mismo horario)                           
                             for ($k=1; $k <= $cantTurnos; $k++) {
-                                $j++;
+                                $totalTurnosGenerados++;
                                 $turno = new Turno();
                                 $turno->setFechaHora($nuevoTurno);
                                 $turno->setOficina($oficina);
                                 $turno->setEstado(1);
                                 $entityManager->persist($turno);       
+                               
                                 $this->getDoctrine()->getManager()->flush();
                             }
                         }
 
                         $nuevoTurno = $aPartirde->add(new DateInterval('PT' . $frecuencia . 'M'));
 
-                        if ($nuevoTurno > $ultimoTurnoDelDia) {
-                            // Libero la selección de session
-                            $session->set('oficinasSeleccionadas', null); // Elimina de session las oficinas seleccionadas
+                        if ($nuevoTurno >= $ultimoTurnoDelDia) {
                             break;
                         }
-
                     }
                 }
 
-                $this->addFlash('info', $oficina . ': ' . $j . ' turnos nuevos. Ultimo turno Generado: ' . $nuevoTurno->format('d/m/Y'));
+                $this->addFlash('info', $oficina . ': ' . $totalTurnosGenerados . ' turnos nuevos. Ultimo turno Generado: ' . $nuevoTurno->format('d/m/Y'));
 
                 $logger->info('Creación de Nuevos Turnos', [
                     'Oficina' => $oficina->getOficinayLocalidad(), 
                     'Desde' => $fechaInicio,
-                    'Hasta' => $nuevoTurno->format('d/m/Y'),
+                    'Hasta' => $nuevoTurno->format('d/m/Y'), 
                     'Feriados' => $feriados,
                     'Cant. Turnos Superpuestos' => $cantTurnos,
                     'Minutos Desplazamiento' => $minutosDesplazamiento,
                     'Cant. de Días' => $cantidadDias,
                     'Sólo un Turno' => $soloUnTurno,
-                    'Turnos Generados' => $j,
+                    'Turnos Generados' => $totalTurnosGenerados,
                     'Usuario' => $this->getUser()->getUsuario()
                     ]
                 );
 
                 // Condición de Salida del While (no se seleccionaron Oficinas o se recorrieron todas las que se habían seleccionado)
                 if (!$oficinasSeleccionadas || $indiceOficinasSeleccionadas++ == count($oficinasSeleccionadas)-1) {
+                    // En caso de existir, libero la selección de session
+                    $session->set('oficinasSeleccionadas', null);
+
                     break;
                 }
             }

@@ -39,24 +39,33 @@ class AddTurnosType extends AbstractType
             'attr' => ['max' => '30', 'min' => '0', 'size' => 2]
             ])        
         ->add('cantTurnosSuperpuestos', NumberType::class, [
-            'label' => 'Cantidad de Turnos a generar (o añadir) por cada rango horario',
+            'label' => 'Cantidad de Turnos a generar por cada rango horario',
             'html5' => true,
             'required' => true,
             'attr' => ['max' => '30', 'min' => '1', 'size' => 2]
             ])            
         ->add('cantidadDias', NumberType::class, [
             'label' => 'Cantidad de Días',
-            'help' => 'Indique días corridos',
+            'help' => 'Indique por cuántos días corridos generar',
             'html5' => true,
-            'required' => true,
+            'required' => false,
             'attr' => ['max' => '90', 'size' => 2]
             ])
+        ->add('fechaFin', DateType::class, [
+            'widget' => 'single_text',
+            'html5' => false,
+            'format' => 'dd/MM/yyyy',
+            'label' => 'Fecha Hasta',
+            'help' => 'Indique hasta que día generar',
+            'attr' => ['class' => 'text-primary js-datepicker', 'autofocus' => true],
+            'required' =>false,
+            ])
         ->add('soloUnTurno', CheckboxType::class, [
-            'label' => 'Sólo un turno por rango horario.',
-            'help' => 'Si el turno ya existe en el rango horario no se creará ninguno nuevo.',
-            'required' => false,
-            'attr' => ['class' => 'text-danger']
-            ])    
+        'label' => 'Sólo un turno por rango horario.',
+        'help' => 'Si el turno ya existe en el rango horario no se creará ninguno nuevo.',
+        'required' => false,
+        'attr' => ['class' => 'text-danger']
+        ])    
         ->add('save', SubmitType::class, [
             'label' => 'Confirmar',
             'attr' => ['class' => 'btn btn-primary float-right']
