@@ -44,10 +44,12 @@
                         {% set oficinas, turnos, otorgados, noatendidos, atendidos, noasistidos, rechazados = 0, 0, 0, 0, 0, 0, 0 %}
 
                         {% for oficina in ocupacion %}
-                                {% set cantidad = cantidad + oficina['otorgados'] %}
-                                {% set oficinas, turnos, otorgados, noatendidos, atendidos, noasistidos, rechazados = oficinas + 1, turnos + oficina['otorgados']
-                                , otorgados + oficina['otorgados'] + oficina['rechazados_libres'], noatendidos + oficina['noatendidos'], atendidos + oficina['atendidos'], noasistidos + oficina['noasistidos'], rechazados + oficina['rechazados_libres']
-                                %}
+                                {% if tipoInforme == 2%}
+                                    {% set cantidad = cantidad + oficina['otorgados'] %}
+                                    {% set oficinas, turnos, otorgados, noatendidos, atendidos, noasistidos, rechazados = oficinas + 1, turnos + oficina['otorgados']
+                                    , otorgados + oficina['otorgados'] + oficina['rechazados_libres'], noatendidos + oficina['noatendidos'], atendidos + oficina['atendidos'], noasistidos + oficina['noasistidos'], rechazados + oficina['rechazados_libres']
+                                    %}    
+                                {% endif %}
                                 <tr>
                                     <td class="">
                                         <a href="{{ path('turno_index', {'cboOficina': oficina['id']}) }}" target="_blank" title="Abrir Agenda de la Oficina">{{ oficina['oficina'] }} ({{oficina['localidad']}})</a>
