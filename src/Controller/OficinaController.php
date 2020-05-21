@@ -25,7 +25,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
  * @Route("/oficina")
  */
 class OficinaController extends AbstractController
-{
+{   
+
     /**
      * @Route("/", name="oficina_index", methods={"GET"})
      */
@@ -66,9 +67,7 @@ class OficinaController extends AbstractController
      * @Route("/{id}/addTurnos", name="oficina_addTurnos", methods={"GET","POST"})
      */
     public function addTurnos(Request $request, Oficina $oficina, TurnoRepository $turnoRepository, LoggerInterface $logger, OficinaRepository $oficinaRepository, SessionInterface $session, int $id=1): Response
-    {
-        $session->set('oficinasSeleccionadas', null);
- 
+    { 
         // Deniega acceso si no tiene un rol de editor o superior
         $this->denyAccessUnlessGranted('ROLE_EDITOR');
 
@@ -115,6 +114,7 @@ class OficinaController extends AbstractController
             $cantTurnos = (isset($request->request->get('add_turnos')['cantTurnosSuperpuestos']) ? $request->request->get('add_turnos')['cantTurnosSuperpuestos'] : 1);
 
             $entityManager = $this->getDoctrine()->getManager();
+            $idTurnosGenerados = [];
 
             while (true) {                
                 if ($oficinasSeleccionadas) {
@@ -148,7 +148,7 @@ class OficinaController extends AbstractController
                     // Si se optó por una fecha 'Hasta' se calcula la diferencia en días entre el inicio y el fin
                     $fechaFin = $request->request->get('add_turnos')['fechaFin'];
                     $fechaFin = new \DateTime(substr($fechaFin,-4) . '-' . substr($fechaFin,3,2) . '-' . substr($fechaFin, 0,2));
-                    $cantidadDias = $fechaFin->diff(($aPartirde))->days;
+                    $cantidadDias = $fechaFin->diff(($aPartirde))->days + 1;
                 }
 
                 // Me aseguro que sólo se genere un turno por rango si no se quiere más que eso (sobre todo por si viene por generaicón múltiple)
@@ -200,10 +200,11 @@ class OficinaController extends AbstractController
                                 $turno->setEstado(1);
                                 $entityManager->persist($turno);       
                                
+                                $idTurnosGenerados[] = $turno->getId(); // Guarda información para Deshacer
                                 $this->getDoctrine()->getManager()->flush();
                             }
                         }
-
+                        
                         $nuevoTurno = $aPartirde->add(new DateInterval('PT' . $frecuencia . 'M'));
 
                         if ($nuevoTurno >= $ultimoTurnoDelDia) {
@@ -237,6 +238,9 @@ class OficinaController extends AbstractController
                 }
             }
 
+            //Guarda ID de Turnos Generados en Session
+            $session->set('idTurnosGenerados', $idTurnosGenerados);
+            
             // TODO ver de notificar la cantidad de turnos creados
             return $this->redirectToRoute('oficina_index');
         }
@@ -248,8 +252,7 @@ class OficinaController extends AbstractController
             'oficinasSeleccionadas' => $oficinasSeleccionadas,
             'form' => $form->createView(),
         ]);
-    }
-
+    }   
 
     /**
      * @Route("/{id}/borraDiaAgendaTurnosbyOficina", name="borraDiaAgendaTurnosbyOficina", methods={"GET", "POST"})
@@ -304,8 +307,35 @@ class OficinaController extends AbstractController
             'oficina' => $oficina,
             'form' => $form->createView(),
         ]);
-    }    
+    }       
 
+    /**
+     * @Route("/deshaceUltimaGeneracion", name="oficina_deshacer", methods={"GET","POST"})
+     */
+    public function deshaceUltimaGeneracion(SessionInterface $session, TurnoRepository $turnoRepository)
+    {
+        $idTurnosGenerados = $session->get('idTurnosGenerados');
+        $cont=0;
+
+        if ($idTurnosGenerados) {
+            foreach($idTurnosGenerados as $idTurno) {
+                $cont++;
+                $turno = $turnoRepository->findById($idTurno);
+                $this->getDoctrine()->getManager()->remove($turno);
+                $this->getDoctrine()->getManager()->flush();
+            }
+        }
+        if ($cont) {
+            $this->addFlash('info', $cont . ' Turnos revertidos. Los mismos han sido eliminados.');
+        } else {
+            $this->addFlash('info', ' Nada para deshacer.');
+        }
+
+        // Limpio la info almacenada en session para deshacer
+        $session->set('idTurnosGenerados', null);
+
+        return $this->redirectToRoute('oficina_index');
+    }
 
     /**
      * @Route("/{id}", name="oficina_show", methods={"GET"})
@@ -365,5 +395,8 @@ class OficinaController extends AbstractController
         return $this->redirectToRoute('oficina_addTurnos');
 
     }
+
+
+    
 
 }

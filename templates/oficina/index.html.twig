@@ -79,6 +79,8 @@
 
 
     {% if is_granted('ROLE_EDITOR') %} 
+        &nbsp;&nbsp;
+        <a class="btn btn-primary" href="{{ path('oficina_deshacer') }}">Deshace Ultima Generación de Turnos</a>
         <a class="btn btn-primary float-right" href="{{ path('oficina_new') }}">Crear Nueva Oficina</a>
     {% endif %}
 

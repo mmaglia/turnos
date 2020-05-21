@@ -307,4 +307,13 @@ class TurnoRepository extends ServiceEntityRepository
         return $result[0];
     }
 
+    public function findById($turnoId): ?Turno
+    {
+        return $this->createQueryBuilder('t')
+                    ->andWhere('t.id = :turnoId')
+                    ->setParameter('turnoId', $turnoId)
+                    ->getQuery()
+                    ->getOneOrNullResult();                    
+    }
+
 }

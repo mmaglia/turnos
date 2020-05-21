@@ -51,6 +51,7 @@
                 {% if not oficinasSeleccionadas %}                
                     <p class="card-text text-justify">Por defecto la generación admite más de un mismo turno en el mismo horario. <strong>Si ya existen turnos para el mismo día y horario este proceso añadirá nuevos turnos</strong>. Si usted no desea que sea así asegúrse de marcar <i>"Sólo un turno por rango horario"</i>.</p>
                 {% endif %}
+                <p class="card-text text-center"><strong>Esta generación de turnos puede deshacerse en caso de ser necesario. Tenga en cuenta que sólo la última generación de turnos se puede deshacer siempre que no cierre la sesión a nivel de aplicación.</strong></p>
       
                 {{ form_start(form) }}
                 <div class="my-custom-class-for-errors">
