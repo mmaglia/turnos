@@ -28,7 +28,7 @@
             $('#turno3_circunscripcion').change(function() {
                 var circunscripcion_id = $(this).val();
                 var localidad_id = $(this).val();
-                if (circunscripcion_id != '') {
+                if (circunscripcion_id) {
                     $.ajax({
                         url:"/TurnosWeb/localidad_circunscripcion/" + circunscripcion_id,
                         method: "POST",
@@ -58,8 +58,8 @@
 
 
             $('#turno3_localidad').change(function() {
-                var localidad_id = $(this).val();
-                if (localidad_id != '') {
+                var localidad_id = $(this).val();                
+                if (localidad_id) {
                     $.ajax({
                         url:"/TurnosWeb/oficina_localidad/" + localidad_id,
                         method: "POST",

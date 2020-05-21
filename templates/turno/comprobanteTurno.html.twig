@@ -7,7 +7,7 @@
         <div class="col-3"><img src="{{asset('images/logo.png')}}" class="rounded float-left" alt="Poder Judicial" height="85"></div>
         <div class="col-6">
             <h1>Solicitud de Turnos</h1>
-            <h2>Comprobante de Turno Otorgado</h2>
+            <h2>Turno Confirmado</h2>
         </div>
         <div class="col-3"></div>
     </div>
@@ -46,7 +46,7 @@
     <div class="card border-primary mb-3">
         <div class="card-header">Datos del Turno</div>
         <div class="card-body text-primary">
-            <p class="card-text">El turno seleccionado es para el día <strong>{{ turno.fechaHora |date('d/m/Y') }}</strong> a las <strong>{{ turno.fechaHora |date('H:i')}}hs</strong>.</p>
+            <p class="card-text">El turno confirmado es para el día <strong>{{ turno.fechaHora |date('d/m/Y') }}</strong> a las <strong>{{ turno.fechaHora |date('H:i')}}hs</strong>.</p>
         </div>
     </div>
 
