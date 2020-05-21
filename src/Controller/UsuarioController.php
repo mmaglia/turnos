@@ -53,6 +53,7 @@ class UsuarioController extends AbstractController
             $entityManager->persist($usuario);
 
             $entityManager->flush();
+            $this->addFlash('info', 'Se ha creado el usuario: ' . $usuario->getUsername());
             return $this->redirectToRoute('usuario_index');
         }
 

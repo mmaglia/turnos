@@ -4,11 +4,13 @@ namespace App\Form;
 
 use App\Entity\Localidad;
 use App\Entity\Oficina;
-use App\Repository\LocalidadRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\ChoiceList\View\ChoiceView;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class OficinaType extends AbstractType
@@ -21,13 +23,11 @@ class OficinaType extends AbstractType
             ->add('horaFinAtencion', null, ['required' => true, 'label' => 'Hora Fin Atención'])
             ->add('frecuenciaAtencion', null, ['label' => 'Frecuencia de Atención'])
             ->add('localidad', EntityType::class, [
-                'required' => false,
+                'required' => true,
                 'class' => Localidad::class,
-                'query_builder' => function (LocalidadRepository $lr) {
-                    $lr->findAll();
-                },
                 'placeholder' => 'Seleccione una Localidad',
-                'choice_label' => 'localidad'])
+                'choice_label' => 'localidad'
+            ])
             ->add('telefono', TextType::class, ['label' => 'Teléfono de Contacto', 'required' => false, 'attr' => array('maxlength' => '50')])
             ->add('habilitada');
     }
@@ -37,5 +37,20 @@ class OficinaType extends AbstractType
         $resolver->setDefaults([
             'data_class' => Oficina::class,
         ]);
+    }
+
+    /**
+     * Se agrega función para ordenar el combo de localidad
+     *
+     * @param FormView $view
+     * @param FormInterface $form
+     * @param array $options
+     * @return void
+     */
+    public function finishView(FormView $view, FormInterface $form, array $options)
+    {
+        usort($view->children['localidad']->vars['choices'], function (ChoiceView $a, ChoiceView $b) {
+            return strcasecmp($a->label, $b->label);
+        });
     }
 }

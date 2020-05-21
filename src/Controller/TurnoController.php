@@ -520,7 +520,7 @@ class TurnoController extends AbstractController
                 'Persona' => $turno->getPersona()->getPersona(),
                 'Usuario' => $this->getUser()->getUsuario()
                 ]
-            );
+            );         
             return $this->redirectToRoute('turno_index');
         }
     }

@@ -1,80 +1,81 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Gestión de Localidades{% endblock %}
+{% block title %}Gestión de Localidades
+{% endblock %}
 
 {% block body %}
-    <h1>Lista de Localidades</h1>
+	<h1>Lista de Localidades</h1>
+    {% if is_granted('ROLE_EDITOR') %}
+		<a class="btn btn-primary float-right btn-top" href="{{ path('localidad_new') }}">Crear nueva Localidad</a>
+	{% endif %}
 
-    {% for label, messages in app.flashes %}
-        {% for message in messages %}
-            <div class="row">
-                <div class="col-8"></div>
-                <div class="col-4 text-right">
-                    <div class="alert alert-{{ label }}">{{ message }}</div>
-                </div>
-            </div>
-        {% endfor %}
-    {% endfor %}
+	{% for label, messages in app.flashes %}
+		{% for message in messages %}
+			<div class="row">
+				<div class="col-8"></div>
+				<div class="col-4 text-right">
+					<div class="alert alert-{{ label }}">{{ message }}</div>
+				</div>
+			</div>
+		{% endfor %}
+	{% endfor %}
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Localidad</th>
-                {% if is_granted('ROLE_EDITOR') %} 
-                    <th>Acciones</th>
-                {% endif %}
-                </tr>
-        </thead>
-        <tbody>
-        {% for localidad in localidads %}
-        {# Lee y muestra todos los mensajes flash #}
-            <tr>
-                <td>{{ localidad.id }}</td>
-                <td>{{ localidad.localidad }}</td>
-                {% if is_granted('ROLE_EDITOR') %} 
-                    <td class="table-bordered table-secondary text-center d-print-none" style="width: 140px; background-color: rgb(245, 245, 245);">
-                        &nbsp;&nbsp;
-                        <a href="{{ path('localidad_show', {'id': localidad.id}) }}" title="Ver"><i class="fas fa-eye"></i></a>
-                        &nbsp;&nbsp;
-                        <a href="{{ path('localidad_edit', {'id': localidad.id}) }}" title="Editar"><i class="fas fa-pen"></i></a>
-                        &nbsp;&nbsp;
-                        <a href="{{ path('borraDiaAgendaTurnosbyLocalidad', {'id': localidad.id}) }}" title="Eliminar un día de la Agenda de todas las oficinas {{ localidad.localidad }}"><i class="far fa-calendar-minus"></i></a>
-                    </td>
-                {% endif %}
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="3">no hay localidades</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Id</th>
+				<th>Localidad</th>
+				<th>Circunscripción</th>
+				{% if is_granted('ROLE_EDITOR') %}
+					<th>Acciones</th>
+				{% endif %}
+			</tr>
+		</thead>
+		<tbody>
+			{% for localidad in localidads %}
+				{# Lee y muestra todos los mensajes flash #}
+				<tr>
+					<td>{{ localidad.id }}</td>
+					<td>{{ localidad.localidad }}</td>
+					<td>{{ localidad.circunscripcion }}</td>
+					{% if is_granted('ROLE_EDITOR') %}
+						<td class="table-bordered table-secondary text-center d-print-none" style="width: 140px; background-color: rgb(245, 245, 245);">
+							&nbsp;&nbsp;
+							<a href="{{ path('localidad_show', {'id': localidad.id}) }}" title="Ver">
+								<i class="fas fa-eye"></i>
+							</a>
+							&nbsp;&nbsp;
+							<a href="{{ path('localidad_edit', {'id': localidad.id}) }}" title="Editar">
+								<i class="fas fa-pen"></i>
+							</a>
+							&nbsp;&nbsp;
+							<a href="{{ path('borraDiaAgendaTurnosbyLocalidad', {'id': localidad.id}) }}" title="Eliminar un día de la Agenda de todas las oficinas {{ localidad.localidad }}">
+								<i class="far fa-calendar-minus"></i>
+							</a>
+						</td>
+					{% endif %}
+				</tr>
+			{% else %}
+				<tr>
+					<td colspan="3">no hay localidades</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
 
-    {% if is_granted('ROLE_EDITOR') %} 
-        <a class="btn btn-primary float-right" href="{{ path('localidad_new') }}">Crear nueva Localidad</a>
-    {% endif %}
+	{% if is_granted('ROLE_EDITOR') %}
+		<a class="btn btn-primary float-right" href="{{ path('localidad_new') }}">Crear nueva Localidad</a>
+	{% endif %}
 {% endblock %}
 
 {% block javascripts %}
-    {{ parent() }}
-    <script>
-        $(function() {
-            $("#cancelar").html('Finalizar')
-            $("#cancelar").attr('class', 'btn btn-primary float-left d-print-none')
-            $("#confirmar").attr('class', 'btn btn-primary float-right d-print-none')
-            $("#confirmar").html('Imprimir Comprobante')
-            $("#confirmar").click(function () {
-                window.print()
-            })
-
-            $(document).ready(function(){            
-                $(document).ready(function(){
-                    $(".alert").delay(3500).slideUp(2000);
-                });
+	{{ parent() }}
+	<script>
+		$(function () {
+            $(document).ready(function () {
+                $(".alert").delay(3500).slideUp(2000);
             });
         });
-    </script>  
-    
-{% endblock %}     
-        
+	</script>
+
+{% endblock %}

@@ -4,7 +4,9 @@
 
 {% block body %}
     <h1>Lista de Oficinas</h1>
-
+    {% if is_granted('ROLE_EDITOR') %} 
+        <a class="btn btn-primary float-right btn-top" href="{{ path('oficina_new') }}">Crear Nueva Oficina</a>
+    {% endif %}
     {% for label, messages in app.flashes %}
         {% for message in messages %}
             <div class="row">
@@ -86,6 +88,7 @@
     {{ parent() }}
     <script>
         $(function() {
+<<<<<<< HEAD
             $("#cancelar").html('Finalizar')
             $("#cancelar").attr('class', 'btn btn-primary float-left d-print-none')
             $("#confirmar").attr('class', 'btn btn-primary float-right d-print-none')
@@ -103,6 +106,10 @@
                         $('td input:checkbox',table).prop('checked',this.checked);
                     });
                 });
+=======
+            $(document).ready(function() {          
+                $(".alert").delay(3500).slideUp(2000);              
+>>>>>>> d08a13fc4a13d7747ec5da9374c2401681f6cec3
             });
         });
     </script>  

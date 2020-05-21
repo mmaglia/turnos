@@ -22,10 +22,10 @@ class LocalidadRepository extends ServiceEntityRepository
     /**
      * Se modifica el findAll para darle un orden alfabético
      */
-    public function findAll()
+    public function findAllOrdenado()
     {
         return $this->createQueryBuilder('l')
-            ->addOrderBy('l.localidad', 'ASC')
+            ->orderBy('l.localidad', 'ASC')
             ->getQuery()
             ->getResult();
     }
@@ -39,7 +39,5 @@ class LocalidadRepository extends ServiceEntityRepository
             ->orderBy('localidad')
             ->getQuery()
             ->getArrayResult();
-
     }
-
 }

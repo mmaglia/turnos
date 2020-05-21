@@ -52,7 +52,7 @@ class OficinaController extends AbstractController
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($oficina);
             $entityManager->flush();
-
+            $this->addFlash('info', 'Se ha creado la oficina: ' . $oficina->getOficina() . ' - ' . $oficina->getLocalidad());
             return $this->redirectToRoute('oficina_index');
         }
 

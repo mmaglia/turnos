@@ -2,9 +2,9 @@
 $blue: darken(#006600, 5%);
 
 // the ~ allows you to reference things in node_modules
-@import '~bootstrap/scss/bootstrap';
-@import '~bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css';
-@import '~@fortawesome/fontawesome-free/css/all.css';
+@import "~bootstrap/scss/bootstrap";
+@import "~bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css";
+@import "~@fortawesome/fontawesome-free/css/all.css";
 
 //@import '~@fortawesome/fontawesome-free/scss/fontawesome';
 //@import '~@fortawesome/fontawesome-free/scss/regular';
@@ -12,45 +12,43 @@ $blue: darken(#006600, 5%);
 
 //@import '~@fortawesome/fontawesome-free/scss/brands';
 
-
 body {
-    font-family: Helvetica Neue,sans-serif;
+  font-family: Helvetica Neue, sans-serif;
 }
 
 h1 {
-    margin-top: .5rem;
-    font-size: 1.8rem;
-    text-align: center;
+  margin-top: 0.5rem;
+  font-size: 1.8rem;
+  text-align: center;
 }
 
 h2 {
-    font-size: 1.4rem;
-    color: #006600;
-    font-weight: normal;
-    text-align: center;
-//    border-bottom: 1.5px solid #006600;
+  font-size: 1.4rem;
+  color: #006600;
+  font-weight: normal;
+  text-align: center;
+  //    border-bottom: 1.5px solid #006600;
 }
 
 h6 {
-    font-size: .75rem;
-    color: #006600;
-    font-weight: bold;
+  font-size: 0.75rem;
+  color: #006600;
+  font-weight: bold;
 }
 
 label {
-    font-weight: normal;
-    color: #006600;
-    font-size: .9rem;
-    margin-bottom: 0;
-    margin-left: .2rem;
+  font-weight: normal;
+  color: #006600;
+  font-size: 0.9rem;
+  margin-bottom: 0;
+  margin-left: 0.2rem;
 }
 
 // Datepicker
 .datepicker {
-    font-family: Roboto !important;
-    font-weight: lighter;    
+  font-family: Roboto !important;
+  font-weight: lighter;
 }
-
 
 //.datepicker table tr td.highlighted {
 //    background: inherit;
@@ -59,10 +57,9 @@ label {
 //    font-weight: bold;
 // }
 
-
- .datepicker table tr td {
-     color: #006600;
-     font-weight: bold;
+.datepicker table tr td {
+  color: #006600;
+  font-weight: bold;
 }
 
 // 	width: 20px;
@@ -73,82 +70,121 @@ label {
 // 	border: none;
 // }
 
-.datepicker table tr td.active.active, .datepicker table tr td.active.disabled, .datepicker table tr td.active.disabled.active, .datepicker table tr td.active.disabled.disabled, .datepicker table tr td.active.disabled:active, .datepicker table tr td.active.disabled:hover, .datepicker table tr td.active.disabled:hover.active, .datepicker table tr td.active.disabled:hover.disabled, .datepicker table tr td.active.disabled:hover:active, .datepicker table tr td.active.disabled:hover:hover, .datepicker table tr td.active.disabled:hover[disabled], .datepicker table tr td.active.disabled[disabled], .datepicker table tr td.active:active, .datepicker table tr td.active:hover, .datepicker table tr td.active:hover.active, .datepicker table tr td.active:hover.disabled, .datepicker table tr td.active:hover:active, .datepicker table tr td.active:hover:hover, .datepicker table tr td.active:hover[disabled], .datepicker table tr td.active[disabled] {
-    background-color: #295f2F;
-    color: #FFF;
-    font-weight: bold;
+.datepicker table tr td.active.active,
+.datepicker table tr td.active.disabled,
+.datepicker table tr td.active.disabled.active,
+.datepicker table tr td.active.disabled.disabled,
+.datepicker table tr td.active.disabled:active,
+.datepicker table tr td.active.disabled:hover,
+.datepicker table tr td.active.disabled:hover.active,
+.datepicker table tr td.active.disabled:hover.disabled,
+.datepicker table tr td.active.disabled:hover:active,
+.datepicker table tr td.active.disabled:hover:hover,
+.datepicker table tr td.active.disabled:hover[disabled],
+.datepicker table tr td.active.disabled[disabled],
+.datepicker table tr td.active:active,
+.datepicker table tr td.active:hover,
+.datepicker table tr td.active:hover.active,
+.datepicker table tr td.active:hover.disabled,
+.datepicker table tr td.active:hover:active,
+.datepicker table tr td.active:hover:hover,
+.datepicker table tr td.active:hover[disabled],
+.datepicker table tr td.active[disabled] {
+  background-color: #295f2f;
+  color: #fff;
+  font-weight: bold;
 }
 
-.datepicker table tr td.active, .datepicker table tr td.active.disabled, .datepicker table tr td.active.disabled:hover, .datepicker table tr td.active:hover {
- 	background-color: #006dcc;
- 	background-image: -moz-linear-gradient(to bottom,#3a5f29,#295f2F);
- 	background-image: -ms-linear-gradient(to bottom,#3a5f29,#295f2F);
- 	background-image: -webkit-gradient(linear,0 0,0 100%,from(#3a5f29),to(#295f2F));
- 	background-image: -webkit-linear-gradient(to bottom,#3a5f29,#295f2F);
- 	background-image: -o-linear-gradient(to bottom,#3a5f29,#295f2F);
- 	background-image: linear-gradient(to bottom,#3a5f29,#295f2F);
- 	background-repeat: repeat-x;
- 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#3a5f29', endColorstr='#0044cc', GradientType=0);
- 	border-color: #295f2F #295f2F #002a80;
- 	border-color: rgba(0,0,0,.1) rgba(0,0,0,.1) rgba(0,0,0,.25);
- 	filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
- 	color: #fff;
- 	text-shadow: 0 -1px 0 rgba(0,0,0,.25);
- }
+.datepicker table tr td.active,
+.datepicker table tr td.active.disabled,
+.datepicker table tr td.active.disabled:hover,
+.datepicker table tr td.active:hover {
+  background-color: #006dcc;
+  background-image: -moz-linear-gradient(to bottom, #3a5f29, #295f2f);
+  background-image: -ms-linear-gradient(to bottom, #3a5f29, #295f2f);
+  background-image: -webkit-gradient(
+    linear,
+    0 0,
+    0 100%,
+    from(#3a5f29),
+    to(#295f2f)
+  );
+  background-image: -webkit-linear-gradient(to bottom, #3a5f29, #295f2f);
+  background-image: -o-linear-gradient(to bottom, #3a5f29, #295f2f);
+  background-image: linear-gradient(to bottom, #3a5f29, #295f2f);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#3a5f29', endColorstr='#0044cc', GradientType=0);
+  border-color: #295f2f #295f2f #002a80;
+  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
+  color: #fff;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+}
 
 // Centrado de formulario de login
 .login {
-    width: 300px;
-    margin-right: auto;
-    margin-left: auto;
+  width: 300px;
+  margin-right: auto;
+  margin-left: auto;
 }
 
 .login button {
-    margin-top:5px;
+  margin-top: 5px;
 }
 
 // Botones en general
 .volver {
-    margin-right: 5px;
+  margin-right: 5px;
 }
 
 // Form de Selección de Fecha y Hora
 .selectorFechaHora {
-    margin-bottom: 10px;
+  margin-bottom: 10px;
 }
 
 .datepicker.datepicker-inline {
-    margin-right: auto;
-    margin-left: auto;
+  margin-right: auto;
+  margin-left: auto;
 }
 
-// Footer 
+// Footer
 .footer {
-    padding-top: 40px;
-    font-size: .75rem;
-    color: #006600;
+  padding-top: 40px;
+  font-size: 0.75rem;
+  color: #006600;
 }
-
 
 @media print {
-    body {
-      margin: 0;
-      color: #000;
-      background-color: #fff;
-    }
+  body {
+    margin: 0;
+    color: #000;
+    background-color: #fff;
+  }
 
-//    header, footer, aside, nav, form, iframe, .menu, .hero, .adslot {
-//        display: none;
-//    }
+  //    header, footer, aside, nav, form, iframe, .menu, .hero, .adslot {
+  //        display: none;
+  //    }
 
-    header, footer, aside, nav, iframe, .menu, .hero, .adslot {
-        display: none;
-    }
+  header,
+  footer,
+  aside,
+  nav,
+  iframe,
+  .menu,
+  .hero,
+  .adslot {
+    display: none;
+  }
 
-    .btn {
-        display: none;
-    }
-    //a::after {
-    //    content: " (Impreso desde el Sistema de Gestión de Turnos)";
-    //  }
+  .btn {
+    display: none;
+  }
+  //a::after {
+  //    content: " (Impreso desde el Sistema de Gestión de Turnos)";
+  //  }
+}
+
+// Se agrega margen de arriba a las tablas
+.btn-top {
+  margin-bottom: 1rem;
 }
