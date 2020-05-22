@@ -38,6 +38,8 @@
                                 </div>
                             </div>
                         </div>
+                         <div id="mensajeSinDias" style="color:green; display: none;">
+                         </div>
                     </div>
                 </div>
             </div>
@@ -109,24 +111,28 @@
                 // se escribirá el valor seleccionado en él control correspondiente
 
                 // Arma el calendario con fecha de inicio, final y días
-                // con turnos disponibles (deshabilitando los demás)
-                
+                // con turnos disponibles (deshabilitando los demás)                
                 $.ajax({
                     url: "/TurnosWeb/diasOcupadosOficina/" + oficinaID,
                     method: "POST",
                     dataType: "json",
                     success: function (data) {
+                        
                         $('#mensajeEspera').hide();
-                        $('#fechaHora div').datepicker({
-                            format: "dd/mm/yyyy",
-                            language: "es",
-                            daysOfWeekDisabled: "0,6",
-                            daysOfWeekHighlighted: "0",
-                            todayHighlight: true,
-                            startDate: primerDiaDisponible,
-                            endDate: ultimoDiaDisponible,
-                            datesDisabled: data
-                        });
+                        if(primerDiaDisponible && ultimoDiaDisponible) {
+                            $('#fechaHora div').datepicker({
+                                format: "dd/mm/yyyy",
+                                language: "es",
+                                daysOfWeekDisabled: "0,6",
+                                daysOfWeekHighlighted: "0",
+                                todayHighlight: true,
+                                startDate: primerDiaDisponible,
+                                endDate: ultimoDiaDisponible,
+                                datesDisabled: data
+                            });
+                        } else {
+                            $('#mensajeSinDias').html('No existe día y horario disponible en este momento').show();
+                        }
                     }
                 })
                 
