@@ -7,6 +7,7 @@ use App\Form\LocalidadType;
 use App\Repository\LocalidadRepository;
 use App\Repository\TurnoRepository;
 use App\Repository\OficinaRepository;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,10 +23,11 @@ class LocalidadController extends AbstractController
     /**
      * @Route("/", name="localidad_index", methods={"GET"})
      */
-    public function index(LocalidadRepository $localidadRepository): Response
+    public function index(Request $request, LocalidadRepository $localidadRepository, PaginatorInterface $paginator): Response
     {
+        $localidades = $paginator->paginate($localidadRepository->findAllOrdenado(), $request->query->getInt('page', 1), 50);
         return $this->render('localidad/index.html.twig', [
-            'localidads' => $localidadRepository->findAllOrdenado(),
+            'localidades' => $localidades,
         ]);
     }
 
@@ -96,7 +98,7 @@ class LocalidadController extends AbstractController
         // Deniega acceso si no tiene un rol de editor o superior
         $this->denyAccessUnlessGranted('ROLE_EDITOR');
 
-        if ($this->isCsrfTokenValid('delete'.$localidad->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $localidad->getId(), $request->request->get('_token'))) {
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->remove($localidad);
             $entityManager->flush();
@@ -125,8 +127,8 @@ class LocalidadController extends AbstractController
                 'format' => 'dd/MM/yyyy',
                 'label' => 'Seleccione Fecha a Borrar',
                 'attr' => ['class' => 'text-danger js-datepicker'],
-                'required' =>true,
-                ])
+                'required' => true,
+            ])
             ->getForm();
         $form->handleRequest($request);
 
@@ -146,13 +148,15 @@ class LocalidadController extends AbstractController
                 $cantTurnosBorrados =  $turnoRepository->deleteTurnosByDiaByOficina($oficina['id'], $desde, $hasta);
                 if ($cantTurnosBorrados) {
                     $this->addFlash('info', $oficina['oficina'] . ': ' . $cantTurnosBorrados . ' turnos borrados');
-                    $logger->info('Turnos Borrados por Localidad', [
-                        'Oficina' => $oficina['oficina'], 
-                        'Localidad' => $localidad->getLocalidad(),
-                        'Desde' => $desde->format('d/m/Y'),
-                        'Hasta' => $hasta->format('d/m/Y'),
-                        'Cantidad de Turnos' => $cantTurnosBorrados,
-                        'Usuario' => $this->getUser()->getUsuario()
+                    $logger->info(
+                        'Turnos Borrados por Localidad',
+                        [
+                            'Oficina' => $oficina['oficina'],
+                            'Localidad' => $localidad->getLocalidad(),
+                            'Desde' => $desde->format('d/m/Y'),
+                            'Hasta' => $hasta->format('d/m/Y'),
+                            'Cantidad de Turnos' => $cantTurnosBorrados,
+                            'Usuario' => $this->getUser()->getUsuario()
                         ]
                     );
                 }
