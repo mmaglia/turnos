@@ -89,8 +89,7 @@ class TurnoController extends AbstractController
         }
         if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_AUDITORIA_GESTION')) {
             // Busca los turnos en función a los estados de todas las oficinas
-            if ($filtroOficina)
-            {
+            if ($filtroOficina) {
                 $turnosOtorgados = $pagination = $paginator->paginate($turnoRepository->findWithRoleUser($rango, $estado, $filtroOficina), $request->query->getInt('page', 1), 100);
             } else {
                 $turnosOtorgados = $pagination = $paginator->paginate($turnoRepository->findByRoleAdmin($rango, $estado), $request->query->getInt('page', 1), 100);
@@ -109,14 +108,14 @@ class TurnoController extends AbstractController
             'filtroOficina' => $filtroOficina,
             'turnos' => $turnosOtorgados,
         ]);
-
     }
 
     // Alta generada automaticámente. No se utilizará pero no se quiso borrar el método por las dudas
     /**
      * @Route("/turno/new", name="turno_new", methods={"GET","POST"})
      */
-    function new (Request $request, LocalidadRepository $localidadRepository): Response {
+    function new(Request $request, LocalidadRepository $localidadRepository): Response
+    {
         // Deniega acceso si no tiene un rol de editor o superior
         $this->denyAccessUnlessGranted('ROLE_EDITOR');
 
@@ -265,7 +264,7 @@ class TurnoController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            
+
             $turnoActualizar = $turnoRepository->findTurnoLibre($turno->getOficina()->getId(), $turno->getFechaHora());
 
             // Verifico si el turno no se ocupó
@@ -280,7 +279,7 @@ class TurnoController extends AbstractController
                 // Turno Libre. Grabo.
                 $turnoActualizar->setMotivo($turno->getMotivo());
                 $turnoActualizar->setPersona($persona);
-                
+
                 // Cuento turnos que se ocupan por día (con propósitos estadísticos)
                 $cuentoTurnosdelDia = $turnosDiariosRepository->findByOficinaByFecha($turnoActualizar->getOficina(), date('d/m/Y'));
                 if ($cuentoTurnosdelDia) {
@@ -293,23 +292,24 @@ class TurnoController extends AbstractController
                     $cuentoTurnosdelDia->setFecha(new \DateTime(date("Y-m-d")));
                     $cuentoTurnosdelDia->setCantidad(1);
                 }
-               
+
                 $entityManager = $this->getDoctrine()->getManager();
                 $entityManager->merge($turnoActualizar);
                 $entityManager->persist($persona);
                 $entityManager->persist($cuentoTurnosdelDia);
                 $entityManager->flush();
-                $this->addFlash('success', 'Su turno ha sido otorgado satisfactoriamente');        
-                $logger->info('Turno Otorgado', [
-                    'Oficina' => $turnoActualizar->getOficina()->getOficinayLocalidad(), 
-                    'Turno' => $turnoActualizar->getTurno(), 
-                    'Solicitante' => $turnoActualizar->getPersona()->getPersona()
+                $this->addFlash('success', 'Su turno ha sido otorgado satisfactoriamente');
+                $logger->info(
+                    'Turno Otorgado',
+                    [
+                        'Oficina' => $turnoActualizar->getOficina()->getOficinayLocalidad(),
+                        'Turno' => $turnoActualizar->getTurno(),
+                        'Solicitante' => $turnoActualizar->getPersona()->getPersona()
                     ]
                 );
             }
 
             return $this->redirectToRoute('emailConfirmacion');
-
         }
 
         return $this->render('turno/new5.html.twig', [
@@ -333,10 +333,12 @@ class TurnoController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             // Notifica que el turno se ocupó y lo redirige a seleccionar otra fecha/hora
-            $logger->info('Turno Ocupado', [
-                'Oficina' => $turno->getOficina()->getOficinayLocalidad(), 
-                'Turno' => $turno->getTurno(), 
-                'Solicitante' => $turno->getPersona()->getPersona()
+            $logger->info(
+                'Turno Ocupado',
+                [
+                    'Oficina' => $turno->getOficina()->getOficinayLocalidad(),
+                    'Turno' => $turno->getTurno(),
+                    'Solicitante' => $turno->getPersona()->getPersona()
                 ]
             );
             return $this->redirectToRoute('turno_new4');
@@ -363,8 +365,8 @@ class TurnoController extends AbstractController
             $email = (new TemplatedEmail())
                 ->from($fromAdrress)
                 ->to($turno->getPersona()->getEmail())
-//                ->addBcc('mmaglianesi@justiciasantafe.gov.ar')
-//                ->addBcc('jialarcon@justiciasantafe.gov.ar')
+                //                ->addBcc('mmaglianesi@justiciasantafe.gov.ar')
+                //                ->addBcc('jialarcon@justiciasantafe.gov.ar')
                 ->subject('Poder Judicial Santa Fe - Confirmación de Turno')
 
                 // path of the Twig template to render
@@ -375,19 +377,19 @@ class TurnoController extends AbstractController
                     'expiration_date' => new \DateTime('+7 days'),
                     'username' => 'foo',
                     'turno' => $turno,
-                ])
-            ;
+                ]);
             $mailer->send($email);
             $this->addFlash('info', 'Se ha enviado un correo a la dirección ' . $turno->getPersona()->getEmail());
-            $logger->info('Notificación Enviada', [
-                'Destinatario' => $turno->getPersona()->getPersona(), 
-                'Dirección' => $turno->getPersona()->getEmail()
+            $logger->info(
+                'Notificación Enviada',
+                [
+                    'Destinatario' => $turno->getPersona()->getPersona(),
+                    'Dirección' => $turno->getPersona()->getEmail()
                 ]
             );
         }
 
         return $this->redirectToRoute('comprobanteTurno');
-
     }
 
     // Comprobante del Turno
@@ -415,7 +417,6 @@ class TurnoController extends AbstractController
         // Limpio las variables de session utilizadas
         $session->remove('turno');
         $session->remove('persona');
-
     }
 
     /**
@@ -462,14 +463,15 @@ class TurnoController extends AbstractController
 
         if ($turno->getEstado() == 1 || $turno->getEstado() == 2) {
             // Alterna estado de Atendido (de No Atendido (1) a Atendido (2) o de Atendido (2) a No Atendido (1))
-            $turno->setEstado( ($turno->getEstado() % 2) + 1);
+            $turno->setEstado(($turno->getEstado() % 2) + 1);
             $this->getDoctrine()->getManager()->flush();
             $this->addFlash('success', ($turno->getEstado() == 2 ? 'El turno se ha marcado como Atendido' : 'El turno se marcado como No Atendido'));
-            $logger->info(($turno->getEstado() == 2 ? 'Marca como Atendido' : 'Marca como No Atendido'), [
-                'Oficina' => $turno->getOficina()->getOficinayLocalidad(), 
-                'Turno' => $turno->getTurno(), 
-                'Persona' => $turno->getPersona()->getPersona(),
-                'Usuario' => $this->getUser()->getUsuario()
+            $logger->info(($turno->getEstado() == 2 ? 'Marca como Atendido' : 'Marca como No Atendido'),
+                [
+                    'Oficina' => $turno->getOficina()->getOficinayLocalidad(),
+                    'Turno' => $turno->getTurno(),
+                    'Persona' => $turno->getPersona()->getPersona(),
+                    'Usuario' => $this->getUser()->getUsuario()
                 ]
             );
 
@@ -489,10 +491,12 @@ class TurnoController extends AbstractController
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->remove($turno);
             $this->addFlash('danger', 'Se ha borrado el turno');
-            $logger->info('Turno Borrado', [
-                'Oficina' => $turno->getOficina()->getOficinayLocalidad(), 
-                'Turno' => $turno->getTurno(),
-                'Usuario' => $this->getUser()->getUsuario()
+            $logger->info(
+                'Turno Borrado',
+                [
+                    'Oficina' => $turno->getOficina()->getOficinayLocalidad(),
+                    'Turno' => $turno->getTurno(),
+                    'Usuario' => $this->getUser()->getUsuario()
                 ]
             );
             $entityManager->flush();
@@ -514,13 +518,14 @@ class TurnoController extends AbstractController
             $turno->setEstado(3); // Rechazado
             $this->getDoctrine()->getManager()->flush();
             $this->addFlash('success', 'El turno se ha marcado como Ausente');
-            $logger->info(('Marca como Ausente'), [
-                'Oficina' => $turno->getOficina()->getOficinayLocalidad(), 
-                'Turno' => $turno->getTurno(), 
-                'Persona' => $turno->getPersona()->getPersona(),
-                'Usuario' => $this->getUser()->getUsuario()
+            $logger->info(('Marca como Ausente'),
+                [
+                    'Oficina' => $turno->getOficina()->getOficinayLocalidad(),
+                    'Turno' => $turno->getTurno(),
+                    'Persona' => $turno->getPersona()->getPersona(),
+                    'Usuario' => $this->getUser()->getUsuario()
                 ]
-            );         
+            );
             return $this->redirectToRoute('turno_index');
         }
     }
@@ -541,7 +546,7 @@ class TurnoController extends AbstractController
             $form->get('motivoRechazo')->setData($motivoRechazo);
             $form->get('enviarMail')->setData(false);
             $form->handleRequest($request);
-    
+
             if ($form->isSubmitted() && $form->isValid()) {
                 $motivoRechazo = $request->request->get('turno_rechazar')['motivoRechazo'];
 
@@ -551,32 +556,34 @@ class TurnoController extends AbstractController
                     $email = (new TemplatedEmail())
                         ->from($fromAdrress)
                         ->to($turno->getPersona()->getEmail())
-//                        ->addBcc('mmaglianesi@justiciasantafe.gov.ar')
-//                        ->addBcc('jialarcon@justiciasantafe.gov.ar')
+                        //                        ->addBcc('mmaglianesi@justiciasantafe.gov.ar')
+                        //                        ->addBcc('jialarcon@justiciasantafe.gov.ar')
                         ->subject('Poder Judicial Santa Fe - Solicitud de Turno Cancelada')
                         ->htmlTemplate('turno/correoTurnoRechazado.html.twig')
                         ->context([
                             'expiration_date' => new \DateTime('+7 days'),
                             'turno' => $turno,
                             'motivoRechazo' => $motivoRechazo
-                        ])
-                    ;
+                        ]);
                     $mailer->send($email);
-                    $logger->info('Notificación de Rechazo Enviada', [
-                        'Destinatario' => $turno->getPersona()->getPersona(), 
-                        'Dirección' => $turno->getPersona()->getEmail(),
-                        'Motivo Indicado' => $motivoRechazo
+                    $logger->info(
+                        'Notificación de Rechazo Enviada',
+                        [
+                            'Destinatario' => $turno->getPersona()->getPersona(),
+                            'Dirección' => $turno->getPersona()->getEmail(),
+                            'Motivo Indicado' => $motivoRechazo
                         ]
-                    );        
+                    );
                 }
 
                 // Rechaza el turno liberándolo para que otra persona lo pueda tomar
                 $this->addFlash('warning', 'Se ha rechazado el turno');
-                $logger->info(('Marca como Rechazado'), [
-                    'Oficina' => $turno->getOficina()->getOficinayLocalidad(), 
-                    'Turno' => $turno->getTurno(), 
-                    'Persona' => $turno->getPersona()->getPersona(),
-                    'Usuario' => $this->getUser()->getUsuario()
+                $logger->info(('Marca como Rechazado'),
+                    [
+                        'Oficina' => $turno->getOficina()->getOficinayLocalidad(),
+                        'Turno' => $turno->getTurno(),
+                        'Persona' => $turno->getPersona()->getPersona(),
+                        'Usuario' => $this->getUser()->getUsuario()
                     ]
                 );
 
@@ -589,7 +596,7 @@ class TurnoController extends AbstractController
                 $turnoRechazado->setPersona($turno->getPersona());
                 $turnoRechazado->setEmailEnviado(isset($request->request->get('turno_rechazar')['enviarMail']));
                 $turnoRechazado->setMotivoRechazo($motivoRechazo);
-                    
+
                 // Libero el turno
                 $turno->setEstado(1);
                 $turno->setPersona(null);
@@ -601,7 +608,7 @@ class TurnoController extends AbstractController
 
                 return $this->redirectToRoute('turno_index');
             }
-    
+
             return $this->render('turno/rechazar.html.twig', [
                 'turno' => $turno,
                 'form' => $form->createView(),
@@ -612,7 +619,7 @@ class TurnoController extends AbstractController
     /**
      * @Route("/TurnosWeb/localidad_circunscripcion/{circunscripcion_id}", name="localidad_by_circunscripcion", requirements = {"circunscripcion_id" = "\d+"}, methods={"GET", "POST"})
      */
-    public function localidadByCircunscripcion($circunscripcion_id, LocalidadRepository $localidadRepository )
+    public function localidadByCircunscripcion($circunscripcion_id, LocalidadRepository $localidadRepository)
     {
         $localidades = $localidadRepository->findLocalidadesByCircunscripcion($circunscripcion_id);
         return new JsonResponse($localidades);
@@ -650,7 +657,7 @@ class TurnoController extends AbstractController
      * @Route("/TurnosWeb/diasOcupadosOficina/{oficina_id}", name="diasOcupadosOficina", requirements = {"oficina_id" = "\d+"}, methods={"GET", "POST"})
      */
     public function diasOcupadosByOficina(TurnoRepository $turnoRepository, SessionInterface $session, $oficina_id)
-    { 
+    {
         // Este proceso recorre día a día el rango de días posibles de turnos para una oficina y retorna
         // un arreglo de los días que no tienen ningún turno libre o que no tienen turnos generados (feriados)
 
@@ -669,9 +676,9 @@ class TurnoController extends AbstractController
         $hasta = (new \DateTime)->createFromFormat('d/m/Y H:i:s', $ultimoDiaDisponible . '23:59:59');
 
         // Recorre cada uno de los días y arma en $diasNoHabilitados los días que no tienen turnos libres
-        // o bien, los turnos que no tienen turnos creados (feriados)
+        // o bien, los turnos que no tienen turnos creados (feriados). Chequeo tambien que $desde y $hasta tengan valores
         $diasNoHabilitados = [];
-        while (true) {
+        while (true && ($desde && $hasta)) {
             // Establece horaría máximo de búsqueda. Se busca desde las 0hs hasta las 23:59, día a día
             $horaHasta = (new \DateTime)->createFromFormat('d/m/Y H:i:s', $desde->format('d/m/Y') . ' 23:59:59');
 
