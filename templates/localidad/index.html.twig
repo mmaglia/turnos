@@ -5,10 +5,19 @@
 
 {% block body %}
 	<h1>Lista de Localidades</h1>
-    {% if is_granted('ROLE_EDITOR') %}
-		<a class="btn btn-primary float-right btn-top" href="{{ path('localidad_new') }}">Crear nueva Localidad</a>
-	{% endif %}
-
+	<div class="top-listas">
+		<div class="card border-primary text-dark float-left mb-3 cantidad">
+			<div class="card-body text-dark">
+                Cantidad de Turnos:
+                <strong>{{ localidades.getTotalItemCount }}</strong>
+            </div>
+		</div>
+		<div class="float-right boton">
+			{% if is_granted('ROLE_EDITOR') %}
+				<a class="btn btn-primary" href="{{ path('localidad_new') }}">Crear nueva Localidad</a>
+			{% endif %}
+		</div>
+	</div>
 	{% for label, messages in app.flashes %}
 		{% for message in messages %}
 			<div class="row">
@@ -20,62 +29,66 @@
 		{% endfor %}
 	{% endfor %}
 
-	<table class="table">
-		<thead>
-			<tr>
-				<th>Id</th>
-				<th>Localidad</th>
-				<th>Circunscripción</th>
-				{% if is_granted('ROLE_EDITOR') %}
-					<th>Acciones</th>
-				{% endif %}
-			</tr>
-		</thead>
-		<tbody>
-			{% for localidad in localidads %}
-				{# Lee y muestra todos los mensajes flash #}
+	<div class="table-responsive">
+		<table class="table table-fixed">
+			<thead>
 				<tr>
-					<td>{{ localidad.id }}</td>
-					<td>{{ localidad.localidad }}</td>
-					<td>{{ localidad.circunscripcion }}</td>
+					<th scope="col" class="col-1">#</th>
+					<th scope="col" class="col-5">Localidad</th>
+					<th scope="col" class="col-5">Circunscripción</th>
 					{% if is_granted('ROLE_EDITOR') %}
-						<td class="table-bordered table-secondary text-center d-print-none" style="width: 140px; background-color: rgb(245, 245, 245);">
-							&nbsp;&nbsp;
-							<a href="{{ path('localidad_show', {'id': localidad.id}) }}" title="Ver">
-								<i class="fas fa-eye"></i>
-							</a>
-							&nbsp;&nbsp;
-							<a href="{{ path('localidad_edit', {'id': localidad.id}) }}" title="Editar">
-								<i class="fas fa-pen"></i>
-							</a>
-							&nbsp;&nbsp;
-							<a href="{{ path('borraDiaAgendaTurnosbyLocalidad', {'id': localidad.id}) }}" title="Eliminar un día de la Agenda de todas las oficinas {{ localidad.localidad }}">
-								<i class="far fa-calendar-minus"></i>
-							</a>
-						</td>
+						<th scope="col" class="col-1">Acciones</th>
 					{% endif %}
 				</tr>
-			{% else %}
-				<tr>
-					<td colspan="3">no hay localidades</td>
-				</tr>
-			{% endfor %}
-		</tbody>
-	</table>
-
-	{% if is_granted('ROLE_EDITOR') %}
-		<a class="btn btn-primary float-right" href="{{ path('localidad_new') }}">Crear nueva Localidad</a>
-	{% endif %}
+			</thead>
+			<tbody>
+				{% for localidad in localidades %}
+					{# Lee y muestra todos los mensajes flash #}
+					<tr>
+						<td scope="row" class="col-1">{{ localidad.id }}</td>
+						<td class="col-5">{{ localidad.localidad }}</td>
+						<td class="col-5">{{ localidad.circunscripcion }}</td>
+						{% if is_granted('ROLE_EDITOR') %}
+							<td class="table-bordered table-secondary text-center d-print-none col-1">
+								&nbsp;&nbsp;
+								<a href="{{ path('localidad_show', {'id': localidad.id}) }}" title="Ver">
+									<i class="fas fa-eye"></i>
+								</a>
+								&nbsp;&nbsp;
+								<a href="{{ path('localidad_edit', {'id': localidad.id}) }}" title="Editar">
+									<i class="fas fa-pen"></i>
+								</a>
+								&nbsp;&nbsp;
+								<a href="{{ path('borraDiaAgendaTurnosbyLocalidad', {'id': localidad.id}) }}" title="Eliminar un día de la Agenda de todas las oficinas {{ localidad.localidad }}">
+									<i class="far fa-calendar-minus"></i>
+								</a>
+							</td>
+						{% endif %}
+					</tr>
+				{% else %}
+					<tr>
+						<td colspan="3">no hay localidades</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+		<div class="float-right">
+            {{ knp_pagination_render(localidades) }}
+        </div>
+        <div class="float-left blockquote-footer">
+            Viendo {{ localidades.getTotalItemCount < 100 ? localidades.getTotalItemCount : 100 }} localidades de un total de {{ localidades.getTotalItemCount }} 
+        </div>
+	</div>
 {% endblock %}
 
 {% block javascripts %}
 	{{ parent() }}
 	<script>
 		$(function () {
-            $(document).ready(function () {
-                $(".alert").delay(3500).slideUp(2000);
-            });
-        });
+			$(document).ready(function () {
+				$(".alert").delay(3500).slideUp(2000);
+			});
+		});
 	</script>
 
 {% endblock %}
