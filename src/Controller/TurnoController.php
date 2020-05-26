@@ -18,7 +18,6 @@ use App\Repository\TurnoRepository;
 use App\Repository\TurnosDiariosRepository;
 use Knp\Component\Pager\PaginatorInterface;
 use DateInterval;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -358,9 +357,9 @@ class TurnoController extends AbstractController
     public function sendEmail(SessionInterface $session, MailerInterface $mailer, LoggerInterface $logger)
     {
         $turno = $session->get('turno');
-
+        
         // Si la persona ingresó un correo, envía una notificación con los datos del turno
-        if ($turno->getPersona()->getEmail()) {
+        if (!is_null($turno) && $turno->getPersona()->getEmail()) {
             $fromAdrress = $_ENV['MAIL_FROM'];
             $email = (new TemplatedEmail())
                 ->from($fromAdrress)
@@ -387,9 +386,18 @@ class TurnoController extends AbstractController
                     'Dirección' => $turno->getPersona()->getEmail()
                 ]
             );
-        }
-
-        return $this->redirectToRoute('comprobanteTurno');
+            return $this->redirectToRoute('comprobanteTurno');
+        } else {
+            // Si el turno se perdio de la session lanzo una Exception. El usuario ve error.html y logueo en el log
+            $logger->info(
+                'Notificación NO Enviada. $turno is null',
+                [
+                    'Destinatario' => '',
+                    'Dirección' => ''
+                ]
+            );
+            throw new \Exception('El turno obtenido de la sessión se obtubo nulo. Chequee en aplication.log si el turno fue confirmado.');
+        }        
     }
 
     // Comprobante del Turno
@@ -656,46 +664,44 @@ class TurnoController extends AbstractController
     /**
      * @Route("/TurnosWeb/diasOcupadosOficina/{oficina_id}", name="diasOcupadosOficina", requirements = {"oficina_id" = "\d+"}, methods={"GET", "POST"})
      */
-    public function diasOcupadosByOficina(TurnoRepository $turnoRepository, SessionInterface $session, $oficina_id)
+    public function diasOcupadosByOficina(TurnoRepository $turnoRepository, $oficina_id)
     {
         // Este proceso recorre día a día el rango de días posibles de turnos para una oficina y retorna
         // un arreglo de los días que no tienen ningún turno libre o que no tienen turnos generados (feriados)
 
-        // Obtiene la Oficina
-        $turno = $session->get('turno');
-        $oficinaId = $turno->getOficina()->getId();
+        if ($oficina_id != null) {
+            // Obtiene el primer turno a partir del momento actual
+            $primerDiaDisponible = $turnoRepository->findPrimerDiaDisponibleByOficina($oficina_id);
 
-        // Obtiene el primer turno a partir del momento actual
-        $primerDiaDisponible = $turnoRepository->findPrimerDiaDisponibleByOficina($oficinaId);
+            // Obtiene el último turno disponible para la oficina
+            $ultimoDiaDisponible = $turnoRepository->findUltimoDiaDisponibleByOficina($oficina_id);
 
-        // Obtiene el último turno disponible para la oficina
-        $ultimoDiaDisponible = $turnoRepository->findUltimoDiaDisponibleByOficina($oficinaId);
+            // Estable rangos temporales desde el primer día al último
+            $desde = (new \DateTime)->createFromFormat('d/m/Y H:i:s', $primerDiaDisponible . '00:00:00');
+            $hasta = (new \DateTime)->createFromFormat('d/m/Y H:i:s', $ultimoDiaDisponible . '23:59:59');
 
-        // Estable rangos temporales desde el primer día al último
-        $desde = (new \DateTime)->createFromFormat('d/m/Y H:i:s', $primerDiaDisponible . '00:00:00');
-        $hasta = (new \DateTime)->createFromFormat('d/m/Y H:i:s', $ultimoDiaDisponible . '23:59:59');
+            // Recorre cada uno de los días y arma en $diasNoHabilitados los días que no tienen turnos libres
+            // o bien, los turnos que no tienen turnos creados (feriados). Chequeo tambien que $desde y $hasta tengan valores
+            $diasNoHabilitados = [];
+            while (true && ($desde && $hasta)) {
+                // Establece horaría máximo de búsqueda. Se busca desde las 0hs hasta las 23:59, día a día
+                $horaHasta = (new \DateTime)->createFromFormat('d/m/Y H:i:s', $desde->format('d/m/Y') . ' 23:59:59');
 
-        // Recorre cada uno de los días y arma en $diasNoHabilitados los días que no tienen turnos libres
-        // o bien, los turnos que no tienen turnos creados (feriados). Chequeo tambien que $desde y $hasta tengan valores
-        $diasNoHabilitados = [];
-        while (true && ($desde && $hasta)) {
-            // Establece horaría máximo de búsqueda. Se busca desde las 0hs hasta las 23:59, día a día
-            $horaHasta = (new \DateTime)->createFromFormat('d/m/Y H:i:s', $desde->format('d/m/Y') . ' 23:59:59');
+                // OJO con este método. Debería retornar sólo si existen o no turnos y retorna todos los turnos.
+                // TODO Mejorarlo por una cuestión de performance y de recursos
+                $horarios = $turnoRepository->findExisteTurnoLibreByOficinaByFecha($oficina_id, $desde, $horaHasta);
 
-            // OJO con este método. Debería retornar sólo si existen o no turnos y retorna todos los turnos.
-            // TODO Mejorarlo por una cuestión de performance y de recursos
-            $horarios = $turnoRepository->findExisteTurnoLibreByOficinaByFecha($oficinaId, $desde, $horaHasta);
+                // Si no existen turnos libres para ese día (o bien, no existen turnos creados)
+                if (!$horarios) {
+                    // Lo almacena como día no habiltiado
+                    $diasNoHabilitados[] = $desde->format('d/m/Y');
+                }
 
-            // Si no existen turnos libres para ese día (o bien, no existen turnos creados)
-            if (!$horarios) {
-                // Lo almacena como día no habiltiado
-                $diasNoHabilitados[] = $desde->format('d/m/Y');
-            }
-
-            // Incrementa el intervalo en un día
-            $desde->add(new DateInterval('P1D'));
-            if ($desde >= $hasta) {
-                break;
+                // Incrementa el intervalo en un día
+                $desde->add(new DateInterval('P1D'));
+                if ($desde >= $hasta) {
+                    break;
+                }
             }
         }
 
