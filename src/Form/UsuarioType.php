@@ -32,7 +32,7 @@ class UsuarioType extends AbstractType
                 ]
             )
             ->add('oficina', EntityType::class, [
-                'required' => true,
+                'required' => false,
                 'class' => Oficina::class,
                 'placeholder' => 'Seleccione una Oficina',
                 'choice_label' => function (Oficina $oficina) {
