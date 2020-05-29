@@ -243,7 +243,7 @@ legend {
 }
 
 .top-listas > div.boton {
-  margin-top: 15px;
+  margin-bottom: 5px;
 }
 
 // Estilos de columna Acciones
@@ -251,6 +251,39 @@ legend {
   background-color: rgb(245, 245, 245);
 }
 
+.ancho-1 {
+  flex: 0 0 2.33333%; 
+  max-width: 2.33333%;
+}
+
+.ancho-2 {
+  flex: 0 0 4.33333%; 
+  max-width: 4.33333%;
+}
+
+.ancho-3 {
+  flex: 0 0 9.33333%; 
+  max-width: 9.33333%;
+}
+
+.ancho-6 {
+  flex: 0 0 12.33333%; 
+  max-width: 12.33333%;
+}
+
+.ancho-4 {
+  flex: 0 0 20.33333%; 
+  max-width: 20.33333%;
+}
+
+.ancho-5 {
+  flex: 0 0 38.33333%; 
+  max-width: 38.33333%;
+}
+
+.linea-roja {
+  color: red;
+}
 /******************************
 ** CSS Para Resumen de Turno **
 *******************************/

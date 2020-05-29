@@ -28,10 +28,12 @@ class UsuarioRepository extends ServiceEntityRepository implements PasswordUpgra
     public function findAllOrderedByColum($column, $sort = 'ASC')
     {
         return $this->createQueryBuilder('t')
+            //->andWhere('t.id IN (:id)')
+            //->setParameter('id', array(84,65,73))
             ->addOrderBy('t.' . $column, $sort)
             ->getQuery()
             ->getResult();
-    } 
+    }
 
     /**
      * Used to upgrade (rehash) the user's password automatically over time.
