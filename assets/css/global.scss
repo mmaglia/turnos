@@ -60,25 +60,10 @@ legend {
   font-weight: lighter;
 }
 
-//.datepicker table tr td.highlighted {
-//    background: inherit;
-//	color: #F00;
-//    border-radius: 0;
-//    font-weight: bold;
-// }
-
 .datepicker table tr td {
   color: #006600;
   font-weight: bold;
 }
-
-// 	width: 20px;
-// 	height: 20px;
-// 	-webkit-border-radius: 4px;
-// 	-moz-border-radius: 4px;
-// 	border-radius: 4px;
-// 	border: none;
-// }
 
 .datepicker table tr td.active.active,
 .datepicker table tr td.active.disabled,
@@ -171,10 +156,6 @@ legend {
     background-color: #fff;
   }
 
-  //    header, footer, aside, nav, form, iframe, .menu, .hero, .adslot {
-  //        display: none;
-  //    }
-
   header,
   footer,
   aside,
@@ -189,9 +170,7 @@ legend {
   .btn {
     display: none;
   }
-  //a::after {
-  //    content: " (Impreso desde el Sistema de Gestión de Turnos)";
-  //  }
+
 }
 
 /******************************
@@ -284,6 +263,8 @@ legend {
 .linea-roja {
   color: red;
 }
+
+
 /******************************
 ** CSS Para Resumen de Turno **
 *******************************/
