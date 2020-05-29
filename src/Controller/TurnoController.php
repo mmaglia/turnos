@@ -329,19 +329,20 @@ class TurnoController extends AbstractController
 
         $form = $this->createForm(Turno5Type::class, $turno);
         $form->handleRequest($request);
-
+       
         if ($form->isSubmitted() && $form->isValid()) {
-            // Notifica que el turno se ocupó y lo redirige a seleccionar otra fecha/hora
-            $logger->info(
-                'Turno Ocupado',
-                [
-                    'Oficina' => $turno->getOficina()->getOficinayLocalidad(),
-                    'Turno' => $turno->getTurno(),
-                    'Solicitante' => $turno->getPersona()->getPersona()
-                ]
-            );
             return $this->redirectToRoute('turno_new4');
         }
+
+        // Notifica que el turno se ocupó y lo redirige a seleccionar otra fecha/hora
+        $logger->info(
+            'Turno Ocupado',
+            [
+                'Oficina' => ($turno && $turno->getOficina() ? $turno->getOficina()->getOficinayLocalidad() : 'No se pudo obtener información de la Oficina'),
+                'Turno' => ($turno ? $turno->getTurno()  : 'No se pudo obtener información del Turno'),
+                'Solicitante' => $turno->getPersona()->getPersona()
+            ]
+        );
 
         return $this->render('turno/turnoOcupado.html.twig', [
             'turno' => $turno,
@@ -396,7 +397,7 @@ class TurnoController extends AbstractController
                     'Dirección' => ''
                 ]
             );
-            throw new \Exception('El turno obtenido de la sessión se obtubo nulo. Chequee en aplication.log si el turno fue confirmado.');
+            throw new \Exception('El turno obtenido de la sessión se obtuvo nulo. Chequee en aplication.log si el turno fue confirmado.');
         }        
     }
 
@@ -482,9 +483,10 @@ class TurnoController extends AbstractController
                     'Usuario' => $this->getUser()->getUsuario()
                 ]
             );
-
-            return $this->redirectToRoute('turno_index');
         }
+
+        return $this->redirectToRoute('turno_index');
+
     }
 
     /**
