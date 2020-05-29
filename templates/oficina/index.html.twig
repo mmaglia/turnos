@@ -4,9 +4,13 @@
 
 {% block body %}
     <h1>Lista de Oficinas</h1>
-    {% if is_granted('ROLE_EDITOR') %} 
-        <a class="btn btn-primary float-right btn-top" href="{{ path('oficina_new') }}">Crear Nueva Oficina</a>
-    {% endif %}
+    <div class="top-listas">
+        {% if is_granted('ROLE_EDITOR') %} 
+            <div class="float-right boton">
+                <a class="btn btn-primary" href="{{ path('oficina_new') }}">Crear Nueva Oficina</a>
+            </div>
+        {% endif %}
+    </div>
     {% for label, messages in app.flashes %}
         {% for message in messages %}
             <div class="row">
@@ -24,63 +28,64 @@
             &nbsp;&nbsp;
             <a class="btn btn-primary" href="{{ path('oficina_deshacer') }}">Deshace Ultima Generación de Turnos</a>    
         {% endif %}
-        <table class="table">
-            <thead>
-                <tr>
-                    <th><input type="checkbox" id="selectAll" /></th>
-                    <th>Id</th>
-                    <th>Oficina</th>
-                    <th>Localidad</th>
-                    <th>Hora Inicio Atención</th>
-                    <th>Hora Fin Atención</th>
-                    <th>Frecuencia Atención (minutos)</th>
-                    <th>Teléfono</th>
-                    <th class="text-center">Habilitada</th>
-                    <th>Ultimo Turno</th>
-                    {% if is_granted('ROLE_EDITOR') %} 
-                        <th>Acciones</th>
-                    {% endif %}
-                </tr>
-            </thead>
-            <tbody>
-            {# Lee y muestra todos los mensajes flash #}
-            {% for oficina in oficinas %}
-                <tr>
-                    <td><input type="checkbox" name="oficinaID[]" value="{{ oficina.id }}"></td>
-                    <td>{{ oficina.id }}</td>
-                    <td>{{ oficina.oficina }}</td>
-                    <td>{{ oficina.localidad }}</td>
-                    <td>{{ oficina.horaInicioAtencion ? oficina.horaInicioAtencion|date('H:i') : '' }}</td>
-                    <td>{{ oficina.horaFinAtencion ? oficina.horaFinAtencion|date('H:i') : '' }}</td>
-                    <td>{{ oficina.frecuenciaAtencion }}</td>
-                    <td>{{ oficina.telefono }}</td>
-                    <td class="text-center">{{ oficina.habilitada ? '<i class="fas fa-check"></i>' : '' }} </td>
-                    <td>{{ oficina.ultimoTurno ? oficina.ultimoTurno|date('Y-m-d H:i') : '' }}</td>
-                    {% if is_granted('ROLE_EDITOR') %} 
-                        <td class="table-bordered table-secondary text-center d-print-none" style="width:160px; background-color: rgb(245, 245, 245);">
-                            <a href="{{ path('oficina_show', {'id': oficina.id}) }}" title="Ver"><i class="fas fa-eye"></i></a>
-                            &nbsp;&nbsp;
-                            <a href="{{ path('oficina_edit', {'id': oficina.id}) }}" title="Editar"><i class="fas fa-pen"></i></a>
-                            &nbsp;&nbsp;
-                            <a href="{{ path('oficina_addTurnos', {'id': oficina.id}) }}" title="Crear Nuevos Turnos para {{ oficina.oficina }} ({{oficina.localidad}})"><i class="far fa-calendar-plus"></i></a>
-                            &nbsp;&nbsp;
-                            <a href="{{ path('borraDiaAgendaTurnosbyOficina', {'id': oficina.id}) }}" title="Elimina un día de la Agenda de {{ oficina.oficina }} ({{oficina.localidad}})"><i class="far fa-calendar-minus"></i></a>
-                        </td>
-                    {% endif %}
-                </tr>
-            {% else %}
-                <tr>
-                    <td colspan="6">no hay registros</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-fixed">
+                <thead>
+                    <tr>
+                        <th class="col-1 ancho-1"><input type="checkbox" id="selectAll" /></th>
+                        <th class="col-1 ancho-1">ID</th>
+                        <th class="col-4 ancho-5 text-center">Oficina</th>
+                        <th class="col-2 text-center">Localidad</th>
+                        <th class="col-1 text-center ancho-2">Inicio</th>
+                        <th class="col-1 text-center ancho-2">Fin</th>
+                        <th class="col-1 text-center">Frecuencia</th>
+                        <th class="text-center">Habilitada</th>
+                        <th class="col-1 text-center">Último Turno</th>
+                        {% if is_granted('ROLE_EDITOR') %} 
+                            <th class="col-1 text-center">Acciones</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                {# Lee y muestra todos los mensajes flash #}
+                {% for oficina in oficinas %}
+                    <tr>
+                        <td class="col-1 ancho-1"><input type="checkbox" name="oficinaID[]" value="{{ oficina.id }}"></td>
+                        <td class="col-1 ancho-1">{{ oficina.id }}</td>
+                        <td class="col-4 ancho-5">{{ oficina.oficina }}</td>
+                        <td class="col-2">{{ oficina.localidad }}</td>
+                        <td class="col-1 text-center ancho-2">{{ oficina.horaInicioAtencion ? oficina.horaInicioAtencion|date('H:i') : '' }}</td>
+                        <td class="col-1 text-center ancho-2">{{ oficina.horaFinAtencion ? oficina.horaFinAtencion|date('H:i') : '' }}</td>
+                        <td class="col-1 text-center ancho-3">{{ oficina.frecuenciaAtencion }}</td>
+                        <td class="col-1 text-center ancho-2">{{ oficina.habilitada ? '<i class="fas fa-check"></i>' : '' }} </td>
+                        <td class="col-1 text-center ancho-3">{{ oficina.ultimoTurno ? oficina.ultimoTurno|date('Y-m-d H:i') : '' }}</td>
+                        {% if is_granted('ROLE_EDITOR') %} 
+                            <td class="col-1 table-bordered table-secondary d-print-none">
+                                <a href="{{ path('oficina_show', {'id': oficina.id}) }}" title="Ver"><i class="fas fa-eye"></i></a>
+                                &nbsp;&nbsp;
+                                <a href="{{ path('oficina_edit', {'id': oficina.id}) }}" title="Editar"><i class="fas fa-pen"></i></a>
+                                &nbsp;&nbsp;
+                                <a href="{{ path('oficina_addTurnos', {'id': oficina.id}) }}" title="Crear Nuevos Turnos para {{ oficina.oficina }} ({{oficina.localidad}})"><i class="far fa-calendar-plus"></i></a>
+                                &nbsp;&nbsp;
+                                <a href="{{ path('borraDiaAgendaTurnosbyOficina', {'id': oficina.id}) }}" title="Elimina un día de la Agenda de {{ oficina.oficina }} ({{oficina.localidad}})"><i class="far fa-calendar-minus"></i></a>
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="11">No hay registros</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <div class="float-right">
+                {{ knp_pagination_render(oficinas) }}
+            </div>
+            <div class="float-left blockquote-footer">
+                Viendo {{ oficinas.getPaginationData()['currentItemCount'] < oficinas.getPaginationData()['numItemsPerPage'] ? oficinas.getPaginationData()['currentItemCount'] : oficinas.getPaginationData()['numItemsPerPage'] }} oficinas de un total de {{ oficinas.getTotalItemCount }}
+            </div>
+        </div>
     </form>
-
-    {% if is_granted('ROLE_EDITOR') %} 
-        <a class="btn btn-primary float-right" href="{{ path('oficina_new') }}">Crear Nueva Oficina</a>
-    {% endif %}
-
 {% endblock %}
 
 {% block javascripts %}

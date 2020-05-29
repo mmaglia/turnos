@@ -1,22 +1,15 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Gestión de Localidades
-{% endblock %}
+{% block title %}Gestión de Localidades{% endblock %}
 
 {% block body %}
 	<h1>Lista de Localidades</h1>
 	<div class="top-listas">
-		<div class="card border-primary text-dark float-left mb-3 cantidad">
-			<div class="card-body text-dark">
-                Cantidad de Turnos:
-                <strong>{{ localidades.getTotalItemCount }}</strong>
-            </div>
-		</div>
-		<div class="float-right boton">
-			{% if is_granted('ROLE_EDITOR') %}
-				<a class="btn btn-primary" href="{{ path('localidad_new') }}">Crear nueva Localidad</a>
-			{% endif %}
-		</div>
+		{% if is_granted('ROLE_EDITOR') %}
+			<div class="float-right boton">
+				<a class="btn btn-primary" href="{{ path('localidad_new') }}">Crear Nueva Localidad</a>
+			</div>
+		{% endif %}		
 	</div>
 	{% for label, messages in app.flashes %}
 		{% for message in messages %}
@@ -33,7 +26,7 @@
 		<table class="table table-fixed">
 			<thead>
 				<tr>
-					<th scope="col" class="col-1">#</th>
+					<th scope="col" class="col-1">ID</th>
 					<th scope="col" class="col-5">Localidad</th>
 					<th scope="col" class="col-5">Circunscripción</th>
 					{% if is_granted('ROLE_EDITOR') %}
@@ -67,7 +60,7 @@
 					</tr>
 				{% else %}
 					<tr>
-						<td colspan="3">no hay localidades</td>
+						<td colspan="5">no hay localidades</td>
 					</tr>
 				{% endfor %}
 			</tbody>
@@ -76,7 +69,7 @@
             {{ knp_pagination_render(localidades) }}
         </div>
         <div class="float-left blockquote-footer">
-            Viendo {{ localidades.getTotalItemCount < 100 ? localidades.getTotalItemCount : 100 }} localidades de un total de {{ localidades.getTotalItemCount }} 
+            Viendo {{ localidades.getPaginationData()['currentItemCount'] < localidades.getPaginationData()['numItemsPerPage'] ? localidades.getPaginationData()['currentItemCount'] : localidades.getPaginationData()['numItemsPerPage'] }} localidades de un total de {{ localidades.getTotalItemCount }}
         </div>
 	</div>
 {% endblock %}

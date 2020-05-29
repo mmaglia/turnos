@@ -6,20 +6,18 @@ use App\Entity\Oficina;
 use App\Form\OficinaType;
 use App\Form\AddTurnosType;
 use App\Repository\OficinaRepository;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-
 use App\Entity\Turno;
 use App\Repository\TurnoRepository;
-
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use DateTime;
 use DateInterval;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
  * @Route("/oficina")
@@ -30,10 +28,11 @@ class OficinaController extends AbstractController
     /**
      * @Route("/", name="oficina_index", methods={"GET"})
      */
-    public function index(OficinaRepository $oficinaRepository): Response
+    public function index(Request $request, OficinaRepository $oficinaRepository, PaginatorInterface $paginator): Response
     {
+        $oficinas =  $paginator->paginate($oficinaRepository->findAllWithUltimoTurno(), $request->query->getInt('page', 1), 50);
         return $this->render('oficina/index.html.twig', [
-            'oficinas' => $oficinaRepository->findAllWithUltimoTurno(),
+            'oficinas' =>  $oficinas
         ]);
     }
 
