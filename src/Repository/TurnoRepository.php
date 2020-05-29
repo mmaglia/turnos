@@ -205,8 +205,12 @@ class TurnoRepository extends ServiceEntityRepository
         ->setParameter(':oficina_id', $oficina_id)
         ->setParameter(':fecha_hora', $fecha_hora)
         ->getResult();
+
+        if ($result) {
+            return $result[0]; // Retorna primer turno encontrado
+        }
         
-        return $result[0];
+        return $result;
     }
 
 
