@@ -342,7 +342,8 @@ class EstadisticaController extends AbstractController
             // Agenda Completa
             $subtitulo = 'Agenda Completa';
             foreach ($oficinas as $ofi) {
-                $nivelOcupacionAgenda = $turnoRepository->findCantidadTurnosAsignados($ofi['id']) / $turnoRepository->findCantidadTurnosExistentes($ofi['id']);
+                $cantTurnosOficina = $turnoRepository->findCantidadTurnosExistentes($ofi['id']); 
+                $nivelOcupacionAgenda = ($cantTurnosOficina ? $turnoRepository->findCantidadTurnosAsignados($ofi['id']) / $cantTurnosOficina : 0);
                 $datosOcupacion[] = ['id' => $ofi['id'], 'oficina' => $ofi['oficina'], 'localidad' => $ofi['localidad'], 'ultimoTurno' => $ofi['ultimoTurno'], 'habilitada' => $ofi['habilitada'], 'ocupacion' => $nivelOcupacionAgenda * 100];
             }
         }
