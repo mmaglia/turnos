@@ -340,7 +340,7 @@ class TurnoController extends AbstractController
             [
                 'Oficina' => ($turno && $turno->getOficina() ? $turno->getOficina()->getOficinayLocalidad() : 'No se pudo obtener información de la Oficina'),
                 'Turno' => ($turno ? $turno->getTurno()  : 'No se pudo obtener información del Turno'),
-                'Solicitante' => $turno->getPersona()->getPersona()
+                'Solicitante' => ($turno && $turno->getPersona() ? $turno->getPersona()->getPersona() : 'No se pudo obtener información de la Persona'),
             ]
         );
 

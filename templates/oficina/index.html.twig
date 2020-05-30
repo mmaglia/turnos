@@ -28,14 +28,14 @@
             &nbsp;&nbsp;
             <a class="btn btn-primary" href="{{ path('oficina_deshacer') }}">Deshace Ultima Generación de Turnos</a>    
         {% endif %}
-        <div class="table-responsive">
+        <div class="table-responsive text-nowrap">
             <table class="table table-fixed table-sm">
                 <thead>
                     <tr>
                         <th scope="col" class="col-1 ancho-1"><input type="checkbox" id="selectAll" /></th>
                         <th scope="col" class="col-1 ancho-1">ID</th>
                         <th scope="col" class="col-4 ancho-5 text-center">Oficina</th>
-                        <th scope="col" class="col-2 text-center">Localidad</th>
+                        <th scope="col" class="col-2">Localidad</th>
                         <th scope="col" class="col-1 text-center ancho-2">Inicio</th>
                         <th scope="col" class="col-1 text-center ancho-2">Fin</th>
                         <th scope="col" class="col-1 text-center">Frecuencia</th>
@@ -52,8 +52,8 @@
                     <tr>
                         <td scope="row" class="col-1 ancho-1"><input type="checkbox" name="oficinaID[]" value="{{ oficina.id }}"></td>
                         <td class="col-1 ancho-1">{{ oficina.id }}</td>
-                        <td class="col-4 ancho-5">{{ oficina.oficina }}</td>
-                        <td class="col-2">{{ oficina.localidad }}</td>
+                        <td class="col-4 ancho-5">{{ oficina.oficina|trim }}</td>
+                        <td class="col-2">{{ oficina.localidad|trim }}</td>
                         <td class="col-1 text-center ancho-2">{{ oficina.horaInicioAtencion ? oficina.horaInicioAtencion|date('H:i') : '' }}</td>
                         <td class="col-1 text-center ancho-2">{{ oficina.horaFinAtencion ? oficina.horaFinAtencion|date('H:i') : '' }}</td>
                         <td class="col-1 text-center ancho-3">{{ oficina.frecuenciaAtencion }}</td>

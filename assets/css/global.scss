@@ -263,31 +263,3 @@ legend {
 .linea-roja {
   color: red;
 }
-
-
-/******************************
-** CSS Para Resumen de Turno **
-*******************************/
-// Pantalla de Resumen del turno
-.msjPendiente {
-  display: inline-table;
-  width: 100%;
-}
-
-.msjPendiente .mensaje {
-  float: left;
-}
-
-.mensaje button {
-  cursor: auto;
-  color: #f90101 !important;
-  background-color: #fff !important;
-  border-color: #fff !important;
-  font-weight: bold;
-  font-size: large;
-}
-
-.msjPendiente .paso {
-  float: right;
-  padding-top: 12px;
-}
