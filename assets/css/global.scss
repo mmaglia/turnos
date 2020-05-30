@@ -60,25 +60,10 @@ legend {
   font-weight: lighter;
 }
 
-//.datepicker table tr td.highlighted {
-//    background: inherit;
-//	color: #F00;
-//    border-radius: 0;
-//    font-weight: bold;
-// }
-
 .datepicker table tr td {
   color: #006600;
   font-weight: bold;
 }
-
-// 	width: 20px;
-// 	height: 20px;
-// 	-webkit-border-radius: 4px;
-// 	-moz-border-radius: 4px;
-// 	border-radius: 4px;
-// 	border: none;
-// }
 
 .datepicker table tr td.active.active,
 .datepicker table tr td.active.disabled,
@@ -171,10 +156,6 @@ legend {
     background-color: #fff;
   }
 
-  //    header, footer, aside, nav, form, iframe, .menu, .hero, .adslot {
-  //        display: none;
-  //    }
-
   header,
   footer,
   aside,
@@ -189,9 +170,7 @@ legend {
   .btn {
     display: none;
   }
-  //a::after {
-  //    content: " (Impreso desde el Sistema de Gestión de Turnos)";
-  //  }
+
 }
 
 /******************************
@@ -243,7 +222,7 @@ legend {
 }
 
 .top-listas > div.boton {
-  margin-top: 15px;
+  margin-bottom: 5px;
 }
 
 // Estilos de columna Acciones
@@ -251,29 +230,36 @@ legend {
   background-color: rgb(245, 245, 245);
 }
 
-/******************************
-** CSS Para Resumen de Turno **
-*******************************/
-// Pantalla de Resumen del turno
-.msjPendiente {
-  display: inline-table;
-  width: 100%;
+.ancho-1 {
+  flex: 0 0 2.33333%; 
+  max-width: 2.33333%;
 }
 
-.msjPendiente .mensaje {
-  float: left;
+.ancho-2 {
+  flex: 0 0 4.33333%; 
+  max-width: 4.33333%;
 }
 
-.mensaje button {
-  cursor: auto;
-  color: #f90101 !important;
-  background-color: #fff !important;
-  border-color: #fff !important;
-  font-weight: bold;
-  font-size: large;
+.ancho-3 {
+  flex: 0 0 9.33333%; 
+  max-width: 9.33333%;
 }
 
-.msjPendiente .paso {
-  float: right;
-  padding-top: 12px;
+.ancho-6 {
+  flex: 0 0 12.33333%; 
+  max-width: 12.33333%;
+}
+
+.ancho-4 {
+  flex: 0 0 20.33333%; 
+  max-width: 20.33333%;
+}
+
+.ancho-5 {
+  flex: 0 0 38.33333%; 
+  max-width: 38.33333%;
+}
+
+.linea-roja {
+  color: red;
 }

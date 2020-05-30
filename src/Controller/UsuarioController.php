@@ -5,7 +5,7 @@ namespace App\Controller;
 use App\Entity\Usuario;
 use App\Form\UsuarioType;
 use App\Repository\UsuarioRepository;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,17 +20,19 @@ class UsuarioController extends AbstractController
     /**
      * @Route("/", name="usuario_index", methods={"GET"})
      */
-    public function index(UsuarioRepository $usuarioRepository): Response
+    public function index(Request $request, UsuarioRepository $usuarioRepository, PaginatorInterface $paginator): Response
     {
+        $usuarios = $paginator->paginate($usuarioRepository->findAllOrderedByColum('username'), $request->query->getInt('page', 1), 50);
         return $this->render('usuario/index.html.twig', [
-            'usuarios' => $usuarioRepository->findAllOrderedByColum('username')
+            'usuarios' => $usuarios
         ]);
     }
 
     /**
      * @Route("/new", name="usuario_new", methods={"GET","POST"})
      */
-    function new (Request $request, UserPasswordEncoderInterface $passwordEncoder): Response {
+    function new(Request $request, UserPasswordEncoderInterface $passwordEncoder): Response
+    {
         // Deniega acceso si no tiene un rol de editor o superior
         $this->denyAccessUnlessGranted('ROLE_EDITOR');
 
