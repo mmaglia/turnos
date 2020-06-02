@@ -25,8 +25,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Routing\Annotation\Route;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class TurnoController extends AbstractController
 {
@@ -70,6 +72,7 @@ class TurnoController extends AbstractController
         $session->set('filtroMomentoTurnos', $filtroMomento); // Almacena en session el filtro actual
         $session->set('filtroEstadoTurnos', $filtroEstado); // Almacena en session el filtro actual
         $session->set('filtroOficinaTurnos', $filtroOficina); // Almacena en session el filtro actual
+        $session->set('escanerCodigo', 0); // Marca que se encuentra activa la lista de turnos y no la funcionalidad de escaneo de códigos de turno
 
         // Obtiene un arreglo asociativo con valores para las fechas Desde y Hasta que involucra el filtro de momento
         $rango = $this->obtieneMomento($filtroMomento);
@@ -292,6 +295,8 @@ class TurnoController extends AbstractController
                     $cuentoTurnosdelDia->setCantidad(1);
                 }
 
+                $session->set('turno', $turnoActualizar); // Guardo para armar luego el código QR en base al ID del turno obtenido
+                
                 $entityManager = $this->getDoctrine()->getManager();
                 $entityManager->merge($turnoActualizar);
                 $entityManager->persist($persona);
@@ -405,12 +410,16 @@ class TurnoController extends AbstractController
     /**
      * @Route("/TurnosWeb/comprobante", name="comprobanteTurno", methods={"GET","POST"})
      */
-    public function comprobanteTurno(Request $request, SessionInterface $session)
+    public function comprobanteTurno(Request $request, SessionInterface $session, UrlGeneratorInterface $urlGenerator)
     {
         $turno = $session->get('turno');
 
         $form = $this->createForm(Turno5Type::class, $turno);
         $form->handleRequest($request);
+
+        // Encripto el ID del turno y genero QR y código de barras con la ruta completa al Escáner de Códigos
+        $hash = $this->encrypt($turno->getId());
+        $ruta = $urlGenerator->generate('turno_barcode', [], UrlGeneratorInterface::ABSOLUTE_URL) . '?codigo=' . $hash;
 
         if ($form->isSubmitted() && $form->isValid()) {
             // Finalizó el proceso de Solicitud de Turnos. Vuelve a la página principal.
@@ -419,6 +428,8 @@ class TurnoController extends AbstractController
 
         return $this->render('turno/comprobanteTurno.html.twig', [
             'turno' => $turno,
+            'ruta' => $ruta,
+            'hash' => $hash,
             'form' => $form->createView(),
         ]);
 
@@ -441,11 +452,11 @@ class TurnoController extends AbstractController
     /**
      * @Route("/turno/{id}/edit", name="turno_edit", methods={"GET","POST"})
      */
-    public function edit(Request $request, Turno $turno): Response
+    public function edit(Request $request, Turno $turno, SessionInterface $session): Response
     {
         // Deniega acceso si no tiene un rol de editor o superior
         $this->denyAccessUnlessGranted('ROLE_EDITOR');
-
+       
         $form = $this->createForm(TurnoType::class, $turno);
         $form->handleRequest($request);
 
@@ -453,14 +464,78 @@ class TurnoController extends AbstractController
             $this->getDoctrine()->getManager()->flush();
             $this->addFlash('success', 'Se han guardado los cambios');
 
-            return $this->redirectToRoute('turno_index');
+            // Regreso al lugar desde que invoqué la edición
+            if ($session->get('escanerCodigo')) {
+                return $this->redirectToRoute('turno_barcode');
+            } else {
+                return $this->redirectToRoute('turno_index');
+            }
         }
 
         return $this->render('turno/edit.html.twig', [
             'turno' => $turno,
+            'persona' =>$turno->getPersona(),
+            'escanerCodigo' => $session->get('escanerCodigo'),
+            'oficinaUsuario' => ($this->getUser()->getOficina() ? $this->getUser()->getOficina()->getId() : ''),
             'form' => $form->createView(),
         ]);
     }
+
+
+    /**
+     * @Route("/codeScanner", name="turno_barcode", methods={"GET","POST"})
+     */
+    public function barcode(Request $request, TurnoRepository $turnoRepository, SessionInterface $session): Response
+    {
+        // Deniega acceso si no tiene un rol de editor o superior
+        $this->denyAccessUnlessGranted('ROLE_EDITOR');
+
+        $error='';
+
+        //Construyo el formulario al vuelo
+        // Verifico si recibo parámetro por GET y lo traslado al formulario
+        $data = [
+            'codigo' => (($request->query->get('codigo')) ? $request->query->get('codigo') : '')
+        ];
+
+        $form = $this->createFormBuilder($data)
+            ->add('codigo', null,
+                [
+                    'label' => 'Código',
+                    'required' => true,
+                    'attr' => array('autofocus' => null, 'maxlength' => '50'),
+                    'help' => 'Ingrese Código del talón o escanee el Código de Barras o el Código QR',
+                ])
+            ->add('save', SubmitType::class, [
+                'label' => 'Confirmar',
+                'attr' => ['class' => 'btn btn-primary float-right']
+                ])        
+            ->getForm();
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $codigo = $request->request->get('form')['codigo'];
+            $idTurno = $this->decrypt($codigo); // Obtengo el ID del turno desencriptado
+
+            if ($idTurno) {
+                $turno = $turnoRepository->findById($idTurno);
+                if ($turno) {
+                    $session->set('escanerCodigo', 1); // Marca que se encuentra activa la funcionalidad de escaneo de códigos de turno y no la lista de turnos
+                    return $this->redirectToRoute('turno_edit', ['id' => $idTurno]);
+                } else {
+                    $error = 'No se localizó el turno';
+                }    
+            } else {
+                $error = 'Código incorrecto';
+            }
+        }
+
+        return $this->render('turno/code_scanner.html.twig', [
+            'error' => $error,
+            'form' => $form->createView(),
+        ]);
+    }
+
 
     /**
      * @Route("/turno/{id}/atendido", name="turno_atendido", methods={"GET","POST"})
@@ -763,4 +838,44 @@ class TurnoController extends AbstractController
         }
         return $rango;
     }
+
+    // Encripto información
+    private function encrypt($data): string
+    {
+        $method = "aes-256-cbc"; // Cipher Method
+        $iv_length = openssl_cipher_iv_length($method); // Obtain Required IV length
+
+        if (strlen($iv_length) > strlen($_ENV['APP_SECRET'])) {
+            throw new Exception("ENV['APP_SECRET'] es demasiado corto para openssl_cipher_iv_length!");
+        }
+
+        $iv = substr($_ENV['APP_SECRET'],0, $iv_length);
+        $pass = $_ENV['APP_SECRET']; 
+
+        /* Base64 Encoded Encryption */
+        $enc_data = base64_encode(openssl_encrypt($data, $method, $pass, true, $iv));
+
+        return $enc_data;
+
+    }
+
+    // Desencripto Información
+    private function decrypt($enc_data): string
+    {
+        $method = "aes-256-cbc"; // Cipher Method
+        $iv_length = openssl_cipher_iv_length($method); // Obtain Required IV length
+
+        if (strlen($iv_length) > strlen($_ENV['APP_SECRET'])) {
+            throw new Exception("ENV['APP_SECRET'] es demasiado corto para openssl_cipher_iv_length!");
+        }
+              
+        $iv = substr($_ENV['APP_SECRET'],0, $iv_length);
+        $pass = $_ENV['APP_SECRET']; 
+        
+        /* Decode and Decrypt */
+        $dec_data = openssl_decrypt(base64_decode($enc_data), $method, $pass, true, $iv);
+        
+        return $dec_data;
+    }
+
 }

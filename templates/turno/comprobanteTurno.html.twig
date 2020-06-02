@@ -3,13 +3,15 @@
 {% block title %}Nuevo Turno{% endblock %}
 
 {% block body %}
-    <div class="row mt-3 mb-5">
-        <div class="col-3"><img src="{{asset('images/logo.png')}}" class="rounded float-left" alt="Poder Judicial" height="85"></div>
+    <div class="row mt-3">
+        <div class="col-3"><img src="{{asset('images/logo.png')}}" class="float-left" alt="Poder Judicial" height="85"></div>
         <div class="col-6">
             <h1>Solicitud de Turnos</h1>
             <h2>Turno Confirmado</h2>
         </div>
-        <div class="col-3"></div>
+        <div class="col-3 float-right text-right">
+            {{ barcode({code: ruta, type: 'qrcode', format: 'svg', width: 3, height: 3}) }}
+        </div>
     </div>
 
     <br>
@@ -43,12 +45,18 @@
         </div>
     </div>
 
-    <div class="card border-primary mb-3">
+    <div class="card border-primary mb-1">
         <div class="card-header">Datos del Turno</div>
         <div class="card-body text-primary">
             <p class="card-text">El turno confirmado es para el día <strong>{{ turno.fechaHora |date('d/m/Y') }}</strong> a las <strong>{{ turno.fechaHora |date('H:i')}}hs</strong>.</p>
         </div>
     </div>
+    <div class="text-center">
+        <img src="data:image/png;base64, {{ barcode({code: ruta, type: 'c128', format: 'png', width: 1, height: 20}) }}" />
+        <br>
+        {{ hash }}
+    </div>
+    <br><br><br>
 
     {{ include('turno/_form.html.twig') }}
 

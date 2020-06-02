@@ -21,6 +21,8 @@
             <h1>Lista de Turnos</h1>    
         </div>
         <div class="col col-3 text-right">
+            <a href="{{path('turno_barcode')}}" title="Escanear Código del Turno" class="d-print-none"><i class="fas fa-barcode fa-lg"></i></a>
+            &nbsp;&nbsp;&nbsp;&nbsp;
             <a href="{{path('turno_index')}}" title="Actualizar Lista" class="d-print-none"><i class="fas fa-sync-alt"></i></a>
             &nbsp;&nbsp;&nbsp;&nbsp;
             <a onclick="window.print()" title="Imprimir Lista" class="d-print-none"><i class="fas fa-print fa-lg"></i></a>

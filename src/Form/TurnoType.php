@@ -18,74 +18,25 @@ class TurnoType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('localidad', EntityType::class, [
-                'class' => 'App\Entity\Localidad',
-                'placeholder' => 'Seleccione una Localidad',
-                'mapped' => false,
-                'disabled' => true
+            ->add('fechaHora', DateTimeType::class, [
+                    'widget' => 'single_text',
+                    'html5' => false,
+                    'placeholder' => 'Seleccione una Fecha',
+                    'attr' => ['class' => 'js-datepicker', 'date_format' => 'd/m/Y H:i'],
+                    'mapped' => true
                 ])
-            ->add('persona', null, ['disabled' => true])
+            ->add('motivo')
+            ->add('estado', ChoiceType::class, [
+                'expanded' => true, // render check-boxes
+                'label'    => false,
+                'attr' => ['autofocus' => true],
+                'choices'  => [
+                    'Sin Atender' => '1',
+                    'Atendido' => '2',
+                    'No asistió' => '3',
+                    'Rechazado' => '4',
+                ]])
         ;
-
-        $builder->addEventListener(
-            FormEvents::POST_SET_DATA,
-            function (FormEvent $event) 
-            {
-                $form = $event->getForm();
-                $data = $event->getData();
-                $oficina = $data->getOficina();
-
-                if ($oficina)
-                {
-                    $form->get('localidad')->setData($oficina->getLocalidad());
-                    $form->add('oficina', EntityType::class, [
-                        'class' => 'App\Entity\Oficina',
-                        'placeholder' => 'Seleccione una Oficina',
-                        'disabled' => true,
-                        'choices' => $oficina->getLocalidad()->getOficinas()
-                    ]);
-                    $form->add('fechaHora', DateTimeType::class, [
-                        'widget' => 'single_text',
-                        'html5' => false,
-                        'placeholder' => 'Seleccione una Fecha',
-                        'attr' => ['class' => 'js-datepicker', 'date_format' => 'd/m/Y H:i', 'autofocus' => true],
-                        'mapped' => true
-                    ]);
-                $form->add('motivo');
-                $form->add('estado', ChoiceType::class, [
-                    'expanded' => true, // render check-boxes
-                    'label'    => 'Estado del Turno',
-                    'choices'  => [
-                        'Sin Atender' => '1',
-                        'Atendido' => '2',
-                        'No asistió' => '3',
-                        'Rechazado' => '4',
-                    ]]);        
-                } else {
-/*                    $form->add('oficina', EntityType::class, [
-                        'class' => 'App\Entity\Oficina',
-                        'placeholder' => 'Seleccione una Oficina',
-                        'choices' => []
-                        ]);
-*/                        
-                }
-            }
-        );
-
-        $builder->get('localidad')->addEventListener(
-            FormEvents::POST_SUBMIT,
-            function (FormEvent $event) {
-                $form = $event->getForm();
-
-                $form->getParent()->add('oficina', EntityType::class, [
-                    'class' => 'App\Entity\Oficina',
-                    'placeholder' => 'Seleccione una Oficina',
-                    'choices' => $form->getData()->getOficinas(),
-                    'disabled' => true
-                    ]);
-            }
-        ); 
-
     }
 
     public function configureOptions(OptionsResolver $resolver)
