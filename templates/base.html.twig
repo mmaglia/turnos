@@ -134,6 +134,17 @@
         {% block javascripts %}
             {{ encore_entry_script_tags('js/app') }}
             <script src="{{ asset('js/locales/bootstrap-datepicker.es.min.js') }}"></script>
+            <script>
+                $(function () {
+                    // Agrega un * a todos los campos que son requeridos
+                    $('label.required').append('<sup><strong>&nbsp;*</strong></sup>');
+
+                    // Procesa ocultamiento mensajes tipo flash
+                    $(".alert").delay(1000).slideUp(500);
+
+                });
+            </script>
+        
         {% endblock %}
         <footer class="footer text-center">
             <br><br>
