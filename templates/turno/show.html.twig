@@ -22,10 +22,10 @@
             <tr>
                 <th>Estado</th>
                 <td>{% if turno.persona is not null %}
-                        {% if turno.estado == 1 %}          Sin Atender
-                            {% elseif turno.estado == 2 %}  Atendido
-                            {% elseif turno.estado == 3 %}  No Asistió
-                            {% elseif turno.estado == 4 %}  Rechazado
+                        {% if turno.estado == 1 %}          {% trans %}Sin Atender{% endtrans %}
+                            {% elseif turno.estado == 2 %}  {% trans %}Atendido{% endtrans %}
+                            {% elseif turno.estado == 3 %}  {% trans %}No Asistió{% endtrans %}
+                            {% elseif turno.estado == 4 %}  {% trans %}Rechazado{% endtrans %}
                         {% endif %}
                     {% endif %}
                 </td>

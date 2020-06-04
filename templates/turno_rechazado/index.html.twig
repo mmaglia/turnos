@@ -25,9 +25,9 @@
                 {% endif %}
                 <th>Rechazado</th>
                 <th>Turno</th>
-                <th>Persona</th>
-                <th>DNI</th>
-                <th>Motivo</th>
+                <th>{% trans %}Persona{% endtrans %}</th>
+                <th>{% trans %}DNI{% endtrans %}</th>
+                <th>{% trans %}Motivo{% endtrans %}</th>
                 <th>Motivo Rechazo</th>
                 <th class="text-center">Email Enviado</th>
 {#                <th>Acciones</th> #}
@@ -50,10 +50,16 @@
                             title="Correo:  {{ turno_rechazado.persona.email }}"
                     {% endif %}
                 >
-                {{  turno_rechazado.persona is null or turno_rechazado.persona == '' ? '' : turno_rechazado.persona.apellido ~ ', ' ~ turno_rechazado.persona.nombre}}
-                
+                {% if SistemaTurnosWeb %}
+                    {{  turno_rechazado.persona is null or turno_rechazado.persona == '' ? '' : turno_rechazado.persona.apellido ~ ', ' ~ turno_rechazado.persona.nombre}}
+                    <td>{{ turno_rechazado.persona is null or turno_rechazado.persona == '' ? '' : turno_rechazado.persona.dni }}</td>
+                {% endif %}
+                {% if SistemaOralidadCivil %}
+                    {{  turno_rechazado.persona is null or turno_rechazado.persona == '' ? '' : turno_rechazado.persona.apellido ~ ' - ' ~ turno_rechazado.persona.nombre}}
+                    <td class="text-left">{{ turno_rechazado.persona is null or turno_rechazado.persona == '' ? '' : turno_rechazado.persona.organismo  ~ ' (' ~ turno_rechazado.persona.dni ~ ')' }}</td>
+                {% endif %}
+        
                 </td>
-                <td>{{ turno_rechazado.persona is null or turno_rechazado.persona == '' ? '' : turno_rechazado.persona.dni }}</td>
                 <td>{{ turno_rechazado.motivo }}</td>
                 <td>{{ turno_rechazado.motivoRechazo }}</td>
                 <td class="text-center">{{ turno_rechazado.emailEnviado ? '<i class="fas fa-check"></i>' : '' }}</td>

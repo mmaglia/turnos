@@ -1,0 +1,48 @@
+## ARCHIVO DE TRADUCCION PARA EL SISTEMA DE AGENDA DE ORALIDAD CIVIL]
+# FrontEnd
+
+## Main
+Solicitud de Turnos: Agenda de Oralidad
+main.parrafo1: Celebración de Audiencias de modo remoto a través de la plataforma zoom, dentro del marco del Plan Piloto de implementación de la oralidad efectiva para los procesos de conocimiento civiles y comerciales; conforme lo dispuesto por la Corte Suprema de Justicia mediante Acta 15 p. 2, de fecha 27.05.2020
+
+## Paso 1
+DNI: Juzgado
+Apellido: Juez
+Nombre: Secretario
+Correo: Correo Oficial
+Teléfono de Contacto: Teléfono de Contacto
+Organismo: Organismo
+
+## Paso 2
+Circunscripcion: Circunscripcion
+Localidad: Localidad
+Oficina: Oficina
+Motivo: Datos Adicionales
+Seleccione la Circunscripción: Seleccione la Circunscripción
+Seleccione una Localidad: Seleccione una Localidad
+Seleccione una Oficina: Seleccione una Oficina
+
+## Paso 3
+Fecha hora: Fecha hora de Audiencia
+
+## Rechazo
+Persona: Funcionarios
+Motivo Indicado: Datos Adicionales
+Motivo del Rechazo: Motivo del Rechazo
+Notificar por Correo: Informar por Correo
+
+## Estado del Turno
+Sin Atender: Pendiente
+Atendido: Realizada
+Atendidos: Realizadas
+No asistió: No realizada
+No Asistió: No Realizada
+Rechazado: Rechazada
+Ausente: No Realizada
+
+Marcar como atendido: Marcar como Realizada
+Marcar como Ausente: Marcar como NO Realizada
+Rechazar: Rechazar
+Marcar como NO atendido: Marcar como NO Realizada
+El turno: La audiencia
+el turno: la audiencia

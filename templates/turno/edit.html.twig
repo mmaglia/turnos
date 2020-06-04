@@ -21,39 +21,65 @@
                         </div>
                     </div>
                 </fieldset>
-                <fieldset class="border p-2">
-                    <legend class="w-auto text-primary">Datos de la Persona</legend>
-                    <div class="row">
-                        <div class="col-8">
-                            <strong>{{ persona.getApellido() }}, {{ persona.getNombre() }}</strong>
+                {% if persona %}
+                    <fieldset class="border p-2">
+                        {% if SistemaTurnosWeb %}
+                            <legend class="w-auto text-primary">Datos de la Persona</legend>
+                        {% endif %}
+                        {% if SistemaOralidadCivil %}
+                            <legend class="w-auto text-primary">Datos del Solicitante</legend>
+                        {% endif %}
+                            
+                        <div class="row">
+                            {% if SistemaTurnosWeb %}
+                                <div class="col-8">
+                                    <strong>{{ persona.getApellido() }}, {{ persona.getNombre() }}</strong>
+                                </div>
+                                <div class="col-4 float-right text-right">
+                                    <strong>DNI: {{ persona.getDni() }}</strong>
+                                </div>    
+                            {% endif %}
+                            {% if SistemaOralidadCivil %}
+                                <div class="col-8">
+                                    <strong>{{ persona ? persona.getOrganismo() : ''}}</strong>
+                                    <br>
+                                    <strong>{{ persona ? persona.getApellido() : '' }} - {{  persona ? persona.getNombre() : ''}}</strong>
+                                </div>
+                                <div class="col-4 float-right text-right">
+                                    <strong>ORGANISMO: {{ persona ? persona.getDni() : '' }}</strong>
+                                </div>
+                            {% endif %}
                         </div>
-                        <div class="col-4 float-right text-right">
-                            <strong>DNI: {{ persona.getDni() }}</strong>
+                        <div class="row mt-3">
+                            <div class="col-8">
+                            <strong>Email:</strong> {{ persona ? persona.getEmail() : ''}}
+                            </div>
+                            <div class="col-4 float-right text-right">
+                                {{ persona and persona.getTelefono() ? ('<strong>Teléfono:</strong> ' ~ persona.getTelefono()) | raw : ''}}
+                            </div>
                         </div>
-                    </div>
-                    <div class="row mt-3">
-                        <div class="col-8">
-                        <strong>Email:</strong> {{ persona.getEmail() }}
-                        </div>
-                        <div class="col-4 float-right text-right">
-                            {{ persona.getTelefono() ? ('<strong>Teléfono:</strong> ' ~ persona.getTelefono()) | raw : ''}}
-                        </div>
-                    </div>
-                </fieldset>
+                    </fieldset>
+                {% endif %}
                 <fieldset class="border p-2">
                     <legend class="w-auto text-primary">Datos del Turno</legend>
                     <div class="row">
-                        <div class="col-3">
-                            {{ form_row(form.fechaHora) }}
-                        </div>
-                        <div class="col-9">
-                            {{ form_row(form.motivo) }}
-                        </div>
-                    </div>
-                    <div class="row">
+                        {% if persona %}
+                            <div class="col-3">
+                                {{ form_row(form.fechaHora) }}
+                            </div>
+                            <div class="col-9">
+                                {{ form_row(form.motivo) }}
+                            </div>
+                        {% else %}
+                            <div class="col-4"></div>
+                            <div class="col-4">
+                                {{ form_row(form.fechaHora) }}
+                            </div>
+                        {% endif %}
                     </div>
                 </fieldset>
 
+                {% if persona %}
                     <div class="row">
                         <div class="col-4"></div>
                         <div class="col-4">
@@ -63,6 +89,7 @@
                             </fieldset>
                         </div>
                     </div>
+                {% endif %}
                 <br>
 
                 {% if (is_granted('ROLE_USER') and oficinaUsuario == turno.getOficina().getId()) or is_granted('ROLE_ADMIN') %}

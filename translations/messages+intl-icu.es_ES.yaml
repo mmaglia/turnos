@@ -1,0 +1,48 @@
+## ARCHIVO DE TRADUCCION PARA EL SISTEMA DE TURNOS WEB
+# FrontEnd
+
+## Main
+Solicitud de Turnos: Solicitud de Turnos
+main.parrafo1: En el marco de las medidas adoptadas por la Corte Suprema de Justicia frente a la pandemia Coronavirus - Covid-19, se pone a disposición un sistema de TURNOS para realizar trámites de carácter presencial.
+
+## Paso 1
+DNI: DNI
+Apellido: Apellido
+Nombre: Nombre
+Correo: Correo
+Teléfono de Contacto: Teléfono de Contacto
+Organismo: Organismo
+
+## Paso 2
+Circunscripcion: Circunscripcion
+Localidad: Localidad
+Oficina: Oficina
+Motivo: Motivo
+Seleccione la Circunscripción: Seleccione la Circunscripción
+Seleccione una Localidad: Seleccione una Localidad
+Seleccione una Oficina: Seleccione una Oficina
+
+## Paso 3
+Fecha hora: Fecha hora
+
+## Rechazo
+Persona: Persona
+Motivo Indicado: Motivo Indicado
+Motivo del Rechazo: Motivo del Rechazo
+Notificar por Correo: Notificar por Correo
+
+## Estado del Turno
+Sin Atender: Sin Atender
+Atendido: Atendido
+Atendidos: Atendidos
+No asistió: No asistió
+No Asistió: No Asistió
+Rechazado: Rechazado
+Ausente: Ausente
+
+Marcar como atendido: Marcar como atendido
+Marcar como Ausente: Marcar como Ausente
+Rechazar: Rechazar
+Marcar como NO atendido: Marcar como NO atendido
+El turno: El turno
+el turno: el turno

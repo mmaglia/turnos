@@ -1,0 +1,26 @@
+<h2>Su turno ha sido cancelado</h2>
+
+<p>Estimado/a: {{ turno.persona.apellido }} -  {{ turno.persona.nombre }}. </p>
+
+<p>Mediante este correo <strong>lamentamos informarle que su turno ha sido cancelado</strong>.  Los datos que usted suministró oportunamente fueron los siguientes:</p>
+
+<p><strong>Oficina: </strong>{{ turno.oficina.oficina }} - {{ turno.oficina.localidad.localidad }} (Poder Judicial de Santa Fe)</p>
+
+<p><strong>ORGANISMO: </strong>{{ turno.persona.dni }} - {{ turno.getPersona().getOrganismo() }}</p>
+
+<p><strong>JUEZ: </strong>{{ turno.persona.apellido }}</p>
+
+<p><strong>SECRETARIO:</strong>{{ turno.persona.nombre }}</p>
+
+<p><strong>Datos Adicionales: </strong>{{ turno.motivo }}</p>
+
+<p><strong>Correo Electrónico: </strong>{{ turno.persona.email }}</p>
+
+<p><strong>Teléfono de Contacto: </strong>{{ turno.persona.telefono }}</p>
+
+<br>
+<p><strong>Fecha: </strong>{{ turno.fechaHora |date('d/m/Y') }} a las {{ turno.fechaHora |date('H:i')}}hs.</p>
+
+<p><strong>MOTIVO DE LA CANCELACION: </strong>{{ motivoRechazo }}</p>
+
+<br>

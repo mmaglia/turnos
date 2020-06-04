@@ -25,18 +25,29 @@ class TurnoType extends AbstractType
                     'attr' => ['class' => 'js-datepicker', 'date_format' => 'd/m/Y H:i'],
                     'mapped' => true
                 ])
-            ->add('motivo')
-            ->add('estado', ChoiceType::class, [
-                'expanded' => true, // render check-boxes
-                'label'    => false,
-                'attr' => ['autofocus' => true],
-                'choices'  => [
-                    'Sin Atender' => '1',
-                    'Atendido' => '2',
-                    'No asistió' => '3',
-                    'Rechazado' => '4',
-                ]])
         ;
+
+        $builder->addEventListener(
+            FormEvents::PRE_SET_DATA,
+            function(FormEvent $event) {
+                $data = $event->getData();
+                $form = $event->getForm();
+
+                if ($data->getPersona()) {
+                    $form->add('motivo');
+                    $form->add('estado', ChoiceType::class, [
+                        'expanded' => true, // render check-boxes
+                        'label'    => false,
+                        'choices'  => [
+                            'Sin Atender' => '1',
+                            'Atendido' => '2',
+                            'No asistió' => '3',
+                            'Rechazado' => '4',
+                        ]])
+                    ;
+                }
+            }
+        );
     }
 
     public function configureOptions(OptionsResolver $resolver)

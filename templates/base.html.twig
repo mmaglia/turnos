@@ -70,6 +70,9 @@
                                 <a class="nav-link dropdown-toggle text-light" href="#" id="dropdownAdministrarId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Administrar</a>
                                 <div class="dropdown-menu" aria-labelledby="dropdownAdministrarId">
                                     <a class="dropdown-item" href="{{ path('localidad_index') }}">Localidades</a>
+                                    {% if SistemaOralidadCivil %}
+                                        <a class="dropdown-item" href="{{ path('organismo_index') }}">Organismos</a>
+                                    {% endif %}
                                     <a class="dropdown-item" href="{{ path('oficina_index') }}">Oficinas</a>
                                     <a class="dropdown-item" href="{{ path('usuario_index') }}">Gestionar Usuarios</a>
 {#                                    <a class="dropdown-item" href="{{ path('config_index') }}">Configuración</a> #}

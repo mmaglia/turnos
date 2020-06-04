@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 /**
  * @Route("/rechazados")
@@ -38,12 +39,11 @@ class TurnoRechazadoController extends AbstractController
 
     /**
      * @Route("/new", name="turno_rechazado_new", methods={"GET","POST"})
+     * 
+     * @IsGranted("ROLE_EDITOR")
      */
     public function new(Request $request): Response
     {
-        // Deniega acceso si no tiene un rol de editor o superior
-        $this->denyAccessUnlessGranted('ROLE_EDITOR');
-
         $turnoRechazado = new TurnoRechazado();
         $form = $this->createForm(TurnoRechazadoType::class, $turnoRechazado);
         $form->handleRequest($request);
@@ -74,12 +74,11 @@ class TurnoRechazadoController extends AbstractController
 
     /**
      * @Route("/{id}/edit", name="turno_rechazado_edit", methods={"GET","POST"})
+     * 
+     * @IsGranted("ROLE_EDITOR")
      */
     public function edit(Request $request, TurnoRechazado $turnoRechazado): Response
     {
-        // Deniega acceso si no tiene un rol de editor o superior
-        $this->denyAccessUnlessGranted('ROLE_EDITOR');
-
         $form = $this->createForm(TurnoRechazadoType::class, $turnoRechazado);
         $form->handleRequest($request);
 
@@ -97,12 +96,11 @@ class TurnoRechazadoController extends AbstractController
 
     /**
      * @Route("/{id}", name="turno_rechazado_delete", methods={"DELETE"})
+     * 
+     * @IsGranted("ROLE_EDITOR")
      */
     public function delete(Request $request, TurnoRechazado $turnoRechazado): Response
     {
-        // Deniega acceso si no tiene un rol de editor o superior
-        $this->denyAccessUnlessGranted('ROLE_EDITOR');
-
         if ($this->isCsrfTokenValid('delete'.$turnoRechazado->getId(), $request->request->get('_token'))) {
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->remove($turnoRechazado);

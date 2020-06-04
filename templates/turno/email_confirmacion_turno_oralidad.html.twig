@@ -1,0 +1,23 @@
+<h2>Su turno ha sido confirmado</h2>
+
+<p>Estimado/a: {{ turno.persona.apellido }} - {{ turno.persona.nombre }}.</p>
+
+<p>Mediante este correo le informamos que su turno ha sido confirmado con los siguientes datos:</p>
+
+<p><strong>OFICINA: </strong>{{ turno.oficina.oficina }} - {{ turno.oficina.localidad.localidad }} (Poder Judicial de Santa Fe)</p>
+
+<p><strong>ORGANISMO: </strong>{{ turno.persona.dni }} - {{ turno.getPersona().getOrganismo() }}</p>
+
+<p><strong>JUEZ: </strong>{{ turno.persona.apellido }}</p>
+
+<p><strong>SECRETARIO:</strong>{{ turno.persona.nombre }}</p>
+
+<p><strong>Datos Adicionales: </strong>{{ turno.motivo }}</p>
+
+<p><strong>Correo Electrónico: </strong>{{ turno.persona.email }}</p>
+
+<p><strong>Teléfono de Contacto: </strong>{{ turno.persona.telefono }}</p>
+
+<br>
+
+<p><strong>FECHA: </strong><strong>{{ turno.fechaHora |date('d/m/Y') }}</strong> a las <strong>{{ turno.fechaHora |date('H:i')}}hs.</strong></p>

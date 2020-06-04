@@ -63,9 +63,9 @@
                     <th>Oficina</th>
                 {% endif %}
                 <th>Fecha y Hora</th>
-                <th>Persona</th>
-                <th>DNI</th>
-                <th>Motivo</th>
+                <th>{% trans %}Persona{% endtrans %}</th>
+                <th>{% trans %}DNI{% endtrans %}</th>
+                <th>{% trans %}Motivo{% endtrans %}</th>
                 <th class="text-center">Estado</th>
                 {% if is_granted('ROLE_EDITOR') %} 
                     <th class="table-bordered table-secondary text-center d-print-none" style="background-color: rgb(245, 245, 245);">Acciones</th>
@@ -88,16 +88,22 @@
                                 title="Correo:  {{ turno.persona.email }}"
                         {% endif %}
                     >
+                    {% if SistemaTurnosWeb %}
                         {{  turno.persona is null or turno.persona == '' ? '' : turno.persona.apellido ~ ', ' ~ turno.persona.nombre}}
-                        
+                        <td class="text-center">{{ turno.persona is null or turno.persona == '' ? '' : turno.persona.dni }}</td>
+                        {% endif %}
+                    {% if SistemaOralidadCivil %}
+                        {{  turno.persona is null or turno.persona == '' ? '' : turno.persona.apellido ~ ' - ' ~ turno.persona.nombre}}
+                        <td class="text-left">{{ turno.persona is null or turno.persona == '' ? '' : turno.persona.organismo  ~ ' (' ~ turno.persona.dni ~ ')' }}</td>
+                    {% endif %}
+                                
                     </td>
-                    <td>{{ turno.persona is null or turno.persona == '' ? '' : turno.persona.dni }}</td>
                     <td>{{ turno.motivo }}</td>
                     <td class="text-center">{% if turno.persona is not null %}
-                            {% if turno.estado == 1 %}          Sin Atender
-                                {% elseif turno.estado == 2 %}  Atendido
-                                {% elseif turno.estado == 3 %}  No Asistió
-                                {% elseif turno.estado == 4 %}  Rechazado
+                            {% if turno.estado == 1 %}          {% trans %}Sin Atender{% endtrans %}
+                                {% elseif turno.estado == 2 %}  {% trans %}Atendido{% endtrans %}
+                                {% elseif turno.estado == 3 %}  {% trans %}No Asistió{% endtrans %}
+                                {% elseif turno.estado == 4 %}  {% trans %}Rechazado{% endtrans %}
                             {% endif %}
                         {% endif %}
                     </td>
@@ -113,13 +119,13 @@
                             &nbsp;&nbsp;
                             {% if turno.persona is not null %}
                                 {% if turno.estado == 1%}
-                                    <a href="{{ path('turno_atendido', {'id': turno.id}) }}" title="Marcar como atendido"><i class="fas fa-user-check"></i></a>
+                                    <a href="{{ path('turno_atendido', {'id': turno.id}) }}" title="{% trans %}Marcar como atendido{% endtrans %}"><i class="fas fa-user-check"></i></a>
                                     &nbsp;&nbsp;&nbsp;&nbsp;
-                                    <a href="{{ path('turno_no_asistido', {'id': turno.id}) }}" title="Marcar como Ausente"><i class="fas fa-user-slash text-danger"></i></a>
+                                    <a href="{{ path('turno_no_asistido', {'id': turno.id}) }}" title="{% trans %}Marcar como Ausente{% endtrans %}"><i class="fas fa-user-slash text-danger"></i></a>
                                     &nbsp;
-                                    <a href="{{ path('turno_rechazado', {'id': turno.id}) }}" title="Rechazar"><i class="fas fa-thumbs-down text-danger"></i></a>
+                                    <a href="{{ path('turno_rechazado', {'id': turno.id}) }}" title="{% trans %}Rechazar{% endtrans %}"><i class="fas fa-thumbs-down text-danger"></i></a>
                                 {% elseif turno.estado == 2 %}
-                                    <a href="{{ path('turno_atendido', {'id': turno.id}) }}" title="Marcar como NO atendido"><i class="fas fa-user-times"></i></a>
+                                    <a href="{{ path('turno_atendido', {'id': turno.id}) }}" title="{% trans %}Marcar como NO atendido{% endtrans %}"><i class="fas fa-user-times"></i></a>
                                 {% endif %}
                             {% endif %}
                         </td>

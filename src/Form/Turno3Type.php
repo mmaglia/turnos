@@ -35,9 +35,21 @@ class Turno3Type extends AbstractType
                 'required' => true,
                 'placeholder' => 'Seleccione una Oficina',
                 'mapped' => false,
-                ])                
-            ->add('motivo')
+                ])         
         ;
+
+        if ($_ENV['SISTEMA_TURNOS_WEB'])
+        {
+            $builder->add('motivo');
+        }
+
+        if ($_ENV['SISTEMA_ORALIDAD_CIVIL'])
+        {
+            $builder->add('motivo',null, [
+                'help' => 'Especifique Datos de la causa (CUIJ, Carátula) y elementos necesarios (Equipamiento Informático, ID Reunión Zoom)',
+            ]);
+        }
+        
 
         $builder->addEventListener(
             FormEvents::PRE_SUBMIT,
