@@ -66,6 +66,10 @@
                 <th>{% trans %}Persona{% endtrans %}</th>
                 <th>{% trans %}DNI{% endtrans %}</th>
                 <th>{% trans %}Motivo{% endtrans %}</th>
+                {% if SistemaOralidadCivil %}
+                    <th class="text-center">{% trans %}Notebook{% endtrans %}</th>
+                    <th class="text-center">{% trans %}Zoom{% endtrans %}</th>
+                {% endif %}                
                 <th class="text-center">Estado</th>
                 {% if is_granted('ROLE_EDITOR') %} 
                     <th class="table-bordered table-secondary text-center d-print-none" style="background-color: rgb(245, 245, 245);">Acciones</th>
@@ -99,6 +103,10 @@
                                 
                     </td>
                     <td>{{ turno.motivo }}</td>
+                    {% if SistemaOralidadCivil %}
+                        <td class="text-center">{{ turno.notebook ? '<i class="fas fa-check"></i>' : '' }}</td>
+                        <td class="text-center">{{ turno.zoom ? '<i class="fas fa-check"></i>' : '' }}</td>
+                    {% endif %}
                     <td class="text-center">{% if turno.persona is not null %}
                             {% if turno.estado == 1 %}          {% trans %}Sin Atender{% endtrans %}
                                 {% elseif turno.estado == 2 %}  {% trans %}Atendido{% endtrans %}
@@ -133,7 +141,11 @@
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="7">No hay turnos</td>
+                    {% if SistemaOralidadCivil %}
+                        <td colspan="9">No hay turnos</td>
+                    {% else %}
+                        <td colspan="7">No hay turnos</td>
+                    {% endif %}
                 </tr>
             {% endfor %}
             </tbody>

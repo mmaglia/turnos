@@ -21,6 +21,9 @@ Motivo: Datos Adicionales
 Seleccione la Circunscripción: Seleccione la Circunscripción
 Seleccione una Localidad: Seleccione una Localidad
 Seleccione una Oficina: Seleccione una Oficina
+helpDatosAdicionales: Especifique Datos de la causa (CUIJ, Carátula) y elementos necesarios
+helperRequiereNotebook: Indique si requiere Notebook y Modem 4G
+helperRequiereZoom: Indique si requiere se organice una Sala de Zoom
 
 ## Paso 3
 Fecha hora: Fecha hora de Audiencia
@@ -46,3 +49,7 @@ Rechazar: Rechazar
 Marcar como NO atendido: Marcar como NO Realizada
 El turno: La audiencia
 el turno: la audiencia
+
+Notebook: Notebook
+Zoom: Zoom
+Reunión Zoom: Reunión Zoom

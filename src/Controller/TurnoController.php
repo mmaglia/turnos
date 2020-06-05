@@ -190,6 +190,12 @@ class TurnoController extends AbstractController
         $turno = new Turno();
         $turno->setPersona($persona);
         $form = $this->createForm(Turno3Type::class, $turno);
+
+        if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
+            $form->get('notebook')->setData(true);
+            $form->get('zoom')->setData(true);
+        }
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -303,6 +309,8 @@ class TurnoController extends AbstractController
                 // Si se trata de agenda de Oralidad asocio el Organismo a la Persona para que se persista Persona en la BD sin problemas
                 if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
                     $persona->setOrganismo($organismo);
+                    $turnoActualizar->setNotebook($turno->getNotebook());
+                    $turnoActualizar->setZoom($turno->getZoom());    
                 }
 
                 $turnoActualizar->setMotivo($turno->getMotivo());
@@ -722,7 +730,8 @@ class TurnoController extends AbstractController
                 $turnoRechazado->setFechaHoraRechazo(new \DateTime(date("Y-m-d H:i:s")));
                 $turnoRechazado->setFechaHoraTurno($turno->getFechaHora());
                 $turnoRechazado->setMotivo($turno->getMotivo());
-                $turnoRechazado->setOficina($turno->getOficina());
+                $turnoRechazado->setNotebook($turno->getNotebook());
+                $turnoRechazado->setZoom($turno->getZoom());
                 $turnoRechazado->setPersona($turno->getPersona());
                 $turnoRechazado->setEmailEnviado(isset($request->request->get('turno_rechazar')['enviarMail']));
                 $turnoRechazado->setMotivoRechazo($motivoRechazo);
@@ -731,6 +740,8 @@ class TurnoController extends AbstractController
                 $turno->setEstado(1);
                 $turno->setPersona(null);
                 $turno->setMotivo('');
+                $turno->setNotebook(false);
+                $turno->setZoom(false);
 
                 // Grabo
                 $this->getDoctrine()->getManager()->persist($turnoRechazado);

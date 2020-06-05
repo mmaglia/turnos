@@ -47,6 +47,10 @@
             <p class="card-text"><strong>{{ turno.oficina.oficina }} ({{ turno.oficina.localidad.localidad }})</strong></p>
             <p class="card-text"><strong>{% trans %}Motivo Indicado{% endtrans %}</strong></p>
             <p>{{ turno.motivo }}</p>
+            {% if SistemaOralidadCivil %}
+                <p class="card-text"><strong>Notebook: </strong>{{ turno.notebook ? 'Si' : 'No'}}</p>
+                <p class="card-text"><strong>Reunión Zoom: </strong>{{ turno.zoom  ? 'Si' : 'No'}}</p>
+            {% endif %}        
         </div>
     </div>
 

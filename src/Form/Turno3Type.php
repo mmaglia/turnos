@@ -82,9 +82,11 @@ select c.id, c.circunscripcion from circunscripcion c inner join localidad l on 
 
         if ($_ENV['SISTEMA_ORALIDAD_CIVIL'])
         {
-            $builder->add('motivo',null, [
-                'help' => 'Especifique Datos de la causa (CUIJ, Carátula) y elementos necesarios (Equipamiento Informático, Reunión Zoom)',
-            ]);
+            $builder
+                ->add('motivo',null, ['help' => 'helpDatosAdicionales'])
+                ->add('notebook', null, ['help' => 'helperRequiereNotebook'])
+                ->add('zoom', null, ['label'    => 'Reunión Zoom', 'help' => 'helperRequiereZoom'])
+            ;
         }
         
 

@@ -35,6 +35,10 @@ class TurnoType extends AbstractType
 
                 if ($data->getPersona()) {
                     $form->add('motivo');
+                    if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
+                        $form->add('notebook', null, ['help' => 'helperRequiereNotebook']);
+                        $form->add('zoom', null, ['label'    => 'Requiere Zoom', 'help' => 'helperRequiereZoom']);
+                    }
                     $form->add('estado', ChoiceType::class, [
                         'expanded' => true, // render check-boxes
                         'label'    => false,

@@ -28,6 +28,10 @@
                 <th>{% trans %}Persona{% endtrans %}</th>
                 <th>{% trans %}DNI{% endtrans %}</th>
                 <th>{% trans %}Motivo{% endtrans %}</th>
+                {% if SistemaOralidadCivil %}
+                    <th class="text-center">{% trans %}Notebook{% endtrans %}</th>
+                    <th class="text-center">{% trans %}Zoom{% endtrans %}</th>
+                {% endif %}                
                 <th>Motivo Rechazo</th>
                 <th class="text-center">Email Enviado</th>
 {#                <th>Acciones</th> #}
@@ -61,6 +65,10 @@
         
                 </td>
                 <td>{{ turno_rechazado.motivo }}</td>
+                {% if SistemaOralidadCivil %}
+                    <td class="text-center">{{ turno_rechazado.notebook ? '<i class="fas fa-check"></i>' : '' }}</td>
+                    <td class="text-center">{{ turno_rechazado.zoom ? '<i class="fas fa-check"></i>' : '' }}</td>
+                {% endif %}
                 <td>{{ turno_rechazado.motivoRechazo }}</td>
                 <td class="text-center">{{ turno_rechazado.emailEnviado ? '<i class="fas fa-check"></i>' : '' }}</td>
 {#                
@@ -72,7 +80,11 @@
             </tr>
         {% else %}
             <tr>
-                <td colspan="7">No hay registros</td>
+                {% if SistemaOralidadCivil %}
+                    <td colspan="9">No hay registros</td>
+                {% else %}
+                    <td colspan="7">No hay registros</td>
+                {% endif %}
             </tr>
         {% endfor %}
         <div class="card border-primary mb-3 align-bottom float-right" style="max-width: 18rem; font-size: .8rem; background-color: rgb(255, 200, 200);">

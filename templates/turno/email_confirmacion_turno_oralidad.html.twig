@@ -14,6 +14,10 @@
 
 <p><strong>Datos Adicionales: </strong>{{ turno.motivo }}</p>
 
+<p><strong>Requiere Notebook: </strong>{{ turno.notebook ? 'Si' : 'No'}}</p>
+
+<p><strong>Requiere Reunión Zoom: </strong>{{ turno.zoom ? 'Si' : 'No'}}</p>
+
 <p><strong>Correo Electrónico: </strong>{{ turno.persona.email }}</p>
 
 <p><strong>Teléfono de Contacto: </strong>{{ turno.persona.telefono }}</p>

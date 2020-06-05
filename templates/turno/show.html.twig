@@ -19,6 +19,16 @@
                 <th>Motivo</th>
                 <td>{{ turno.motivo }}</td>
             </tr>
+            {% if SistemaOralidadCivil %}
+                <tr>
+                    <th>Notebook:</th>
+                    <td>{{ turno.notebook ? 'Si' : 'No'}}</td>
+                </tr>
+                <tr>
+                    <th>Reunión Zoom</th>
+                    <td>{{ turno.zoom ? 'Si' : 'No'}}</td>
+                </tr>
+            {% endif %}        
             <tr>
                 <th>Estado</th>
                 <td>{% if turno.persona is not null %}
