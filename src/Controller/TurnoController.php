@@ -470,10 +470,6 @@ class TurnoController extends AbstractController
             $response->headers->setCookie(new Cookie('organismo',  $orgId, $time));
         }
 
-        // Limpio las variables de session utilizadas
-        $session->remove('turno');
-        $session->remove('persona');
-
         return $response;
     }
 
@@ -763,6 +759,19 @@ class TurnoController extends AbstractController
         $localidades = $localidadRepository->findLocalidadesByCircunscripcion($circunscripcion_id);
         return new JsonResponse($localidades);
     }
+
+    /**
+     * Obtiene todas las localidades que tiene al menos una Oficina Habilitada en una Circunscripcipón
+     * 
+     * @Route("/TurnosWeb/localidades_habilitadas_circunscripcion/{circunscripcion_id}", name="localidadesHabilitadasByCircunscripcion", requirements = {"circunscripcion_id" = "\d+"}, methods={"GET", "POST"})
+     * 
+     * @return string JSON con las localidades de una Circunscripción (Ej.: {{"id":25,"localidad":"Coronda"},....})
+     */
+    public function localidadesHabilitadasByCircunscripcion($circunscripcion_id, OficinaRepository $oficinaRepository)
+    {
+        $localidades = $oficinaRepository->findByLocalidadesHabilitadasByCircunscripcion($circunscripcion_id);
+        return new JsonResponse($localidades);
+    }    
 
 
     /**

@@ -27,8 +27,45 @@ class Turno3Type extends AbstractType
                 'class' => 'App\Entity\Localidad',
                 'placeholder' => 'Seleccione una Localidad',
                 'required' => true,
-                'mapped' => false
+                'mapped' => false                
                 ])
+/*  TODO: por ahora se elimina de la tabla las Circunscripciones que no se utilizan lo ideal sería ajustar el comportamiento del Combo de Circunscripción
+
+Query de Referencia para Mostrar solo Circunscripciones con al menos una Oficina habiltiadas en algunas de las localidades que la comprendan
+select c.id, c.circunscripcion from circunscripcion c inner join localidad l on l.circunscripcion_id = c.id WHERE l.id in (select localidad_id from oficina o where o.habilitada)
+
+            ->add('circunscripcion2', EntityType::class, [
+                'placeholder' => 'Seleccione la Circunscripción',
+                'required' => true,
+                'mapped' => false,
+                'class' => Organismo::class,
+                    'query_builder' => function (OrganismoRepository $er) {
+                        return $er->createQueryBuilder('o');
+                    },
+                ])                
+                ->add('circunscripcion3', EntityType::class, [
+                    'placeholder' => 'Seleccione la Circunscripción',
+                    'required' => true,
+                    'mapped' => false,
+                    'class' => Circunscripcion::class,
+                        'query_builder' => function (CircunscripcionRepository $er) {
+                            return $er->createQueryBuilder('c')
+                                ->select(array('DISTINCT c.id', 'c.circunscripcion'))
+                                ->from('circunscripcion', 'c')
+                                ->join('localidad l', 'l')
+                                ->where(
+                                    $er->createQueryBuilder->in(
+                                        'l.id',
+                                        $er->createQueryBuilder()
+                                            ->select('o.localidad_id')
+                                            ->from('oficina', 'o')
+                                            ->where('o.habilitada', true)
+                                            ->getDQL()
+                                    )
+                                );
+                        },
+                ])    
+*/                
             ->add('oficina', EntityType::class, [
                 'class' => 'App\Entity\Oficina',
                 'label'    => 'Oficina',
@@ -46,7 +83,7 @@ class Turno3Type extends AbstractType
         if ($_ENV['SISTEMA_ORALIDAD_CIVIL'])
         {
             $builder->add('motivo',null, [
-                'help' => 'Especifique Datos de la causa (CUIJ, Carátula) y elementos necesarios (Equipamiento Informático, ID Reunión Zoom)',
+                'help' => 'Especifique Datos de la causa (CUIJ, Carátula) y elementos necesarios (Equipamiento Informático, Reunión Zoom)',
             ]);
         }
         

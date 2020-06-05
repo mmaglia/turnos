@@ -30,7 +30,7 @@
                 var localidad_id = $(this).val();
                 if (circunscripcion_id) {
                     $.ajax({
-                        url:"/TurnosWeb/localidad_circunscripcion/" + circunscripcion_id,
+                        url:"/TurnosWeb/localidades_habilitadas_circunscripcion/" + circunscripcion_id,
                         method: "POST",
                         dataType: "json",
                         success: function(data) {
