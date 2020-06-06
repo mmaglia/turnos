@@ -10,7 +10,7 @@
             <h2>Turno Confirmado</h2>
         </div>
         <div class="col-3 float-right text-right">
-            {{ barcode({code: ruta, type: 'qrcode', format: 'svg', width: 3, height: 3}) }}
+            {{ barcode({code: qr, type: 'qrcode', format: 'svg', width: 3, height: 3}) }}
         </div>
     </div>
 
@@ -65,7 +65,7 @@
         </div>
     </div>
     <div class="text-center">
-        <img src="data:image/png;base64, {{ barcode({code: ruta, type: 'c128', format: 'png', width: 1, height: 35}) }}" />
+        <img src="data:image/png;base64, {{ barcode({code: hash, type: 'c128', format: 'png', width: 1, height: 35}) }}" />
         <br>
         {{ hash }}
     </div>

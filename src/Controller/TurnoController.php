@@ -452,9 +452,26 @@ class TurnoController extends AbstractController
 
         $form = $this->createForm(Turno5Type::class, $turno);
         $form->handleRequest($request);
+        
 
-        // Encripto el ID del turno y genero QR y código de barras con la ruta completa al Escáner de Códigos
+        // Encripto el ID del turno para el Código de Barras
+        
+        // TODO Aparentemente el lector de códigos del PJ al levantar el código no reconoce los caracteres + e =
+        //      ¿Probar con otro tipo de codificación? La utilizada es C128.
         $hash = $this->encrypt($turno->getId());
+
+        // Datos del código QR
+        if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
+            $solicitante = $form->getData()->getPersona()->getOrganismo()->getOrganismo() . '(' . $form->getData()->getPersona()->getOrganismo()->getLocalidad() .')';
+        }
+        if ($_ENV['SISTEMA_TURNOS_WEB']) {
+            $solicitante = $form->getData()->getPersona()->getApellido() . ',' . $form->getData()->getPersona()->getNombre();
+        }
+
+        $fechaHora = 'Turno ' . $form->getData()->getFechaHora()->format('d/m/Y') . ' a las ' . $form->getData()->getFechaHora()->format('H:i') .'hs.';
+        $datosAdicionales = $form->getData()->getMotivo();
+        $qr = $fechaHora  . "\n \n" . $solicitante . "\n \n" . $datosAdicionales;
+
         $ruta = $urlGenerator->generate('turno_barcode', [], UrlGeneratorInterface::ABSOLUTE_URL) . '?codigo=' . $hash;
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -464,7 +481,7 @@ class TurnoController extends AbstractController
 
         $response =  $this->render('turno/comprobante_turno.html.twig', [
             'turno' => $turno,
-            'ruta' => $ruta,
+            'qr' => $qr,
             'hash' => $hash,
             'form' => $form->createView(),
         ]);

@@ -62,7 +62,12 @@
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle text-light" href="#" id="dropdownAyudaId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Ayuda</a>
                             <div class="dropdown-menu" aria-labelledby="dropdownAyudaId">
-                                <a class="dropdown-item" href="{{ asset('docs/Manual_de_Usuario.pdf') }}" target="_blank">Manual de Usuario</a>
+                                {% if SistemaTurnosWeb %}
+                                    <a class="dropdown-item" href="{{ asset('docs/Manual_de_Usuario.pdf') }}" target="_blank">Manual de Usuario</a>
+                                {% endif %}
+                                {% if SistemaOralidadCivil %}
+                                    <a class="dropdown-item" href="{{ asset('docs/Manual_de_Usuario_Oralidad.pdf') }}" target="_blank">Manual de Usuario</a>
+                                {% endif %}
                             </div>
                         </li>
                         {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') %}

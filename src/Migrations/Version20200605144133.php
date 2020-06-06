@@ -25,10 +25,10 @@ final class Version20200605144133 extends AbstractMigration
         $this->addSql("UPDATE turno SET notebook = FALSE, zoom = FALSE");
         $this->addSql("UPDATE turno_rechazado SET notebook = FALSE, zoom = FALSE");
 
-        $this->addSql('ALTER TABLE turno_rechazado ALTER notebook SET NOT NULL');
-        $this->addSql('ALTER TABLE turno_rechazado ALTER zoom SET NOT NULL');
-        $this->addSql('ALTER TABLE turno ALTER notebook SET NOT NULL');
-        $this->addSql('ALTER TABLE turno ALTER zoom SET NOT NULL');
+        $this->addSql("ALTER TABLE turno ALTER COLUMN notebook SET DEFAULT FALSE");
+        $this->addSql("ALTER TABLE turno ALTER COLUMN zoom SET DEFAULT FALSE");
+        $this->addSql("ALTER TABLE turno_rechazado ALTER COLUMN notebook SET DEFAULT FALSE");
+        $this->addSql("ALTER TABLE turno_rechazado ALTER COLUMN zoom SET DEFAULT FALSE");
     }
 
     public function down(Schema $schema) : void
