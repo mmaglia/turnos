@@ -66,7 +66,6 @@
 {% block javascripts %}
     {{ parent() }}
     <script>
-        $(function() {
             $(document).ready(function(){            
                 $('#fechaHora input').datepicker({
                     format: "dd/mm/yyyy",
@@ -81,18 +80,15 @@
                 
                 $('#inlineCheckboxDetallado').click(function() {
                     if ($(this).prop("checked")) { 
-                        console.log('si')
                         $('#inlineCheckboxdiasSinTurnos').removeAttr("disabled");
                         $('#inlineCheckboxsolodDiasSinTurnos').removeAttr("disabled");
                     } else {
-                        console.log('no')
                         $('#inlineCheckboxdiasSinTurnos').attr("disabled", true);
                         $('#inlineCheckboxsolodDiasSinTurnos').attr("disabled", true);
                     }
 
                 })
             });
-        });
     </script>  
     
 {% endblock %}     
