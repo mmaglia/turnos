@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Organismo index{% endblock %}
+
+{% block body %}
+    <h1>Organismo index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Codigo</th>
+                <th>Organismo</th>
+                <th>Telefono</th>
+                <th>Habilitado</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for organismo in organismos %}
+            <tr>
+                <td>{{ organismo.id }}</td>
+                <td>{{ organismo.codigo }}</td>
+                <td>{{ organismo.organismo }}</td>
+                <td>{{ organismo.telefono }}</td>
+                <td>{{ organismo.habilitado ? 'Yes' : 'No' }}</td>
+                <td>
+                    <a href="{{ path('organismo_show', {'id': organismo.id}) }}">show</a>
+                    <a href="{{ path('organismo_edit', {'id': organismo.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="6">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('organismo_new') }}">Create new</a>
+{% endblock %}

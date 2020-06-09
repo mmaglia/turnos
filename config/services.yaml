@@ -6,6 +6,11 @@
 parameters:
 #    container.dumper.inline_factories: true
 
+#    es_ES para SISTEMA_TURNOS_WEB 
+#    es_AR para SISTEMA_ORALIDAD_CIVIL
+
+    locale: '%env(LENGUAJE)%'
+
 services:
     # default configuration for services in *this* file
     _defaults:

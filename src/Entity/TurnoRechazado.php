@@ -52,6 +52,16 @@ class TurnoRechazado
      */
     private $emailEnviado;
 
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $notebook;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $zoom;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -138,6 +148,30 @@ class TurnoRechazado
     public function setEmailEnviado(?bool $emailEnviado): self
     {
         $this->emailEnviado = $emailEnviado;
+
+        return $this;
+    }
+
+    public function getNotebook(): ?bool
+    {
+        return $this->notebook;
+    }
+
+    public function setNotebook(bool $notebook): self
+    {
+        $this->notebook = $notebook;
+
+        return $this;
+    }
+
+    public function getZoom(): ?bool
+    {
+        return $this->zoom;
+    }
+
+    public function setZoom(bool $zoom): self
+    {
+        $this->zoom = $zoom;
 
         return $this;
     }

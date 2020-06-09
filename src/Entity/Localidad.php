@@ -33,9 +33,15 @@ class Localidad
      */
     private $circunscripcion;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Organismo", mappedBy="localidad")
+     */
+    private $organismos;
+
     public function __construct()
     {
         $this->oficinas = new ArrayCollection();
+        $this->organismos = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -99,6 +105,37 @@ class Localidad
     public function setCircunscripcion(?Circunscripcion $circunscripcion): self
     {
         $this->circunscripcion = $circunscripcion;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Organismo[]
+     */
+    public function getOrganismos(): Collection
+    {
+        return $this->organismos;
+    }
+
+    public function addOrganismo(Organismo $organismo): self
+    {
+        if (!$this->organismos->contains($organismo)) {
+            $this->organismos[] = $organismo;
+            $organismo->setLocalidad($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrganismo(Organismo $organismo): self
+    {
+        if ($this->organismos->contains($organismo)) {
+            $this->organismos->removeElement($organismo);
+            // set the owning side to null (unless already changed)
+            if ($organismo->getLocalidad() === $this) {
+                $organismo->setLocalidad(null);
+            }
+        }
 
         return $this;
     }

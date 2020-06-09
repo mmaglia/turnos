@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 /**
  * @Route("/usuario")
@@ -30,12 +31,11 @@ class UsuarioController extends AbstractController
 
     /**
      * @Route("/new", name="usuario_new", methods={"GET","POST"})
+     * 
+     * @IsGranted("ROLE_EDITOR")
      */
     function new(Request $request, UserPasswordEncoderInterface $passwordEncoder): Response
     {
-        // Deniega acceso si no tiene un rol de editor o superior
-        $this->denyAccessUnlessGranted('ROLE_EDITOR');
-
         $usuario = new Usuario();
         $form = $this->createForm(UsuarioType::class, $usuario);
         $form->handleRequest($request);
@@ -77,12 +77,11 @@ class UsuarioController extends AbstractController
 
     /**
      * @Route("/{id}/edit", name="usuario_edit", methods={"GET","POST"})
+     * 
+     * @IsGranted("ROLE_EDITOR")
      */
     public function edit(Request $request, Usuario $usuario, UserPasswordEncoderInterface $passwordEncoder): Response
     {
-        // Deniega acceso si no tiene un rol de editor o superior
-        $this->denyAccessUnlessGranted('ROLE_EDITOR');
-
         $form = $this->createForm(UsuarioType::class, $usuario);
         $form->handleRequest($request);
 
@@ -106,12 +105,11 @@ class UsuarioController extends AbstractController
 
     /**
      * @Route("/{id}", name="usuario_delete", methods={"DELETE"})
+     * 
+     * @IsGranted("ROLE_EDITOR")
      */
     public function delete(Request $request, Usuario $usuario): Response
     {
-        // Deniega acceso si no tiene un rol de editor o superior
-        $this->denyAccessUnlessGranted('ROLE_EDITOR');
-
         if ($this->isCsrfTokenValid('delete' . $usuario->getId(), $request->request->get('_token'))) {
             $entityManager = $this->getDoctrine()->getManager();
 

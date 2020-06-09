@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Psr\Log\LoggerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 /**
  * @Route("/localidad")
@@ -33,12 +34,11 @@ class LocalidadController extends AbstractController
 
     /**
      * @Route("/new", name="localidad_new", methods={"GET","POST"})
+     * 
+     * @IsGranted("ROLE_EDITOR")
      */
     public function new(Request $request): Response
     {
-        // Deniega acceso si no tiene un rol de editor o superior
-        $this->denyAccessUnlessGranted('ROLE_EDITOR');
-
         $localidad = new Localidad();
         $form = $this->createForm(LocalidadType::class, $localidad);
         $form->handleRequest($request);
@@ -69,12 +69,11 @@ class LocalidadController extends AbstractController
 
     /**
      * @Route("/{id}/edit", name="localidad_edit", methods={"GET","POST"})
+     * 
+     * @IsGranted("ROLE_EDITOR")
      */
     public function edit(Request $request, Localidad $localidad): Response
     {
-        // Deniega acceso si no tiene un rol de editor o superior
-        $this->denyAccessUnlessGranted('ROLE_EDITOR');
-
         $form = $this->createForm(LocalidadType::class, $localidad);
         $form->handleRequest($request);
 
@@ -92,12 +91,11 @@ class LocalidadController extends AbstractController
 
     /**
      * @Route("/{id}", name="localidad_delete", methods={"DELETE"})
+     * 
+     * @IsGranted("ROLE_EDITOR")
      */
     public function delete(Request $request, Localidad $localidad): Response
     {
-        // Deniega acceso si no tiene un rol de editor o superior
-        $this->denyAccessUnlessGranted('ROLE_EDITOR');
-
         if ($this->isCsrfTokenValid('delete' . $localidad->getId(), $request->request->get('_token'))) {
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->remove($localidad);
@@ -109,13 +107,12 @@ class LocalidadController extends AbstractController
 
     /**
      * @Route("/{id}/borraDiaAgendaTurnosbyLocalidad", name="borraDiaAgendaTurnosbyLocalidad", methods={"GET", "POST"})
+     * 
+     * @IsGranted("ROLE_EDITOR")
      */
     public function borraDiaAgendaTurnosbyLocalidad(Request $request, TurnoRepository $turnoRepository, OficinaRepository $oficinaRepository, Localidad $localidad, LoggerInterface $logger): Response
     {
-        // Deniega acceso si no tiene un rol de editor o superior
-        $this->denyAccessUnlessGranted('ROLE_EDITOR');
-
-        //Construyo el formulario al vuelo
+         //Construyo el formulario al vuelo
         $data = array(
             'fecha' => (new \DateTime(date("Y-m-d"))), // Campos del formulario
         );

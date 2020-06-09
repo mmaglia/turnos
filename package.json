@@ -24,11 +24,12 @@
         "@types/bootstrap-datepicker": "^0.0.14",
         "bootstrap-datepicker": "^1.9.0",
         "ckeditor": "^4.0.0",
+        "encore": "^0.0.30-beta",
         "mkdirp": "^1.0.4",
         "moment": "^2.24.0",
         "typeface-roboto": "^0.0.75"
     },
     "resolutions": {
-      "bootstrap-datepicker/jquery": "3.4.1"
+        "bootstrap-datepicker/jquery": "3.4.1"
     }
 }

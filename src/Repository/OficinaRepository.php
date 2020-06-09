@@ -90,4 +90,19 @@ class OficinaRepository extends ServiceEntityRepository
         return $result['ultimoTurno'];
     }
 
+    public function findByLocalidadesHabilitadasByCircunscripcion($circunscripcion_id)
+    {
+        return $this->createQueryBuilder('o')
+            ->select('l.id, l.localidad as localidad')
+            ->innerJoin('o.localidad', 'l', 'WITH', 'l.circunscripcion = :val')
+            ->andWhere('o.habilitada = true')
+            ->setParameter('val', $circunscripcion_id)
+            ->distinct()
+            ->orderBy('localidad')
+            ->getQuery()
+            ->getArrayResult();
+        ;
+    }
+
+
 }
