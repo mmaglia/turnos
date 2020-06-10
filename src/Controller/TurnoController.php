@@ -747,8 +747,10 @@ class TurnoController extends AbstractController
                 $turnoRechazado->setFechaHoraRechazo(new \DateTime(date("Y-m-d H:i:s")));
                 $turnoRechazado->setFechaHoraTurno($turno->getFechaHora());
                 $turnoRechazado->setMotivo($turno->getMotivo());
-                $turnoRechazado->setNotebook($turno->getNotebook());
-                $turnoRechazado->setZoom($turno->getZoom());
+                if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
+                    $turnoRechazado->setNotebook($turno->getNotebook());
+                    $turnoRechazado->setZoom($turno->getZoom());
+                }
                 $turnoRechazado->setPersona($turno->getPersona());
                 $turnoRechazado->setEmailEnviado(isset($request->request->get('turno_rechazar')['enviarMail']));
                 $turnoRechazado->setMotivoRechazo($motivoRechazo);
@@ -757,8 +759,10 @@ class TurnoController extends AbstractController
                 $turno->setEstado(1);
                 $turno->setPersona(null);
                 $turno->setMotivo('');
-                $turno->setNotebook(false);
-                $turno->setZoom(false);
+                if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
+                    $turno->setNotebook(false);
+                    $turno->setZoom(false);
+                }
 
                 // Grabo
                 $this->getDoctrine()->getManager()->persist($turnoRechazado);

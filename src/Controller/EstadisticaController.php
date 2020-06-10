@@ -103,7 +103,9 @@ class EstadisticaController extends AbstractController
 
         if (!isset($oficinaId)) {
             // Busca la oficina a la que pertenece el Usuario
-            $oficinaId = $this->getUser()->getOficina()->getId();
+            if ($this->getUser()->getOficina()) {
+                $oficinaId = $this->getUser()->getOficina()->getId();
+            }
             if (!$oficinaId) {
                 // Por seguridad, si el usuario no tiene vinculada oficina pre establece "TODAS"
                 $oficinaId = 0;
