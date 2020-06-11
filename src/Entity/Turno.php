@@ -42,6 +42,16 @@ class Turno
      */
     private $estado;
 
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $notebook;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $zoom;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -112,6 +122,30 @@ class Turno
     public function setEstado(int $estado): self
     {
         $this->estado = $estado;
+
+        return $this;
+    }
+
+    public function getNotebook(): ?bool
+    {
+        return $this->notebook;
+    }
+
+    public function setNotebook(bool $notebook): self
+    {
+        $this->notebook = $notebook;
+
+        return $this;
+    }
+
+    public function getZoom(): ?bool
+    {
+        return $this->zoom;
+    }
+
+    public function setZoom(bool $zoom): self
+    {
+        $this->zoom = $zoom;
 
         return $this;
     }

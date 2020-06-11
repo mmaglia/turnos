@@ -48,6 +48,11 @@ class Persona
      */
     private $telefono;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Organismo", inversedBy="personas")
+     */
+    private $organismo;
+
     public function __construct()
     {
         $this->turnos = new ArrayCollection();
@@ -139,6 +144,10 @@ class Persona
 
     public function __toString()
     {
+        if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
+            return $this->getApellido() . ' - ' . $this->getNombre();
+        }
+
         return $this->getApellido() . ', ' . $this->getNombre();
     }
 
@@ -156,6 +165,18 @@ class Persona
 
     public function getPersona() {
         return $this->__toString();
+    }
+
+    public function getOrganismo(): ?Organismo
+    {
+        return $this->organismo;
+    }
+
+    public function setOrganismo(?Organismo $organismo): self
+    {
+        $this->organismo = $organismo;
+
+        return $this;
     }
 
 

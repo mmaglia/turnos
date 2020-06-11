@@ -18,6 +18,7 @@ use Symfony\Component\Form\Extension\Core\Type\DateType;
 use DateTime;
 use DateInterval;
 use Psr\Log\LoggerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 /**
  * @Route("/oficina")
@@ -38,12 +39,11 @@ class OficinaController extends AbstractController
 
     /**
      * @Route("/new", name="oficina_new", methods={"GET","POST"})
+     * 
+     * @IsGranted("ROLE_EDITOR")
      */
     public function new(Request $request): Response
     {
-        // Deniega acceso si no tiene un rol de editor o superior
-        $this->denyAccessUnlessGranted('ROLE_EDITOR');
-
         $oficina = new Oficina();
         $form = $this->createForm(OficinaType::class, $oficina);
         $form->handleRequest($request);
@@ -64,12 +64,11 @@ class OficinaController extends AbstractController
 
     /**
      * @Route("/{id}/addTurnos", name="oficina_addTurnos", methods={"GET","POST"})
+     * 
+     * @IsGranted("ROLE_EDITOR")
      */
     public function addTurnos(Request $request, Oficina $oficina, TurnoRepository $turnoRepository, LoggerInterface $logger, OficinaRepository $oficinaRepository, SessionInterface $session, int $id=1): Response
     {        
-        // Deniega acceso si no tiene un rol de editor o superior
-        $this->denyAccessUnlessGranted('ROLE_EDITOR');
-
         // Evalúa si se encuentran seleccionadas varias oficinas
         $oficinasSeleccionadas = '';
         $indiceOficinasSeleccionadas = 0;
@@ -255,12 +254,11 @@ class OficinaController extends AbstractController
 
     /**
      * @Route("/{id}/borraDiaAgendaTurnosbyOficina", name="borraDiaAgendaTurnosbyOficina", methods={"GET", "POST"})
+     * 
+     * @IsGranted("ROLE_EDITOR")
      */
     public function borraDiaAgendaTurnosbyOficina(Request $request, Oficina $oficina, TurnoRepository $turnoRepository, LoggerInterface $logger): Response
     {
-        // Deniega acceso si no tiene un rol de editor o superior
-        $this->denyAccessUnlessGranted('ROLE_EDITOR');
-
         //Construyo el formulario al vuelo
         $data = array(
             'fecha' => (new \DateTime(date("Y-m-d"))), // Campos del formulario
@@ -358,9 +356,12 @@ class OficinaController extends AbstractController
 
     /**
      * @Route("/{id}/edit", name="oficina_edit", methods={"GET","POST"})
+     * 
+     * @IsGranted("ROLE_EDITOR")
      */
     public function edit(Request $request, Oficina $oficina): Response
     {
+        
         $form = $this->createForm(OficinaType::class, $oficina);
         $form->handleRequest($request);
 

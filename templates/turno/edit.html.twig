@@ -3,9 +3,140 @@
 {% block title %}Edición de Turno{% endblock %}
 
 {% block body %}
-    <h1>Edición de Turno</h1>
-    {{ include('turno/_form.html.twig', {'button_label': 'Grabar Cambios'}) }}
-    <!-- Se agregan estilos a los botones para que queden alineados -->
-    <a class="btn btn-secondary float-left volver" href="{{ path('turno_index') }}">Volver a la Lista</a>
-    {{ include('turno/_delete_form.html.twig') }}
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header">
+                Edición de Turno
+            </div>
+            <div class="card-body text-primary">
+                {{ form_start(form) }}
+                <div class="my-custom-class-for-errors">
+                    {{ form_errors(form) }}
+                </div>
+                <fieldset class="border p-2" id="fldOficina">
+                    <legend class="w-auto text-primary">Datos de la Oficina</legend>
+                    <div class="row text-center">
+                        <div class="col-12">
+                            <strong>{{ turno.getOficina().getOficina() }}  ({{ turno.getOficina().getLocalidad().getLocalidad() }})</strong>
+                        </div>
+                    </div>
+                </fieldset>
+                {% if persona %}
+                    <fieldset class="border p-2">
+                        {% if SistemaTurnosWeb %}
+                            <legend class="w-auto text-primary">Datos de la Persona</legend>
+                        {% endif %}
+                        {% if SistemaOralidadCivil %}
+                            <legend class="w-auto text-primary">Datos del Solicitante</legend>
+                        {% endif %}
+                            
+                        <div class="row">
+                            {% if SistemaTurnosWeb %}
+                                <div class="col-8">
+                                    <strong>{{ persona.getApellido() }}, {{ persona.getNombre() }}</strong>
+                                </div>
+                                <div class="col-4 float-right text-right">
+                                    <strong>DNI: {{ persona.getDni() }}</strong>
+                                </div>    
+                            {% endif %}
+                            {% if SistemaOralidadCivil %}
+                                <div class="col-8">
+                                    <strong>{{ persona ? persona.getOrganismo() : ''}}</strong>
+                                    <br>
+                                    <strong>{{ persona ? persona.getApellido() : '' }} - {{  persona ? persona.getNombre() : ''}}</strong>
+                                </div>
+                                <div class="col-4 float-right text-right">
+                                    <strong>ORGANISMO: {{ persona ? persona.getDni() : '' }}</strong>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-8">
+                            <strong>Email:</strong> {{ persona ? persona.getEmail() : ''}}
+                            </div>
+                            <div class="col-4 float-right text-right">
+                                {{ persona and persona.getTelefono() ? ('<strong>Teléfono:</strong> ' ~ persona.getTelefono()) | raw : ''}}
+                            </div>
+                        </div>
+                    </fieldset>
+                {% endif %}
+                <fieldset class="border p-2">
+                    <legend class="w-auto text-primary">Datos del Turno</legend>
+                    <div class="row">
+                        {% if persona %}
+                            <div class="col-3">
+                                {{ form_row(form.fechaHora) }}
+                            </div>
+                            <div class="col-9">
+                                {{ form_row(form.motivo) }}
+                            </div>
+                        {% else %}
+                            <div class="col-4"></div>
+                            <div class="col-4">
+                                {{ form_row(form.fechaHora) }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </fieldset>
+
+                {% if persona %}
+                    <div class="row">
+                        {% if SistemaOralidadCivil %}
+                            <div class="col-2"></div>
+                            <div class="col-4">
+                                <fieldset class="border p-2">
+                                    <legend class="w-auto text-primary">Requerimientos</legend>
+                                    {{ form_row(form.notebook) }}
+                                    {{ form_row(form.zoom) }}
+                                </fieldset>
+                            </div>
+                            <div class="col-4">
+                        {% else %}
+                            <div class="col-12">
+                        {% endif %}
+                            <fieldset class="border p-2">
+                                <legend class="w-auto text-primary">Estado del Turno</legend>
+                                {{ form_row(form.estado) }}
+                            </fieldset>
+                        </div>                        
+                    </div>
+                {% endif %}
+                <br>
+            </div>
+        </div>
+
+        <br>
+
+        {% if (is_granted('ROLE_USER') and oficinaUsuario == turno.getOficina().getId()) or is_granted('ROLE_ADMIN') %}
+            {{ include('turno/_form.html.twig', {'button_label': 'Grabar Cambios'}) }}
+        {% endif %}
+
+        <!-- Se agregan estilos a los botones para que queden alineados -->
+        {% if escanerCodigo %}
+            <a class="btn btn-secondary float-left volver" href="{{ path('turno_barcode') }}">Escanear otro Turno</a> 
+        {% else %}
+            <a class="btn btn-secondary float-left volver" href="{{ path('turno_index') }}">Volver a la Lista</a>
+        {% endif %}
+
+        {% if (is_granted('ROLE_USER') and oficinaUsuario == turno.getOficina().getId()) or is_granted('ROLE_ADMIN') %}
+            {{ include('turno/_delete_form.html.twig') }}
+        {% endif %}
+
+        {{ form_end(form) }}
+    </div>
 {% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(function() {
+            if ( {{oficinaUsuario}} != {{turno.getOficina().getId()}} )
+            {
+                $('#fldOficina').addClass('border-danger text-danger')
+                $('#fldOficina legend').addClass('border-danger text-danger')
+            }
+        });
+    </script>  
+
+{% endblock %}     
+

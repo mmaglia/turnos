@@ -3,13 +3,15 @@
 {% block title %}Nuevo Turno{% endblock %}
 
 {% block body %}
-    <div class="row mt-3 mb-5">
-        <div class="col-3"><img src="{{asset('images/logo.png')}}" class="rounded float-left" alt="Poder Judicial" height="85"></div>
+    <div class="row mt-3">
+        <div class="col-3"><img src="{{asset('images/logo.png')}}" class="float-left" alt="Poder Judicial" height="85"></div>
         <div class="col-6">
-            <h1>Solicitud de Turnos</h1>
+            <h1>{% trans %}Solicitud de Turnos{% endtrans %}</h1>
             <h2>Turno Confirmado</h2>
         </div>
-        <div class="col-3"></div>
+        <div class="col-3 float-right text-right">
+            {{ barcode({code: qr, type: 'qrcode', format: 'svg', width: 3, height: 3}) }}
+        </div>
     </div>
 
     <br>
@@ -28,8 +30,16 @@
     <div class="card border-primary mb-3">
         <div class="card-header">Datos del Solicitante</div>
         <div class="card-body text-primary">
-            <p class="card-text">DNI: <strong>{{ turno.persona.dni }}</strong></p>
-            <p class="card-text">NOMBRE: <strong>{{ turno.persona.apellido }}, {{ turno.persona.nombre }}</strong></p>
+            {% if SistemaTurnosWeb %}
+                <p class="card-text">DNI: <strong>{{ turno.persona.dni }}</strong></p>
+                <p class="card-text">NOMBRE: <strong>{{ turno.persona.apellido }}, {{ turno.persona.nombre }}</strong></p>
+            {% endif %}
+            
+            {% if SistemaOralidadCivil %}
+                <p class="card-text">ORGANISMO: <strong>{{ turno.persona.dni }} - {{ turno.getPersona().getOrganismo() }}</strong></p>
+                <p class="card-text">JUEZ: <strong>{{ turno.persona.apellido }}</strong></p>
+                <p class="card-text">SECRETARIO: <strong>{{ turno.persona.nombre }}</strong></p>
+            {% endif %}
             <p class="card-text">Correo Electrónico: <strong>{{ turno.persona.email }}</strong></p>
             <p class="card-text">Teléfono de Contacto: <strong>{{ turno.persona.telefono }}</strong></p>
         </div>
@@ -39,16 +49,27 @@
         <div class="card-header">Oficina</div>
         <div class="card-body text-primary">
             <p class="card-text"><strong>{{ turno.oficina.oficina }} ({{ turno.oficina.localidad.localidad }})</strong></p>
-            <p class="card-text">Motivo Indicado: <strong>{{ turno.motivo }}</strong></p>
+            <p class="card-text"><strong>{% trans %}Motivo Indicado{% endtrans %}</strong></p>
+            <p>{{ turno.motivo }}</p>
+            {% if SistemaOralidadCivil %}
+                <p class="card-text"><strong>Notebook: </strong>{{ turno.notebook ? 'Si' : 'No'}}</p>
+                <p class="card-text"><strong>Reunión Zoom: </strong>{{ turno.zoom  ? 'Si' : 'No'}}</p>
+            {% endif %}        
         </div>
     </div>
 
-    <div class="card border-primary mb-3">
+    <div class="card border-primary mb-1">
         <div class="card-header">Datos del Turno</div>
         <div class="card-body text-primary">
             <p class="card-text">El turno confirmado es para el día <strong>{{ turno.fechaHora |date('d/m/Y') }}</strong> a las <strong>{{ turno.fechaHora |date('H:i')}}hs</strong>.</p>
         </div>
     </div>
+    <div class="text-center">
+        <img src="data:image/png;base64, {{ barcode({code: hash, type: 'c128', format: 'png', width: 1, height: 35}) }}" />
+        <br>
+        {{ hash }}
+    </div>
+    <br><br><br>
 
     {{ include('turno/_form.html.twig') }}
 

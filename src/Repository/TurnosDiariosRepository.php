@@ -27,7 +27,7 @@ class TurnosDiariosRepository extends ServiceEntityRepository
             $filtroOficina = "";
         }
         
-        $sql = "SELECT to_char(fecha, 'DD/MM/YYYY') as fecha, sum(cantidad) as cantidad FROM turnos_diarios WHERE $filtroOficina fecha BETWEEN :desde AND :hasta GROUP BY fecha ORDER BY fecha";
+        $sql = "SELECT to_char(fecha, 'DD/MM/YYYY') as fecha, sum(cantidad) as cantidad FROM turnos_diarios WHERE $filtroOficina fecha BETWEEN :desde AND :hasta GROUP BY fecha ORDER BY to_char(fecha, 'YYYY/MM/DD')";
         
         $em = $this->getEntityManager();
         $statement = $em->getConnection()->prepare($sql);

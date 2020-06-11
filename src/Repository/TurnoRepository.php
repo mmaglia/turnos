@@ -320,4 +320,26 @@ class TurnoRepository extends ServiceEntityRepository
                     ->getOneOrNullResult();                    
     }
 
+    // Busco datos del último turno de una misma persona
+    // Aplica al Sistema de Oralidad Civil donde el ORG_ID se guarda en el DNI de la Persona
+    public function findUltimoTurnoPersona($org_id)
+    {
+        $sql = "SELECT p.apellido, p.nombre, p.email, p.telefono 
+                FROM persona p 
+                WHERE p.id IN ( SELECT max(t.persona_id) 
+                                FROM turno t INNER JOIN persona p2 ON t.persona_id = p2.id 
+                                WHERE p2.dni IN (select codigo FROM organismo WHERE id = $org_id))";
+                    
+        $em = $this->getEntityManager();
+        $statement = $em->getConnection()->prepare($sql);
+        $statement->execute();
+        $result = $statement->fetchAll();
+
+        if ($result) {
+            return $result[0]; 
+        }
+        
+        return $result;
+    }    
+
 }

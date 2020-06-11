@@ -18,11 +18,11 @@
         <label id="lblTurno" class="required"><strong>Característica del Turno</strong></label>
         <div class="form-check">
             <input class="form-check-input" type="radio" name="filterState" id="optEstado1" value="1" onchange="this.form.submit()" {{ (filtroEstado == 1) ? 'checked' : '' }}>
-            <label class="form-check-label" for="optEstado1">Sin Atender</label>
+            <label class="form-check-label" for="optEstado1">{% trans %}Sin Atender{% endtrans %}</label>
         </div>
         <div class="form-check">
             <input class="form-check-input" type="radio" name="filterState" id="optEstado2" value="2" onchange="this.form.submit()" {{ (filtroEstado == 2) ? 'checked' : '' }}>
-            <label class="form-check-label" for="optEstado2">Atendidos</label>
+            <label class="form-check-label" for="optEstado2">{% trans %}Atendidos{% endtrans %}</label>
         </div>
         <div class="form-check">
             <input class="form-check-input" type="radio" name="filterState" id="optEstado3" value="9" onchange="this.form.submit()" {{ (filtroEstado == 9) ? 'checked' : ''}} {{ (filtroMomento == 1) ? 'disableddddd' : '' }}>

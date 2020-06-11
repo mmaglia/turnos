@@ -62,7 +62,12 @@
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle text-light" href="#" id="dropdownAyudaId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Ayuda</a>
                             <div class="dropdown-menu" aria-labelledby="dropdownAyudaId">
-                                <a class="dropdown-item" href="{{ asset('docs/Manual_de_Usuario.pdf') }}" target="_blank">Manual de Usuario</a>
+                                {% if SistemaTurnosWeb %}
+                                    <a class="dropdown-item" href="{{ asset('docs/Manual_de_Usuario.pdf') }}" target="_blank">Manual de Usuario</a>
+                                {% endif %}
+                                {% if SistemaOralidadCivil %}
+                                    <a class="dropdown-item" href="{{ asset('docs/Manual_de_Usuario_Oralidad.pdf') }}" target="_blank">Manual de Usuario</a>
+                                {% endif %}
                             </div>
                         </li>
                         {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') %}
@@ -70,6 +75,9 @@
                                 <a class="nav-link dropdown-toggle text-light" href="#" id="dropdownAdministrarId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Administrar</a>
                                 <div class="dropdown-menu" aria-labelledby="dropdownAdministrarId">
                                     <a class="dropdown-item" href="{{ path('localidad_index') }}">Localidades</a>
+                                    {% if SistemaOralidadCivil %}
+                                        <a class="dropdown-item" href="{{ path('organismo_index') }}">Organismos</a>
+                                    {% endif %}
                                     <a class="dropdown-item" href="{{ path('oficina_index') }}">Oficinas</a>
                                     <a class="dropdown-item" href="{{ path('usuario_index') }}">Gestionar Usuarios</a>
 {#                                    <a class="dropdown-item" href="{{ path('config_index') }}">Configuración</a> #}
@@ -134,6 +142,17 @@
         {% block javascripts %}
             {{ encore_entry_script_tags('js/app') }}
             <script src="{{ asset('js/locales/bootstrap-datepicker.es.min.js') }}"></script>
+            <script>
+                $(function () {
+                    // Agrega un * a todos los campos que son requeridos
+                    $('label.required').append('<sup><strong>&nbsp;*</strong></sup>');
+
+                    // Procesa ocultamiento mensajes tipo flash
+                    $(".alert").delay(1000).slideUp(500);
+
+                });
+            </script>
+        
         {% endblock %}
         <footer class="footer text-center">
             <br><br>
