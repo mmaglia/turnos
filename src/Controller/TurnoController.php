@@ -744,6 +744,7 @@ class TurnoController extends AbstractController
 
                 // Almacena datos del rechazo
                 $turnoRechazado = new TurnoRechazado();
+                $turnoRechazado->setOficina($turno->getOficina());
                 $turnoRechazado->setFechaHoraRechazo(new \DateTime(date("Y-m-d H:i:s")));
                 $turnoRechazado->setFechaHoraTurno($turno->getFechaHora());
                 $turnoRechazado->setMotivo($turno->getMotivo());
