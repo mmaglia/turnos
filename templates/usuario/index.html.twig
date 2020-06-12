@@ -3,7 +3,7 @@
 {% block title %}Gestión de Usuario{% endblock %}
 
 {% block body %}
-	<h1>Lista de Usuarios</h1>
+	<h1>Gestión de Usuarios</h1>
 	<div class="top-listas">		
 		{% if is_granted('ROLE_EDITOR') %}
 			<div class="float-right boton">
@@ -22,7 +22,18 @@
 			</div>
 		{% endfor %}
 	{% endfor %}
-	<div class="table-responsive text-nowrap">
+	<div class="row">
+		<div class="col-12">
+			<div id="usuarioList">
+				<div class="d-flex justify-content-center">
+					<div class="spinner-border m-5" role="status">
+						<span class="sr-only">Cargando...</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	{#<div class="table-responsive text-nowrap">
 		<table class="table table-fixed table-sm">
 			<thead>
 				<tr>					
@@ -72,16 +83,23 @@
         <div class="float-left blockquote-footer">
             Viendo {{ usuarios.getPaginationData()['currentItemCount'] < usuarios.getPaginationData()['numItemsPerPage'] ? usuarios.getPaginationData()['currentItemCount'] : usuarios.getPaginationData()['numItemsPerPage'] }} usuarios de un total de {{ usuarios.getTotalItemCount }}
         </div>
-	</div>
+	</div>#}
 {% endblock %}
 
 {% block javascripts %}
 	{{ parent() }}
+	<script src="{{ asset('bundles/datatables/js/datatables.js') }}"></script>
 	<script>
 		$(function () {
             $(document).ready(function () {
                 $(".alert").delay(3500).slideUp(2000);
             });
+
+			var grillaUsuarios = $('#usuarioList').initDataTables( {{ datatable_settings(datatable) }}, {
+				dom: "B<'row' <'#busqueda.col-sm-1 text-left'f><'col-sm-12' tr>><'row' <'col-sm-6'l><'col-sm-6 text-right'pi>>",
+                buttons: [],
+                searching: true
+			});
         });
 	</script>
 

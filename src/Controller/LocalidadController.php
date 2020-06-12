@@ -38,47 +38,14 @@ class LocalidadController extends AbstractController
      * Route encargado de armar grilla de localidades
      * @Route("/", name="localidad_index")
      */
-    public function index(Request $request, LocalidadRepository $localidadRepository): Response
+    public function index(Request $request): Response
     {
-
-
-        /*$table = $this->datatableFactory->create([])
-            ->add('id', TextColumn::class, ['label' => 'ID'])
-            ->add(
-                'localidad',
-                TextColumn::class,
-                [
-                    'label' => 'Localidad',
-                    'render' => function ($value, $context) {
-                        return sprintf('<a href="' .
-                            $this->generateUrl('localidad_show', ['id' =>
-                            $context->getId()]) . '">%s</a>', $value, $value);
-                    }
-                ]
-            )
-            ->createAdapter(ORMAdapter::class, [
-                'entity' => Localidad::class,
-            ])
-            ->handleRequest($request);
-
-        if ($table->isCallback()) {
-            return $table->getResponse();
-        }
-
-        return $this->render('localidad/index.html.twig', ['datatable' => $table]);*/
-
-        $table = $this->datatableFactory->createFromType(LocalidadTableType::class, array($localidadRepository))->handleRequest($request);
+        $table = $this->datatableFactory->createFromType(LocalidadTableType::class, array())->handleRequest($request);
         if ($table->isCallback()) {
             return $table->getResponse();
         }
 
         return $this->render('localidad/index.html.twig', ['datatable' => $table]);
-        /*
-        $localidades = $paginator->paginate($localidadRepository->findAllOrdenado(), $request->query->getInt('page', 1), 50);
-        return $this->render('localidad/index.html.twig', [
-            'localidades' => $localidades,
-        ]);
-*/
     }
 
     /**

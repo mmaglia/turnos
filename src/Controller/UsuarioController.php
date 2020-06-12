@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\DataTables\UsuarioTableType;
 use App\Entity\Usuario;
 use App\Form\UsuarioType;
 use App\Repository\UsuarioRepository;
@@ -12,6 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Omines\DataTablesBundle\DataTableFactory;
 
 /**
  * @Route("/usuario")
@@ -19,14 +21,28 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 class UsuarioController extends AbstractController
 {
     /**
-     * @Route("/", name="usuario_index", methods={"GET"})
+     * Variable auxiliar para crear datatables
+     *
+     * @var [DataTableFactory]
      */
-    public function index(Request $request, UsuarioRepository $usuarioRepository, PaginatorInterface $paginator): Response
+    protected $datatableFactory;
+
+    public function __construct(DataTableFactory $datatableFactory)
     {
-        $usuarios = $paginator->paginate($usuarioRepository->findAllOrderedByColum('username'), $request->query->getInt('page', 1), 50);
-        return $this->render('usuario/index.html.twig', [
-            'usuarios' => $usuarios
-        ]);
+        $this->datatableFactory = $datatableFactory;
+    }
+
+    /**
+     * @Route("/", name="usuario_index")
+     */
+    public function index(Request $request): Response
+    {
+        $table = $this->datatableFactory->createFromType(UsuarioTableType::class, array())->handleRequest($request);
+        if ($table->isCallback()) {
+            return $table->getResponse();
+        }
+
+        return $this->render('usuario/index.html.twig', ['datatable' => $table]);
     }
 
     /**

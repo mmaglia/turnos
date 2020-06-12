@@ -167,6 +167,11 @@ legend {
 * CSS Para Tablas del Backend *
 *******************************/
 
+// Quito flechitas arriba y abajo de la paginación
+.custom-select {
+  background: none;
+}
+
 // Se agrega margen de arriba a las tablas
 .btn-top {
   margin-bottom: 1rem;

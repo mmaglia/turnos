@@ -25,19 +25,23 @@ class LocalidadTableType extends AbstractController implements DataTableTypeInte
      */
     public function configure(DataTable $dataTable, array $options)
     {
-        $dataTable->add('id', TextColumn::class, ['label' => '#']);
-        $dataTable->add('localidad', TextColumn::class, ['label' => 'Localidad']);
-        $dataTable->add('circunscripcion', TextColumn::class, ['label' => 'Circunscripción', 'field' => 'l.circunscripcion']);
-        /*$dataTable->add('acciones', '', ['label' => 'Acciones', 'render' => function($value, $context) {
-            return sprintf('&nbsp;&nbsp;<a href="' . $this->generateUrl('localidad_show', ['id' => $context->getId()]) . '>%s</a>');
-        }]);*/
+        $dataTable->add('id', TextColumn::class, ['label' => '#', 'searchable' => false]);
+        $dataTable->add('localidad', TextColumn::class, ['label' => 'Localidad', 'searchable' => true, 'globalSearchable' => true]);
+        $dataTable->add('circunscripcion', TextColumn::class, ['label' => 'Circunscripción', 'searchable' => false,  'field' => 'l.circunscripcion']);
+        if ($this->isGranted(('ROLE_EDITOR'))) {
+            $dataTable->add('acciones', TextColumn::class, ['label' => 'Acciones', 'className' => 'text-center', 'render' => function ($value, $context) {
+                return '&nbsp;&nbsp;<a href="' . $this->generateUrl('localidad_show', ['id' => $context->getId()]) . '" title="Ver"><i class="fas fa-eye"></i></a>' .
+                    '&nbsp;&nbsp;<a href="' . $this->generateUrl('localidad_edit', ['id' => $context->getId()]) . '" title="Editar"><i class="fas fa-pen"></i></a>' .
+                    '&nbsp;&nbsp;<a href="' . $this->generateUrl('borraDiaAgendaTurnosbyLocalidad', ['id' => $context->getId()]) . '" title="Eliminar un día de la Agenda de todas las oficinas en ' . $context . '"><i class="far fa-calendar-minus"></i></a>';
+            }]);
+        }
+        $dataTable->addOrderBy('localidad', DataTable::SORT_ASCENDING);
         $dataTable->createAdapter(ORMAdapter::class, [
             'entity' => Localidad::class,
             'query' => function (QueryBuilder $builder) {
                 $builder
                     ->select('l')
-                    ->from(Localidad::class, 'l')
-                    ->orderBy('l.localidad', 'ASC');
+                    ->from(Localidad::class, 'l');
             }
         ]);
     }
