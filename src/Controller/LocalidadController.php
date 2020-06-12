@@ -2,12 +2,12 @@
 
 namespace App\Controller;
 
+use App\DataTables\LocalidadTableType;
 use App\Entity\Localidad;
 use App\Form\LocalidadType;
 use App\Repository\LocalidadRepository;
 use App\Repository\TurnoRepository;
 use App\Repository\OficinaRepository;
-use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,57 +15,70 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-
-use Omines\DataTablesBundle\Column\TextColumn;
-use Omines\DataTablesBundle\Column\DateTimeColumn;
-use Omines\DataTablesBundle\Controller\DataTablesTrait;
 use Omines\DataTablesBundle\DataTableFactory;
-use Omines\DataTablesBundle\Adapter\Doctrine\ORMAdapter;
 
 /**
  * @Route("/localidad")
  */
 class LocalidadController extends AbstractController
 {
-    use DataTablesTrait;
-
+    /**
+     * Variable auxiliar para crear datatables
+     *
+     * @var [DataTableFactory]
+     */
     protected $datatableFactory;
 
-    public function __construct(DataTableFactory $datatableFactory) {
-          $this->datatableFactory = $datatableFactory;
+    public function __construct(DataTableFactory $datatableFactory)
+    {
+        $this->datatableFactory = $datatableFactory;
     }
-    
+
     /**
+     * Route encargado de armar grilla de localidades
      * @Route("/", name="localidad_index")
      */
-    public function index(Request $request, LocalidadRepository $localidadRepository, PaginatorInterface $paginator): Response
+    public function index(Request $request, LocalidadRepository $localidadRepository): Response
     {
 
 
-        $table = $this->datatableFactory->create([])
+        /*$table = $this->datatableFactory->create([])
             ->add('id', TextColumn::class, ['label' => 'ID'])
-            ->add('localidad', TextColumn::class, 
-                [   'label' => 'Localidad',
-                    'render' => function($value, $context) {
-                        return sprintf('<a href="' . 
+            ->add(
+                'localidad',
+                TextColumn::class,
+                [
+                    'label' => 'Localidad',
+                    'render' => function ($value, $context) {
+                        return sprintf('<a href="' .
                             $this->generateUrl('localidad_show', ['id' =>
-                            $context->getId()]) . '">%s</a>', $value, $value);}])
+                            $context->getId()]) . '">%s</a>', $value, $value);
+                    }
+                ]
+            )
             ->createAdapter(ORMAdapter::class, [
-                    'entity' => Localidad::class,
-                ])
+                'entity' => Localidad::class,
+            ])
             ->handleRequest($request);
 
-            if ($table->isCallback()) {
-                return $table->getResponse();
-            }
-    
-            return $this->render('localidad/index.html.twig',['datatable' => $table]);
-/*
+        if ($table->isCallback()) {
+            return $table->getResponse();
+        }
+
+        return $this->render('localidad/index.html.twig', ['datatable' => $table]);*/
+
+        $table = $this->datatableFactory->createFromType(LocalidadTableType::class, array($localidadRepository))->handleRequest($request);
+        if ($table->isCallback()) {
+            return $table->getResponse();
+        }
+
+        return $this->render('localidad/index.html.twig', ['datatable' => $table]);
+        /*
         $localidades = $paginator->paginate($localidadRepository->findAllOrdenado(), $request->query->getInt('page', 1), 50);
         return $this->render('localidad/index.html.twig', [
             'localidades' => $localidades,
         ]);
-*/        
+*/
     }
 
     /**
@@ -148,7 +161,7 @@ class LocalidadController extends AbstractController
      */
     public function borraDiaAgendaTurnosbyLocalidad(Request $request, TurnoRepository $turnoRepository, OficinaRepository $oficinaRepository, Localidad $localidad, LoggerInterface $logger): Response
     {
-         //Construyo el formulario al vuelo
+        //Construyo el formulario al vuelo
         $data = array(
             'fecha' => (new \DateTime(date("Y-m-d"))), // Campos del formulario
         );
