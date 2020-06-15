@@ -450,6 +450,11 @@ class TurnoController extends AbstractController
     {
         $turno = $session->get('turno');  
 
+        // Si viene sin instancia de turno o sin ID de Turno lo redirige a la página de portada
+        if (!$turno || !$turno->getId()) {
+            return $this->redirectToRoute('main');
+        }
+        
         $form = $this->createForm(Turno5Type::class, $turno);
         $form->handleRequest($request);
         
@@ -513,19 +518,19 @@ class TurnoController extends AbstractController
      * 
      * @IsGranted("ROLE_EDITOR")
      */
-    public function edit(Request $request, Turno $turno, SessionInterface $session, LoggerInterface $logger): Response
+    public function edit(Request $request, Turno $turno, SessionInterface $session, LoggerInterface $logger, TranslatorInterface $translator): Response
     {      
         $form = $this->createForm(TurnoType::class, $turno);
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
+            
             $estados = [
-                1 => 'Sin Atender',
-                2 => 'Atendido',
-                3 => 'No asistió',
-                4 => 'Rechazado'
+                1 => $translator->trans('Sin Atender'),
+                2 => $translator->trans('Atendido'),
+                3 => $translator->trans('No asistió'),
+                4 => $translator->trans('Rechazado')
             ];
 
             // Analizo que cambió
