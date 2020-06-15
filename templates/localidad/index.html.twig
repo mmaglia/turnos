@@ -6,8 +6,12 @@
 	<h1>Lista de Localidades</h1>
 	<div class="top-listas">
 		{% if is_granted('ROLE_EDITOR') %}
-			<div class="float-right boton">
-				<a class="btn btn-primary" href="{{ path('localidad_new') }}">Crear Nueva Localidad</a>
+			<div class="row">
+				<div class="col-12">
+					<div class="float-right boton">
+						<a class="btn btn-primary" href="{{ path('localidad_new') }}">Crear Nueva Localidad</a>
+					</div>
+				</div>
 			</div>
 		{% endif %}		
 	</div>
@@ -21,7 +25,19 @@
 			</div>
 		{% endfor %}
 	{% endfor %}
+<div class="row">
+	<div class="col-12">
+		<div id="localidadList">
+			<div class="d-flex justify-content-center">
+				<div class="spinner-border m-5" role="status">
+					<span class="sr-only">Cargando...</span>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 
+{#
 	<div class="table-responsive">
 		<table class="table table-fixed table-sm text-nowrap">
 			<thead>
@@ -36,7 +52,7 @@
 			</thead>
 			<tbody>
 				{% for localidad in localidades %}
-					{# Lee y muestra todos los mensajes flash #}
+					{# Lee y muestra todos los mensajes flash }#
 					<tr>
 						<td scope="row" class="col-1">{{ localidad.id }}</td>
 						<td class="col-5">{{ localidad.localidad }}</td>
@@ -72,15 +88,20 @@
             Viendo {{ localidades.getPaginationData()['currentItemCount'] < localidades.getPaginationData()['numItemsPerPage'] ? localidades.getPaginationData()['currentItemCount'] : localidades.getPaginationData()['numItemsPerPage'] }} localidades de un total de {{ localidades.getTotalItemCount }}
         </div>
 	</div>
+#}
+
 {% endblock %}
 
 {% block javascripts %}
 	{{ parent() }}
+
+	<script src="{{ asset('bundles/datatables/js/datatables.js') }}"></script>
+
 	<script>
 		$(function () {
-			$(document).ready(function () {
-				$(".alert").delay(3500).slideUp(2000);
-			});
+			$(".alert").delay(3500).slideUp(2000);
+
+			var table= $('#localidadList').initDataTables( {{ datatable_settings(datatable) }} )
 		});
 	</script>
 

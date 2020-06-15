@@ -8,6 +8,7 @@
         "cmen/google-charts-bundle": "^3.2",
         "friendsofsymfony/ckeditor-bundle": "^2.2",
         "knplabs/knp-paginator-bundle": "^5.2",
+        "omines/datatables-bundle": "^0.4.2",
         "sensio/framework-extra-bundle": "^5.5",
         "symfony/apache-pack": "^1.0",
         "symfony/console": "5.1.*",
