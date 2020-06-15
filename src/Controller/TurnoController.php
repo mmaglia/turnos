@@ -450,6 +450,11 @@ class TurnoController extends AbstractController
     {
         $turno = $session->get('turno');  
 
+        // Si viene sin instancia de turno o sin ID de Turno lo redirige a la página de portada
+        if (!$turno || !$turno->getId()) {
+            return $this->redirectToRoute('main');
+        }
+        
         $form = $this->createForm(Turno5Type::class, $turno);
         $form->handleRequest($request);
         
