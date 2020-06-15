@@ -513,13 +513,47 @@ class TurnoController extends AbstractController
      * 
      * @IsGranted("ROLE_EDITOR")
      */
-    public function edit(Request $request, Turno $turno, SessionInterface $session): Response
+    public function edit(Request $request, Turno $turno, SessionInterface $session, LoggerInterface $logger): Response
     {      
         $form = $this->createForm(TurnoType::class, $turno);
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->getDoctrine()->getManager()->flush();
+
+            $estados = [
+                1 => 'Sin Atender',
+                2 => 'Atendido',
+                3 => 'No asistió',
+                4 => 'Rechazado'
+            ];
+
+            // Analizo que cambió
+            $em =  $this->getDoctrine()->getManager();
+            $uow = $em->getUnitOfWork();
+            $uow->computeChangeSets();
+            $changeSet = $uow->getEntityChangeSet($turno);
+
+            // Armo salida para el Log
+            $cambios = [];
+            if(isset($changeSet['fechaHora'])){
+                $cambios[] = ['Fecha Hora' => " '" . $changeSet['fechaHora'][0]->format('d/m/Y H:i:s') . "' a '" . $changeSet['fechaHora'][1]->format('d/m/Y H:i:s') . "' "];
+            }
+            if(isset($changeSet['motivo'])){
+                $cambios[] = ['Motivo' => " '" . $changeSet['motivo'][0] . "' a '" . $changeSet['motivo'][1] . "' "];
+            }
+            if(isset($changeSet['estado'])){
+                $anterior = $estados[$changeSet['estado'][0]];
+                $nuevo = $estados[$changeSet['estado'][1]];
+                $cambios[] = ['Estado' => " '" . $anterior . "' a '" . $nuevo . "' "];
+            }          
+            
+            $cambios[] = ['Turno' => $turno->getTurno()];
+            $cambios[] = ['Usuario' => $this->getUser()->getUsuario()];
+            $logger->info('Turno Editado', $cambios);
+
+            // Grabo
+            $this->getDoctrine()->getManager()->flush();    
             $this->addFlash('success', 'Se han guardado los cambios');
 
             // Regreso al lugar desde que invoqué la edición
@@ -545,7 +579,7 @@ class TurnoController extends AbstractController
      * 
      * @IsGranted("ROLE_EDITOR")
      */
-    public function barcode(Request $request, TurnoRepository $turnoRepository, SessionInterface $session): Response
+    public function barcode(Request $request, TurnoRepository $turnoRepository, SessionInterface $session, LoggerInterface $logger): Response
     {
         $error='';
 
@@ -579,6 +613,14 @@ class TurnoController extends AbstractController
                 if ($turno) {
                     $session->set('escanerCodigo', 1);  // Marca que se encuentra activa la funcionalidad de escaneo de códigos 
                                                         // de turno y no la lista de turnos para retornar aquí luego de la edición
+
+                    $logger->info(('Lee código de barras'),
+                        [
+                            'Turno ID' => $idTurno,
+                            'Usuario' => $this->getUser()->getUsuario()
+                        ]
+                    );
+                                                                                            
                     return $this->redirectToRoute('turno_edit', ['id' => $idTurno]);
                 } else {
                     $error = 'No se localizó el turno';
@@ -744,6 +786,7 @@ class TurnoController extends AbstractController
 
                 // Almacena datos del rechazo
                 $turnoRechazado = new TurnoRechazado();
+                $turnoRechazado->setOficina($turno->getOficina());
                 $turnoRechazado->setFechaHoraRechazo(new \DateTime(date("Y-m-d H:i:s")));
                 $turnoRechazado->setFechaHoraTurno($turno->getFechaHora());
                 $turnoRechazado->setMotivo($turno->getMotivo());

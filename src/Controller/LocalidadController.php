@@ -16,20 +16,56 @@ use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
+use Omines\DataTablesBundle\Column\TextColumn;
+use Omines\DataTablesBundle\Column\DateTimeColumn;
+use Omines\DataTablesBundle\Controller\DataTablesTrait;
+use Omines\DataTablesBundle\DataTableFactory;
+use Omines\DataTablesBundle\Adapter\Doctrine\ORMAdapter;
+
 /**
  * @Route("/localidad")
  */
 class LocalidadController extends AbstractController
 {
+    use DataTablesTrait;
+
+    protected $datatableFactory;
+
+    public function __construct(DataTableFactory $datatableFactory) {
+          $this->datatableFactory = $datatableFactory;
+    }
+    
     /**
-     * @Route("/", name="localidad_index", methods={"GET"})
+     * @Route("/", name="localidad_index")
      */
     public function index(Request $request, LocalidadRepository $localidadRepository, PaginatorInterface $paginator): Response
     {
+
+
+        $table = $this->datatableFactory->create([])
+            ->add('id', TextColumn::class, ['label' => 'ID'])
+            ->add('localidad', TextColumn::class, 
+                [   'label' => 'Localidad',
+                    'render' => function($value, $context) {
+                        return sprintf('<a href="' . 
+                            $this->generateUrl('localidad_show', ['id' =>
+                            $context->getId()]) . '">%s</a>', $value, $value);}])
+            ->createAdapter(ORMAdapter::class, [
+                    'entity' => Localidad::class,
+                ])
+            ->handleRequest($request);
+
+            if ($table->isCallback()) {
+                return $table->getResponse();
+            }
+    
+            return $this->render('localidad/index.html.twig',['datatable' => $table]);
+/*
         $localidades = $paginator->paginate($localidadRepository->findAllOrdenado(), $request->query->getInt('page', 1), 50);
         return $this->render('localidad/index.html.twig', [
             'localidades' => $localidades,
         ]);
+*/        
     }
 
     /**
