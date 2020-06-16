@@ -897,6 +897,40 @@ class TurnoController extends AbstractController
 
 
     /**
+     * Obtiene todas las Oficinas del MP Civil
+     * 
+     * @Route("/TurnosWeb/oficinasMPCivil_localidad/{localidad_id}", name="oficinasMPCivil_localidad", requirements = {"localidad_id" = "\d+"}, methods={"GET", "POST"})
+     * 
+     * @return string JSON con las Oficinas del MP Civil de una Localidad
+     */
+    public function oficinasMPCivilByLocalidad($localidad_id = 2)
+    {
+        $oficinas = [];
+        if ($localidad_id == 2) {
+            // ROSARIO
+            $oficinas = [
+                1 => 'Ministerio Pupilar',
+                2 => 'Oficina de Gestión de las Defensorías Civiles',
+                3 => [
+                    3 => 'Defensoría Civil de Rosario N° 1',
+                    4 => 'Defensoría Civil de Rosario N° 2',
+                    5 => 'Defensoría Civil de Rosario N° 3',
+                    6 => 'Defensoría Civil de Rosario N° 4',
+                    7 => 'Defensoría Civil de Rosario N° 5',
+                    8 => 'Defensoría Civil de Rosario N° 6',
+                    9 => 'Defensoría Civil de Rosario N° 7',
+                    10 => 'Defensoría Civil de Rosario N° 8',
+                    11 => 'Defensoría Civil de Rosario N° 9',
+                    12 => 'Defensoría Civil de Rosario N° 10',
+                ]
+            ];
+        }
+
+        return new JsonResponse($oficinas);
+    }
+
+
+    /**
      * Obtiene los datos del último turno de una persona
      * 
      * Se la busca por el ID del Organismo Asociado. Por lo tanto sólo es útil en modo de operación SISTEMA_ORALIDAD_CIVIL
