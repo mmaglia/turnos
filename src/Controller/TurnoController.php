@@ -469,7 +469,7 @@ class TurnoController extends AbstractController
         if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
             $solicitante = $form->getData()->getPersona()->getOrganismo()->getOrganismo() . '(' . $form->getData()->getPersona()->getOrganismo()->getLocalidad() .')';
         }
-        if ($_ENV['SISTEMA_TURNOS_WEB']) {
+        if ($_ENV['SISTEMA_TURNOS_WEB'] || $_ENV['SISTEMA_TURNOS_MPE']) {
             $solicitante = $form->getData()->getPersona()->getApellido() . ',' . $form->getData()->getPersona()->getNombre();
         }
 
@@ -903,7 +903,7 @@ class TurnoController extends AbstractController
      * 
      * @return string JSON con las Oficinas del MP Civil de una Localidad
      */
-    public function oficinasMPCivilByLocalidad($localidad_id = 2)
+    public function oficinasMPCivilByLocalidad($localidad_id = 2, OficinaRepository $oficinaRepository)        
     {
         $oficinas = [];
         if ($localidad_id == 2) {
@@ -924,6 +924,8 @@ class TurnoController extends AbstractController
                     12 => 'Defensoría Civil de Rosario N° 10',
                 ]
             ];
+
+            $oficinas = $oficinaRepository->findOficinasHabilitadasByLocalidadWithTelefono($localidad_id);
         }
 
         return new JsonResponse($oficinas);

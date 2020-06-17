@@ -75,7 +75,7 @@ select c.id, c.circunscripcion from circunscripcion c inner join localidad l on 
                 ])         
         ;
 
-        if ($_ENV['SISTEMA_TURNOS_WEB'])
+        if ($_ENV['SISTEMA_TURNOS_WEB'] || $_ENV['SISTEMA_TURNOS_MPE'])
         {
             $builder->add('motivo');
         }

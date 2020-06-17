@@ -20,13 +20,13 @@ class PersonaType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        if ($_ENV['SISTEMA_TURNOS_WEB']) {
+        if ($_ENV['SISTEMA_TURNOS_WEB'] || $_ENV['SISTEMA_TURNOS_MPE']) {
             $builder
                 ->add('dni', IntegerType::class, ['label' => 'DNI', 'required' => true, 'attr' => array('autofocus' => true, 'min' => '1000000', 'max' => '99999999')])
                 ->add('apellido', TextType::class, ['label' => 'Apellido', 'required' => true, 'attr' => array('maxlength' => '50')])
                 ->add('nombre', TextType::class, ['label' => 'Nombre', 'required' => true, 'attr' => array('maxlength' => '50')])
-                ->add('email', EmailType::class, ['label' => 'Correo', 'required' => true, 'attr' => array('maxlength' => '80')])
-                ->add('telefono', TextType::class, ['label' => 'Teléfono de Contacto',  'required'   => false, 'attr' => array('maxlength' => '50')])
+                ->add('email', EmailType::class, ['label' => 'Correo', 'required' => ($_ENV['SISTEMA_TURNOS_WEB'] ? true : false), 'attr' => array('maxlength' => '80')])
+                ->add('telefono', TextType::class, ['label' => 'Teléfono de Contacto',  'required'   => ($_ENV['SISTEMA_TURNOS_MPE'] ? true : false), 'attr' => array('maxlength' => '50')])
             ;
         }
         if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
