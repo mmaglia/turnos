@@ -62,7 +62,7 @@
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle text-light" href="#" id="dropdownAyudaId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Ayuda</a>
                             <div class="dropdown-menu" aria-labelledby="dropdownAyudaId">
-                                {% if SistemaTurnosWeb or SistemaTurnosMPE %}
+                                {% if SistemaTurnosWeb %}
                                     <a class="dropdown-item" href="{{ asset('docs/Manual_de_Usuario.pdf') }}" target="_blank">Manual de Usuario</a>
                                 {% endif %}
                                 {% if SistemaOralidadCivil %}

@@ -399,34 +399,36 @@ class TurnoController extends AbstractController
     {
         $turno = $session->get('turno');
         
-        // Si la persona ingresó un correo, envía una notificación con los datos del turno
-        if (!is_null($turno) && $turno->getPersona()->getEmail()) {
+        if (!is_null($turno) && !is_null($turno->getPersona())) {
 
-            // Establece que plantilla de correo se utilizará en función al tipo de Sistema
-            $mailTemplate = 'turno/email_confirmacion_turno_web.html.twig';
-            if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
-                $mailTemplate = 'turno/email_confirmacion_turno_oralidad.html.twig';
+            // Si la persona ingresó un correo, envía una notificación con los datos del turno
+            if ($turno->getPersona()->getEmail()) {
+                // Establece que plantilla de correo se utilizará en función al tipo de Sistema
+                $mailTemplate = 'turno/email_confirmacion_turno_web.html.twig';
+                if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
+                    $mailTemplate = 'turno/email_confirmacion_turno_oralidad.html.twig';
+                }
+
+                $fromAdrress = $_ENV['MAIL_FROM'];
+                $email = (new TemplatedEmail())
+                    ->from($fromAdrress)
+                    ->to($turno->getPersona()->getEmail())
+                    ->subject('Poder Judicial Santa Fe - Confirmación de Turno')
+                    ->htmlTemplate($mailTemplate)
+                    ->context([
+                        'expiration_date' => new \DateTime('+7 days'),
+                        'turno' => $turno,
+                    ]);
+                $mailer->send($email);
+                $this->addFlash('info', 'Se ha enviado un correo a la dirección ' . $turno->getPersona()->getEmail());
+                $logger->info(
+                    'Notificación Enviada',
+                    [
+                        'Destinatario' => $turno->getPersona()->getPersona(),
+                        'Dirección' => $turno->getPersona()->getEmail()
+                    ]
+                );
             }
-
-            $fromAdrress = $_ENV['MAIL_FROM'];
-            $email = (new TemplatedEmail())
-                ->from($fromAdrress)
-                ->to($turno->getPersona()->getEmail())
-                ->subject('Poder Judicial Santa Fe - Confirmación de Turno')
-                ->htmlTemplate($mailTemplate)
-                ->context([
-                    'expiration_date' => new \DateTime('+7 days'),
-                    'turno' => $turno,
-                ]);
-            $mailer->send($email);
-            $this->addFlash('info', 'Se ha enviado un correo a la dirección ' . $turno->getPersona()->getEmail());
-            $logger->info(
-                'Notificación Enviada',
-                [
-                    'Destinatario' => $turno->getPersona()->getPersona(),
-                    'Dirección' => $turno->getPersona()->getEmail()
-                ]
-            );
             return $this->redirectToRoute('comprobanteTurno');
         } else {
             // Si el turno se perdió de session lanzo una Exception. El usuario ve error.html y logueo en el log
