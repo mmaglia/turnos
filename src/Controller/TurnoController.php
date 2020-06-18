@@ -910,23 +910,6 @@ class TurnoController extends AbstractController
         $oficinas = [];
         if ($localidad_id == 2) {
             // ROSARIO
-            $oficinas = [
-                1 => 'Ministerio Pupilar',
-                2 => 'Oficina de Gestión de las Defensorías Civiles',
-                3 => [
-                    3 => 'Defensoría Civil de Rosario N° 1',
-                    4 => 'Defensoría Civil de Rosario N° 2',
-                    5 => 'Defensoría Civil de Rosario N° 3',
-                    6 => 'Defensoría Civil de Rosario N° 4',
-                    7 => 'Defensoría Civil de Rosario N° 5',
-                    8 => 'Defensoría Civil de Rosario N° 6',
-                    9 => 'Defensoría Civil de Rosario N° 7',
-                    10 => 'Defensoría Civil de Rosario N° 8',
-                    11 => 'Defensoría Civil de Rosario N° 9',
-                    12 => 'Defensoría Civil de Rosario N° 10',
-                ]
-            ];
-
             $oficinas = $oficinaRepository->findOficinasHabilitadasByLocalidadWithTelefono($localidad_id);
         }
 

@@ -66,23 +66,6 @@ class Turno3Type extends AbstractType
                     return;
                 }
                 $oficinaId = $data['oficina'];
-
-                // Si se esta ejecutando MPE debo hacer un cambio de variables para identificar correctamente la oficina
-                /*if($_ENV['SISTEMA_TURNOS_MPE']) {
-                    if($oficinaId == -1) {
-                        // Si se eligió causa nueva entonces seteo como oficina la OGD
-                        if($data['tipo_causa'] == 1) {
-                            $oficinaId = 2;
-                        } else if($data['tipo_causa'] == 2) {
-                            // Selecciono causa en trámite, entonces seteo como oficina la defensoria que venga
-                            if(!$data['nro_defensoria']){
-                                return;
-                            }
-                            $oficinaId = $data['nro_defensoria'];
-                        }
-
-                    }
-                }*/
         
                 $form->add('oficina', EntityType::class, array(
                     'class' => 'App\Entity\Oficina',
