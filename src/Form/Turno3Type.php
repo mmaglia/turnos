@@ -41,7 +41,7 @@ class Turno3Type extends AbstractType
 
         if ($_ENV['SISTEMA_TURNOS_WEB'] || $_ENV['SISTEMA_TURNOS_MPE'])
         {
-            $builder->add('motivo');
+            $builder->add('motivo', null, ['help'   => ($_ENV['SISTEMA_TURNOS_MPE'] ? '-' : '')]);
         }
 
         if ($_ENV['SISTEMA_ORALIDAD_CIVIL'])

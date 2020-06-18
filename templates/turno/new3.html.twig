@@ -64,7 +64,10 @@
             var sistema = document.querySelector('.js-sistema-mpe');
             var SistemaTurnosMPE = sistema.dataset.isAuthenticated;
 
+            const textoRecordatorio = 'Recuerde que puede comunicarse al teléfono: ';
+
             $('#turno3_oficina_help').html('');
+            $('#turno3_motivo_help').html('');
 
             $('#turno3_circunscripcion').change(function() {
                 var circunscripcion_id = $(this).val();
@@ -161,7 +164,7 @@
                     if (oficina_id) {
                         // Si seleccionó Ministerio Pupilar seteo el teléfono como helper y borro todo el div de tipo de causa
                         if(oficina_id == 1) {
-                            $('#turno3_oficina_help').html(defensoriasCiviles[0].telefono);
+                            $('#turno3_oficina_help').html(textoRecordatorio + defensoriasCiviles[0].telefono);
                             if($('#tipo_causa')) {
                                 $('#tipo_causa').hide();
                             }
@@ -172,7 +175,7 @@
                             $('#tipo_causa').show();
                             $('#turno3_oficina_help').html('');                         
                             // Si eligió Defensorías civiles, agrego un combo con dos elementos. CAUSA NUEVA ó CAUSA TRÁMITE
-                            $('#turno3_tipo_causa_help').html(defensoriasCiviles[1].oficina + '-' + defensoriasCiviles[1].telefono);
+                            $('#turno3_tipo_causa_help').html(defensoriasCiviles[1].oficina + ' - ' + textoRecordatorio + defensoriasCiviles[1].telefono);
                                                
                         }
                     } else {
@@ -196,22 +199,27 @@
                                 comboDef += '<option value='+registro.id+'>'+registro.oficina+'</option>';
                             }
                         });
+                        // Muestro el div de defensorías
                         $('#defensorias').show();
                         $('#turno3_defensorias').append(comboDef);
-                        $('#turno3_defensorias_help').html(defensoriasCiviles[2].telefono);                     
+                        // Seteo el helper con la defensoría 1 (deafult)
+                        $('#turno3_defensorias_help').html(textoRecordatorio + defensoriasCiviles[2].telefono); 
+                        // Seteo el helper de motivo
+                        $('#turno3_motivo_help').html('Especifique datos de la Causa (nombre de los autos, CUIJ, partes)'); 
                     } else {
                         // Si elegió causa nueva borro el div de defensorias
                         if($('#defensorias')) {
                             $('#defensorias').hide();
                         }
-                        $('#turno3_tipo_causa_help').html(defensoriasCiviles[1].oficina + '-' + defensoriasCiviles[1].telefono);
+                        // Limpio el helper de motivo
+                        $('#turno3_motivo_help').html('');
                     }
                 });
 
                 // Debido a que el selector turno3_defensorias es agregado dinámicamente rescato su cambio de la siguiente manera.
                 $(document).on('change', '#turno3_defensorias', function() {
                     var id_def = $(this).val();                    
-                    $('#turno3_defensorias_help').html(defensoriasCiviles[id_def-1].telefono);
+                    $('#turno3_defensorias_help').html(textoRecordatorio + defensoriasCiviles[id_def-1].telefono);
                 });
 
                 // Intercepto el submit del form
