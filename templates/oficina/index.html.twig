@@ -3,11 +3,15 @@
 {% block title %}Gestión de Oficina{% endblock %}
 
 {% block body %}
-    <h1>Lista de Oficinas</h1>
+    <h1>Gestión de Oficinas</h1>
     <div class="top-listas">
         {% if is_granted('ROLE_EDITOR') %} 
-            <div class="float-right boton">
-                <a class="btn btn-primary" href="{{ path('oficina_new') }}">Crear Nueva Oficina</a>
+            <div class="row">
+                <div class="col-12">
+                    <div class="float-right boton">
+                        <a class="btn btn-primary" href="{{ path('oficina_new') }}">Crear Nueva Oficina</a>
+                    </div>
+                </div>
             </div>
         {% endif %}
     </div>
@@ -21,8 +25,19 @@
             </div>
         {% endfor %}
     {% endfor %}
+    <div class="row">
+		<div class="col-12">
+			<div id="oficinaList">
+				<div class="d-flex justify-content-center">
+					<div class="spinner-border m-5" role="status">
+						<span class="sr-only">Cargando...</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 
-    <form id="frmOficinas" method="post" action="{{ path('oficina_addTurnosOficinas') }}">
+    {#<form id="frmOficinas" method="post" action="{{ path('oficina_addTurnosOficinas') }}">
         {% if is_granted('ROLE_EDITOR') %} 
             <a class="btn btn-primary float-left" href="#" onclick="document.getElementById('frmOficinas').submit();">Crear Nuevos Turnos para las Oficinas Seleccionadas</a>
             &nbsp;&nbsp;
@@ -47,7 +62,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                {# Lee y muestra todos los mensajes flash #}
+                {# Lee y muestra todos los mensajes flash 
                 {% for oficina in oficinas %}
                     <tr>
                         <td scope="row" class="col-1 ancho-1"><input type="checkbox" name="oficinaID[]" value="{{ oficina.id }}"></td>
@@ -85,15 +100,22 @@
                 Viendo {{ oficinas.getPaginationData()['currentItemCount'] < oficinas.getPaginationData()['numItemsPerPage'] ? oficinas.getPaginationData()['currentItemCount'] : oficinas.getPaginationData()['numItemsPerPage'] }} oficinas de un total de {{ oficinas.getTotalItemCount }}
             </div>
         </div>
-    </form>
+    </form>#}
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
+    <script src="{{ asset('bundles/datatables/js/datatables.js') }}"></script>
     <script>
         $(function() {
             $(document).ready(function() {          
                 $(".alert").delay(3500).slideUp(2000);       
+
+                var grillaUsuarios = $('#oficinaList').initDataTables( {{ datatable_settings(datatable) }}, {
+                    dom: "B<'row' <'#busqueda.col-sm-1 text-left'f><'col-sm-11 text-right'i><'col-sm-12' tr>><'row' <'col-sm-6'l><'col-sm-6 text-right'p>>",
+                    buttons: [],
+                    searching: true
+                });
                       
                 $('#selectAll').click(function(e){
                     var table= $(e.target).closest('table');

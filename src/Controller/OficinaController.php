@@ -2,11 +2,11 @@
 
 namespace App\Controller;
 
+use App\DataTables\OficinaTableType;
 use App\Entity\Oficina;
 use App\Form\OficinaType;
 use App\Form\AddTurnosType;
 use App\Repository\OficinaRepository;
-use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,6 +19,7 @@ use DateTime;
 use DateInterval;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Omines\DataTablesBundle\DataTableFactory;
 
 /**
  * @Route("/oficina")
@@ -26,15 +27,33 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 class OficinaController extends AbstractController
 {   
 
-    /**
-     * @Route("/", name="oficina_index", methods={"GET"})
+        /**
+     * Variable auxiliar para crear datatables
+     *
+     * @var [DataTableFactory]
      */
-    public function index(Request $request, OficinaRepository $oficinaRepository, PaginatorInterface $paginator): Response
+    protected $datatableFactory;
+
+    public function __construct(DataTableFactory $datatableFactory)
     {
-        $oficinas =  $paginator->paginate($oficinaRepository->findAllWithUltimoTurno(), $request->query->getInt('page', 1), 50);
+        $this->datatableFactory = $datatableFactory;
+    }
+
+    /**
+     * @Route("/", name="oficina_index")
+     */
+    public function index(Request $request): Response
+    {
+        $table = $this->datatableFactory->createFromType(OficinaTableType::class, array())->handleRequest($request);
+        if ($table->isCallback()) {
+            return $table->getResponse();
+        }
+
+        return $this->render('oficina/index.html.twig', ['datatable' => $table]);
+        /*$oficinas =  $paginator->paginate($oficinaRepository->findAllWithUltimoTurno(), $request->query->getInt('page', 1), 50);
         return $this->render('oficina/index.html.twig', [
             'oficinas' =>  $oficinas
-        ]);
+        ]);*/
     }
 
     /**
