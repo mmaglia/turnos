@@ -8,6 +8,7 @@ parameters:
 
 #    es_ES para SISTEMA_TURNOS_WEB 
 #    es_AR para SISTEMA_ORALIDAD_CIVIL
+#    es_MX para SISTEMA_TURNOS_MPE
 
     locale: '%env(LENGUAJE)%'
 

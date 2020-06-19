@@ -1,0 +1,69 @@
+## ARCHIVO DE TRADUCCION PARA EL SISTEMA DE TURNOS WEB
+# FrontEnd
+
+## Main
+Solicitud de Turnos: Turnos Defensorías Civiles
+main.parrafo1: En el marco de las medidas adoptadas por la Corte Suprema de Justicia se pone a disposición un sistema de TURNOS para realizar trámites de carácter presencial. Se recuerda que tenemos a su disposición diferentes vías de comunicación que no implican necesariamente asistir al Tribunal, pudiendo contactarnos tanto por correo electrónico como teléfono.
+
+## Paso 1
+DNI: DNI
+Apellido: Apellido
+Nombre: Nombre
+Correo: Correo
+Teléfono de Contacto: N° de Celular (N° Fijo en su defecto)
+Organismo: Organismo
+
+## Paso 2
+Circunscripcion: Circunscripcion
+Localidad: Localidad
+Oficina: Oficina
+Motivo: Motivo de Consulta
+Seleccione la Circunscripción: Seleccione la Circunscripción
+Seleccione una Localidad: Seleccione una Localidad
+Seleccione una Oficina: Seleccione una Oficina
+helpDatosAdicionales: Especifique Datos de la causa (CUIJ, Carátula) y elementos necesarios
+helperRequiereNotebook: Indique si requiere Notebook y Modem 4G
+helperRequiereZoom: Indique si requiere se organice una Sala de Zoom
+
+## Paso 3
+Fecha hora: Fecha hora
+
+## Rechazo
+Persona: Persona
+Motivo Indicado: Motivo Indicado
+Motivo del Rechazo: Motivo del Rechazo
+Notificar por Correo: Notificar por Correo
+
+## Estado del Turno
+Sin Atender: Sin Atender
+Atendido: Atendido
+Atendidos: Atendidos
+No asistió: No asistió
+No Asistió: No Asistió
+Rechazado: Rechazado
+Ausente: Ausente
+
+Marcar como atendido: Marcar como atendido
+Marcar como Ausente: Marcar como Ausente
+Rechazar: Rechazar
+Marcar como NO atendido: Marcar como NO atendido
+El turno: El turno
+el turno: el turno
+
+Notebook: Notebook
+Zoom: Zoom
+Reunión Zoom: Reunión Zoom
+
+Usuario: Usuario
+Contraseña: Contraseña
+Confirme Contraseña: Confirme Contraseña
+Rol: Rol
+Consultor: Consultor
+Editor: Editor
+Administrador de Portada: Administrador de Portada
+Auditoría de Gestión: Auditoría de Gestión
+Administrador: Administrador
+Super Admin: Super Admin
+Apellido Usuario: Apellido
+Nombre Usuario: Nombre
+DNI Usuario: DNI

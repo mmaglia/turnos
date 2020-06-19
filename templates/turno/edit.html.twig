@@ -23,7 +23,7 @@
                 </fieldset>
                 {% if persona %}
                     <fieldset class="border p-2">
-                        {% if SistemaTurnosWeb %}
+                        {% if SistemaTurnosWeb or SistemaTurnosMPE %}
                             <legend class="w-auto text-primary">Datos de la Persona</legend>
                         {% endif %}
                         {% if SistemaOralidadCivil %}
@@ -31,7 +31,7 @@
                         {% endif %}
                             
                         <div class="row">
-                            {% if SistemaTurnosWeb %}
+                            {% if SistemaTurnosWeb or SistemaTurnosMPE %}
                                 <div class="col-8">
                                     <strong>{{ persona.getApellido() }}, {{ persona.getNombre() }}</strong>
                                 </div>

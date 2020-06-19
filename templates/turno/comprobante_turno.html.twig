@@ -21,7 +21,7 @@
             <div class="row">
                 <div class="col-4"></div>
                 <div class="col-8 text-right">
-                    <div class="alert alert-{{ label }}">{{ message }}</div>
+                    <div class="flashes-messages alert alert-{{ label }}">{{ message }}</div>
                 </div>
             </div>
         {% endfor %}
@@ -30,7 +30,7 @@
     <div class="card border-primary mb-3">
         <div class="card-header">Datos del Solicitante</div>
         <div class="card-body text-primary">
-            {% if SistemaTurnosWeb %}
+            {% if SistemaTurnosWeb or SistemaTurnosMPE %}
                 <p class="card-text">DNI: <strong>{{ turno.persona.dni }}</strong></p>
                 <p class="card-text">NOMBRE: <strong>{{ turno.persona.apellido }}, {{ turno.persona.nombre }}</strong></p>
             {% endif %}

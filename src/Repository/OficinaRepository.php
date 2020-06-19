@@ -55,6 +55,19 @@ class OficinaRepository extends ServiceEntityRepository
         ;
     }
 
+    public function findOficinasHabilitadasByLocalidadWithTelefono($localidad_id)
+    {
+        return $this->createQueryBuilder('o')
+            ->select('o.id, o.oficina as oficina, o.telefono')
+            ->andWhere('o.habilitada = true and o.localidad = :val')
+            ->setParameter('val', $localidad_id)
+            ->orderBy('o.id')
+            ->getQuery()
+            ->getArrayResult();
+        ;
+    }
+
+
     public function findAllOficinas()
     {
         $sql = "SELECT o.id, concat(o.oficina, ' (', l.localidad, ')') as Oficina FROM oficina o INNER JOIN localidad l ON l.id = o.localidad_id ORDER BY l.localidad, 2";

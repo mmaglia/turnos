@@ -3,85 +3,51 @@
 {% block title %}Gestión de Usuario{% endblock %}
 
 {% block body %}
-	<h1>Lista de Usuarios</h1>
+	<h1>Gestión de Usuarios</h1>
 	<div class="top-listas">		
 		{% if is_granted('ROLE_EDITOR') %}
-			<div class="float-right boton">
-				<a class="btn btn-primary" href="{{ path('usuario_new') }}">Crear Nuevo Usuario</a>
+			<div class="row">
+				<div class="col-12">
+					<div class="float-right boton">
+						<a class="btn btn-primary" href="{{ path('usuario_new') }}">Crear Nuevo Usuario</a>
+					</div>
+				</div>
 			</div>
 		{% endif %}		
 	</div>
-
 	{% for label, messages in app.flashes %}
 		{% for message in messages %}
 			<div class="row">
 				<div class="col-8"></div>
 				<div class="col-4 text-right">
-					<div class="alert alert-{{ label }}">{{ message }}</div>
+					<div class="flashes-messages alert alert-{{ label }}">{{ message }}</div>
 				</div>
 			</div>
 		{% endfor %}
 	{% endfor %}
-	<div class="table-responsive text-nowrap">
-		<table class="table table-fixed table-sm">
-			<thead>
-				<tr>					
-					<th scope="col" class="col-1 text-center">Usuario</th>
-					<th scope="col" class="col-2 text-center">Roles</th>
-					<th scope="col" class="col-2 text-center ancho-4">Apellido y Nombres</th>
-					<th scope="col" class="col-4 text-center ancho-5">Oficina</th>
-					<th scope="col" class="col-1 text-center" title="Ultimo Logueo">Ult. Logueo</th>
-                    <th scope="col" class="col-1 ancho-1 text-right" title="Cantidad de Accesos">#</th>
-					{% if is_granted('ROLE_EDITOR') %}
-						<th scope="col"  class="col-1 text-center ancho-2">Acciones</th>
-					{% endif %}
-				</tr>
-			</thead>
-			<tbody>
-				{% for usuario in usuarios %}
-					<tr {{ usuario.fechaBaja ? 'class="linea-roja"' : ''}}>						
-						<td scope="row" class="col-1">{{ usuario.username }}</td>
-						<td class="col-2">{{ usuario.roles ? usuario.roles|json_encode|replace({'ROLE_': '', '[': '', ']': '', '"':'', ',': ', ' }) : '' }}</td>
-						<td class="col-2 ancho-4" title="DNI:  {{ usuario.dni ? usuario.apellido : '' }} - Email: {{ usuario.email ? usuario.email : '' }}">{{ usuario.nombre ? usuario.apellido ~ ', ' ~ usuario.nombre : usuario.apellido}}
-						</td>
-						<td class="col-4 ancho-5">{{ usuario.oficina }}</td>
-						<td class="col-1 text-center ancho-3" title="Fecha Alta: {{ usuario.fechaAlta ? usuario.fechaAlta|date('d/m/Y') : '' }} {{ usuario.fechaBaja ? ' - Fecha Baja: ' ~ usuario.fechaBaja|date('d/m/Y') : '' }}">{{ usuario.ultimoAcceso ? usuario.ultimoAcceso|date('d/m/Y') : '' }}</td>
-                        <td class="col-1 ancho-1" title="Cantidad de Accesos">{{ usuario.cantidadAccesos }}</td>
-						{% if is_granted('ROLE_EDITOR') %}
-							<td class="col-1 table-bordered table-secondary d-print-none ancho-2">
-								<a href="{{ path('usuario_show', {'id': usuario.id}) }}" title="Ver">
-									<i class="fas fa-eye"></i>
-								</a>
-								&nbsp;&nbsp;
-								<a href="{{ path('usuario_edit', {'id': usuario.id}) }}" title="Editar">
-									<i class="fas fa-pen"></i>
-								</a>
-							</td>
-						{% endif %}
-					</tr>
-				{% else %}
-					<tr>
-						<td colspan="11">No hay registros</td>
-					</tr>
-				{% endfor %}
-			</tbody>
-		</table>
-        <div class="float-right">
-            {{ knp_pagination_render(usuarios) }}
-        </div>
-        <div class="float-left blockquote-footer">
-            Viendo {{ usuarios.getPaginationData()['currentItemCount'] < usuarios.getPaginationData()['numItemsPerPage'] ? usuarios.getPaginationData()['currentItemCount'] : usuarios.getPaginationData()['numItemsPerPage'] }} usuarios de un total de {{ usuarios.getTotalItemCount }}
-        </div>
+	<div class="row">
+		<div class="col-12">
+			<div id="usuarioList">
+				<div class="d-flex justify-content-center">
+					<div class="spinner-border m-5" role="status">
+						<span class="sr-only">Cargando...</span>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 {% endblock %}
 
 {% block javascripts %}
 	{{ parent() }}
+	<script src="{{ asset('bundles/datatables/js/datatables.js') }}"></script>
 	<script>
 		$(function () {
-            $(document).ready(function () {
-                $(".alert").delay(3500).slideUp(2000);
-            });
+			var grillaUsuarios = $('#usuarioList').initDataTables( {{ datatable_settings(datatable) }}, {
+				dom: "B<'row' <'#busqueda.col-sm-1 text-left'f><'col-sm-11 text-right'i><'col-sm-12' tr>><'row' <'col-sm-6'l><'col-sm-6 text-right'p>>",
+                buttons: [],
+                searching: true
+			});
         });
 	</script>
 

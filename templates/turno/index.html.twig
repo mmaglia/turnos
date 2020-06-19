@@ -50,7 +50,7 @@
                 <div class="row mt-3">
                     <div class="col-12"></div>
                     <div class="col-12 text-center">
-                        <div class="alert alert-{{ label }}">{{ message }}</div>
+                        <div class="flashes-messages alert alert-{{ label }}">{{ message }}</div>
                     </div>
                 </div>
             {% endfor %}
@@ -92,7 +92,7 @@
                                 title="Correo:  {{ turno.persona.email }}"
                         {% endif %}
                     >
-                    {% if SistemaTurnosWeb %}
+                    {% if SistemaTurnosWeb or SistemaTurnosMPE %}
                         {{  turno.persona is null or turno.persona == '' ? '' : turno.persona.apellido ~ ', ' ~ turno.persona.nombre}}
                         <td class="text-center">{{ turno.persona is null or turno.persona == '' ? '' : turno.persona.dni }}</td>
                         {% endif %}

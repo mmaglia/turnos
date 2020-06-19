@@ -16,7 +16,7 @@
             <div class="row">
                 <div class="col-8"></div>
                 <div class="col-4 text-right">
-                    <div class="alert alert-{{ label }}">{{ message }}</div>
+                    <div class="flashes-messages alert alert-{{ label }}">{{ message }}</div>
                 </div>
             </div>
         {% endfor %}
@@ -92,9 +92,7 @@
     {{ parent() }}
     <script>
         $(function() {
-            $(document).ready(function() {          
-                $(".alert").delay(3500).slideUp(2000);       
-                      
+            $(document).ready(function() {                              
                 $('#selectAll').click(function(e){
                     var table= $(e.target).closest('table');
                     $('td input:checkbox',table).prop('checked',this.checked);

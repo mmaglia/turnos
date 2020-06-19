@@ -67,9 +67,9 @@
     <script>
         $(function () {
 
-            oficinaID = {{ oficinaID }}
-            primerDiaDisponible = '{{ primerDiaDisponible }}'
-            ultimoDiaDisponible = '{{ ultimoDiaDisponible }}'
+            var oficinaID = '{{ oficinaID }}';
+            var primerDiaDisponible = '{{ primerDiaDisponible }}';
+            var ultimoDiaDisponible = '{{ ultimoDiaDisponible }}';
 
             $('#txtFechaHora').change(function () {
                 if ($('#txtFechaHora').val() == '') {

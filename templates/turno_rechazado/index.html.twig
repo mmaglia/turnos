@@ -54,7 +54,7 @@
                             title="Correo:  {{ turno_rechazado.persona.email }}"
                     {% endif %}
                 >
-                {% if SistemaTurnosWeb %}
+                {% if SistemaTurnosWeb or SistemaTurnosMPE %}
                     {{  turno_rechazado.persona is null or turno_rechazado.persona == '' ? '' : turno_rechazado.persona.apellido ~ ', ' ~ turno_rechazado.persona.nombre}}
                     <td>{{ turno_rechazado.persona is null or turno_rechazado.persona == '' ? '' : turno_rechazado.persona.dni }}</td>
                 {% endif %}
