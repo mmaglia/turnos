@@ -399,36 +399,34 @@ class TurnoController extends AbstractController
     {
         $turno = $session->get('turno');
         
-        if (!is_null($turno) && !is_null($turno->getPersona())) {
+        // Si la persona ingresó un correo, envía una notificación con los datos del turno
+        if (!is_null($turno) && $turno->getPersona()->getEmail()) {
 
-            // Si la persona ingresó un correo, envía una notificación con los datos del turno
-            if ($turno->getPersona()->getEmail()) {
-                // Establece que plantilla de correo se utilizará en función al tipo de Sistema
-                $mailTemplate = 'turno/email_confirmacion_turno_web.html.twig';
-                if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
-                    $mailTemplate = 'turno/email_confirmacion_turno_oralidad.html.twig';
-                }
-
-                $fromAdrress = $_ENV['MAIL_FROM'];
-                $email = (new TemplatedEmail())
-                    ->from($fromAdrress)
-                    ->to($turno->getPersona()->getEmail())
-                    ->subject('Poder Judicial Santa Fe - Confirmación de Turno')
-                    ->htmlTemplate($mailTemplate)
-                    ->context([
-                        'expiration_date' => new \DateTime('+7 days'),
-                        'turno' => $turno,
-                    ]);
-                $mailer->send($email);
-                $this->addFlash('info', 'Se ha enviado un correo a la dirección ' . $turno->getPersona()->getEmail());
-                $logger->info(
-                    'Notificación Enviada',
-                    [
-                        'Destinatario' => $turno->getPersona()->getPersona(),
-                        'Dirección' => $turno->getPersona()->getEmail()
-                    ]
-                );
+            // Establece que plantilla de correo se utilizará en función al tipo de Sistema
+            $mailTemplate = 'turno/email_confirmacion_turno_web.html.twig';
+            if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
+                $mailTemplate = 'turno/email_confirmacion_turno_oralidad.html.twig';
             }
+
+            $fromAdrress = $_ENV['MAIL_FROM'];
+            $email = (new TemplatedEmail())
+                ->from($fromAdrress)
+                ->to($turno->getPersona()->getEmail())
+                ->subject('Poder Judicial Santa Fe - Confirmación de Turno')
+                ->htmlTemplate($mailTemplate)
+                ->context([
+                    'expiration_date' => new \DateTime('+7 days'),
+                    'turno' => $turno,
+                ]);
+            $mailer->send($email);
+            $this->addFlash('info', 'Se ha enviado un correo a la dirección ' . $turno->getPersona()->getEmail());
+            $logger->info(
+                'Notificación Enviada',
+                [
+                    'Destinatario' => $turno->getPersona()->getPersona(),
+                    'Dirección' => $turno->getPersona()->getEmail()
+                ]
+            );
             return $this->redirectToRoute('comprobanteTurno');
         } else {
             // Si el turno se perdió de session lanzo una Exception. El usuario ve error.html y logueo en el log
@@ -471,7 +469,7 @@ class TurnoController extends AbstractController
         if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
             $solicitante = $form->getData()->getPersona()->getOrganismo()->getOrganismo() . '(' . $form->getData()->getPersona()->getOrganismo()->getLocalidad() .')';
         }
-        if ($_ENV['SISTEMA_TURNOS_WEB'] || $_ENV['SISTEMA_TURNOS_MPE']) {
+        if ($_ENV['SISTEMA_TURNOS_WEB']) {
             $solicitante = $form->getData()->getPersona()->getApellido() . ',' . $form->getData()->getPersona()->getNombre();
         }
 
@@ -751,7 +749,7 @@ class TurnoController extends AbstractController
                 $motivoRechazo = $request->request->get('turno_rechazar')['motivoRechazo'];
 
                 // Envia correo notificando el Rechazo
-                if (isset($request->request->get('turno_rechazar')['enviarMail'])) {
+                if (isset($request->request->get('turno_rechazar')['enviarMail']) && $turno->getPersona() && $turno->getPersona()->getEmail()) {
 
                     // Establece que plantilla de correo se utilizará en función al tipo de Sistema
                     $mailTemplate = 'turno/email_rechazado_turno_web.html.twig';
@@ -895,25 +893,6 @@ class TurnoController extends AbstractController
     {
         $organismos = $organismoRepository->findAllOrganismos();
         return new JsonResponse($organismos);
-    }
-
-
-    /**
-     * Obtiene todas las Oficinas del MP Civil
-     * 
-     * @Route("/TurnosWeb/oficinasMPCivil_localidad/{localidad_id}", name="oficinasMPCivil_localidad", requirements = {"localidad_id" = "\d+"}, methods={"GET", "POST"})
-     * 
-     * @return string JSON con las Oficinas del MP Civil de una Localidad
-     */
-    public function oficinasMPCivilByLocalidad($localidad_id = 2, OficinaRepository $oficinaRepository)        
-    {
-        $oficinas = [];
-        if ($localidad_id == 2) {
-            // ROSARIO
-            $oficinas = $oficinaRepository->findOficinasHabilitadasByLocalidadWithTelefono($localidad_id);
-        }
-
-        return new JsonResponse($oficinas);
     }
 
 
