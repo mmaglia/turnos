@@ -28,7 +28,7 @@
             <label class="required" for="turno3_tipo_causa">Tipo de Causa</label>
             <select id="turno3_tipo_causa" autofocus="autofocus" class="form-control">
                 <option value="1" selected="selected">Causa Nueva</option>
-                <option value="2">Causa en Trámite</option>
+                <option value="2">Causa en Trámite - Sino recuerda que defensoría tiene asignada, llame al (0341) 4721700 interno 4250</option>
             </select>
             <small id="turno3_tipo_causa_help" class="form-text text-muted"></small>
         </div>
@@ -213,6 +213,9 @@
                         }
                         // Limpio el helper de motivo
                         $('#turno3_motivo_help').html('');
+
+                        // Pongo el helper de Causa Nueva
+                        $('#turno3_tipo_causa_help').html(defensoriasCiviles[1].oficina + ' - ' + textoRecordatorio + defensoriasCiviles[1].telefono);
                     }
                 });
 
