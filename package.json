@@ -27,6 +27,7 @@
         "encore": "^0.0.30-beta",
         "mkdirp": "^1.0.4",
         "moment": "^2.24.0",
+        "prod": "^1.0.1",
         "typeface-roboto": "^0.0.75"
     }
 }

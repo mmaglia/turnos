@@ -29,6 +29,8 @@ class OficinaType extends AbstractType
                 'choice_label' => 'localidad'
             ])
             ->add('telefono', TextType::class, ['label' => 'Teléfono de Contacto', 'required' => false, 'attr' => array('maxlength' => '50')])
+            ->add('autoExtend', null, ['label' => 'Ampliar Agenda Automáticamente'])
+            ->add('autoGestion', null, ['label' => 'Permitir que el usuario administre la Agenda (permite generar y borrar turnos en forma masiva'])
             ->add('habilitada');
     }
 

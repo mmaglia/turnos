@@ -23,7 +23,7 @@ class OficinaRepository extends ServiceEntityRepository
     {
         return $this->getEntityManager()
             ->createQuery('
-                SELECT o.id, o.oficina, l.localidad as localidad, o.horaInicioAtencion, o.horaFinAtencion, o.frecuenciaAtencion, o.telefono, o.habilitada,
+                SELECT o.id, o.oficina, l.localidad as localidad, o.horaInicioAtencion, o.horaFinAtencion, o.frecuenciaAtencion, o.telefono, o.habilitada, o.autoExtend, o.autoGestion, 
                         (select max(t.fechaHora) from App\Entity\Turno t where t.oficina = o) as ultimoTurno 
                 FROM App\Entity\Oficina o left join o.localidad l
                 ORDER BY l.localidad, o.horaInicioAtencion, o.oficina'
