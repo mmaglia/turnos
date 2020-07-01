@@ -28,6 +28,8 @@ final class Version20200629215725 extends AbstractMigration
         $this->addSql('ALTER TABLE turno ALTER zoom DROP DEFAULT');
         $this->addSql('ALTER TABLE turno_rechazado ALTER notebook DROP DEFAULT');
         $this->addSql('ALTER TABLE turno_rechazado ALTER zoom DROP DEFAULT');
+        $this->addSql("UPDATE oficina SET auto_extend = TRUE WHERE id > 2 and id <> 225 and oficina not ilike '%Token%'");
+        $this->addSql("UPDATE oficina SET auto_gestion = TRUE WHERE oficina ilike '%Token%'");
     }
 
     public function down(Schema $schema) : void

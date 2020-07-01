@@ -105,4 +105,22 @@ class OficinaRepository extends ServiceEntityRepository
     }
 
 
+    public function findOficinasAutoExtend($oficinaIdDesde, $oficinaIdHasta)
+    {
+        return $this->createQueryBuilder('o')
+
+            ->select('o.id, o.oficina as oficina, l.localidad, c.id as circunscripcion')
+            ->innerJoin('o.localidad', 'l')
+            ->innerJoin('l.circunscripcion', 'c')
+            ->andWhere('o.habilitada = true and o.autoExtend = true and o.id >= :desde and o.id <= :hasta')
+            ->setParameter('desde', $oficinaIdDesde)
+            ->setParameter('hasta', $oficinaIdHasta)
+            ->orderBy('oficina')
+            ->getQuery()
+            ->getArrayResult();
+        ;
+    }
+
+
+
 }
