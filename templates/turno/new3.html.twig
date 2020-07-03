@@ -239,15 +239,13 @@
                     }                    
                     formT3.submit();                    
                 });
+                
+                $('#tipo_causa').hide();
+                $('#defensorias').hide();
+                $('#turno3_circunscripcion').val(2).change();
             }
-
-            $('#tipo_causa').hide();
-            $('#defensorias').hide();
-
             $('#turno3_localidad').html(textoListaLocalidadVacia);
             $('#turno3_oficina').html(textoListaOficinaVacia);
-            $('#turno3_circunscripcion').val(2).change();
-
         });
     </script>  
 

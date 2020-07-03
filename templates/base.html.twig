@@ -145,6 +145,9 @@
         {% block javascripts %}
             {{ encore_entry_script_tags('js/app') }}
             <script src="{{ asset('js/locales/bootstrap-datepicker.es.min.js') }}"></script>
+            <script src="{{ asset('bundles/datatables/js/datatables.js') }}"></script>
+            <script src="{{ asset('bundles/fosjsrouting/js/router.min.js') }}"></script>
+            <script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>
             <script>
                 $(function () {
                     // Agrega un * a todos los campos que son requeridos
