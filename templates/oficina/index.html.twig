@@ -3,11 +3,19 @@
 {% block title %}Gestión de Oficina{% endblock %}
 
 {% block body %}
-    <h1>Lista de Oficinas</h1>
+    <h1>Gestión de Oficinas</h1>
     <div class="top-listas">
         {% if is_granted('ROLE_EDITOR') %} 
-            <div class="float-right boton">
-                <a class="btn btn-primary" href="{{ path('oficina_new') }}">Crear Nueva Oficina</a>
+            <div id="botonera-oficina" class="row" style="display: none;">
+                <div class="col-12">
+                    <div class="float-right boton">
+                        <a id="creacion-masiva" class="btn btn-primary" href="#">Creación Masiva Turnos</a>
+                        &nbsp;&nbsp;
+                        <a class="btn btn-primary" href="{{ path('oficina_deshacer') }}">Deshacer Última Creación de Turnos</a>
+                        &nbsp;&nbsp;
+                        <a class="btn btn-primary" href="{{ path('oficina_new') }}">Crear Nueva Oficina</a>
+                    </div>
+                </div>
             </div>
         {% endif %}
     </div>
@@ -21,85 +29,62 @@
             </div>
         {% endfor %}
     {% endfor %}
-
-    <form id="frmOficinas" method="post" action="{{ path('oficina_addTurnosOficinas') }}">
-        {% if is_granted('ROLE_EDITOR') %} 
-            <a class="btn btn-primary float-left" href="#" onclick="document.getElementById('frmOficinas').submit();">Crear Nuevos Turnos para las Oficinas Seleccionadas</a>
-            &nbsp;&nbsp;
-            <a class="btn btn-primary" href="{{ path('oficina_deshacer') }}">Deshace Ultima Generación de Turnos</a>    
-        {% endif %}
-        <div class="table-responsive text-nowrap">
-            <table class="table table-fixed table-sm">
-                <thead>
-                    <tr>
-                        <th scope="col" class="col-1 ancho-1"><input type="checkbox" id="selectAll" /></th>
-                        <th scope="col" class="col-1 ancho-1">ID</th>
-                        <th scope="col" class="col-4 ancho-5 text-center">Oficina</th>
-                        <th scope="col" class="col-2">Localidad</th>
-                        <th scope="col" class="col-1 text-center ancho-2">Inicio</th>
-                        <th scope="col" class="col-1 text-center ancho-2">Fin</th>
-                        <th scope="col" class="col-1 text-center">Frecuencia</th>
-                        <th scope="col" class="col-1 ancho-2">Habilitada</th>
-                        <th scope="col" class="col-1 text-center">Último Turno</th>
-                        {% if is_granted('ROLE_EDITOR') %} 
-                            <th scope="col" class="col-1 text-center">Acciones</th>
-                        {% endif %}
-                    </tr>
-                </thead>
-                <tbody>
-                {# Lee y muestra todos los mensajes flash #}
-                {% for oficina in oficinas %}
-                    <tr>
-                        <td scope="row" class="col-1 ancho-1"><input type="checkbox" name="oficinaID[]" value="{{ oficina.id }}"></td>
-                        <td class="col-1 ancho-1">{{ oficina.id }}</td>
-                        <td class="col-4 ancho-5">{{ oficina.oficina|trim }}</td>
-                        <td class="col-2">{{ oficina.localidad|trim }}</td>
-                        <td class="col-1 text-center ancho-2">{{ oficina.horaInicioAtencion ? oficina.horaInicioAtencion|date('H:i') : '' }}</td>
-                        <td class="col-1 text-center ancho-2">{{ oficina.horaFinAtencion ? oficina.horaFinAtencion|date('H:i') : '' }}</td>
-                        <td class="col-1 text-center ancho-3">{{ oficina.frecuenciaAtencion }}</td>
-                        <td class="col-1 text-center ancho-2">{{ oficina.habilitada ? '<i class="fas fa-check"></i>' : '' }} </td>
-                        <td class="col-1 text-center ancho-3">{{ oficina.ultimoTurno ? oficina.ultimoTurno|date('Y-m-d H:i') : '' }}</td>
-                        {% if is_granted('ROLE_EDITOR') %} 
-                            <td class="col-1 table-bordered table-secondary d-print-none">
-                                <a href="{{ path('oficina_show', {'id': oficina.id}) }}" title="Ver"><i class="fas fa-eye"></i></a>
-                                &nbsp;&nbsp;
-                                <a href="{{ path('oficina_edit', {'id': oficina.id}) }}" title="Editar"><i class="fas fa-pen"></i></a>
-                                &nbsp;&nbsp;
-                                <a href="{{ path('oficina_addTurnos', {'id': oficina.id}) }}" title="Crear Nuevos Turnos para {{ oficina.oficina }} ({{oficina.localidad}})"><i class="far fa-calendar-plus"></i></a>
-                                &nbsp;&nbsp;
-                                <a href="{{ path('borraDiaAgendaTurnosbyOficina', {'id': oficina.id}) }}" title="Elimina un día de la Agenda de {{ oficina.oficina }} ({{oficina.localidad}})"><i class="far fa-calendar-minus"></i></a>
-                            </td>
-                        {% endif %}
-                    </tr>
-                {% else %}
-                    <tr>
-                        <td colspan="11">No hay registros</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-            <div class="float-right">
-                {{ knp_pagination_render(oficinas) }}
-            </div>
-            <div class="float-left blockquote-footer">
-                Viendo {{ oficinas.getPaginationData()['currentItemCount'] < oficinas.getPaginationData()['numItemsPerPage'] ? oficinas.getPaginationData()['currentItemCount'] : oficinas.getPaginationData()['numItemsPerPage'] }} oficinas de un total de {{ oficinas.getTotalItemCount }}
-            </div>
-        </div>
-    </form>
+    <div class="row">
+		<div class="col-12">
+			<div id="oficinaList">
+				<div class="d-flex justify-content-center">
+					<div class="spinner-border m-5" role="status">
+						<span class="sr-only">Cargando...</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
     <script>
-        $(function() {
-            $(document).ready(function() {          
-                $(".alert").delay(3500).slideUp(2000);       
-                      
-                $('#selectAll').click(function(e){
-                    var table= $(e.target).closest('table');
-                    $('td input:checkbox',table).prop('checked',this.checked);
+        $(function() {        
+            $(".alert").delay(3500).slideUp(2000);       
+
+            var grillaOficinas = $('#oficinaList').initDataTables( {{ datatable_settings(datatable) }}, {
+                dom: "<'row' <'#busqueda.col-sm-2 text-left'f><'col-sm-2 text-left'B><'col-sm-8 text-right'i><'col-sm-12' tr>><'row' <'col-sm-6'l><'col-sm-6 text-right'p>>",                                        
+                searching: true,
+                columnDefs: [ {
+                    targets:   0,
+                    orderable: false,
+                    className: 'select-checkbox',                        
+                    data: null,
+                    defaultContent: '',
+                } ],
+                select: {
+                    style:    'multi',
+                    selector: 'td:first-child'
+                },
+                buttons: [
+                    'selectAll',
+                    'selectNone'
+                ],
+                language: {
+                    "url": "{{ asset('/static/traslation_dt_es.json') }}"
+                }
+            }).then(function (dt) {
+                dt.on('init', function(settings, json) {
+                    $('#botonera-oficina').show();
+                    $('#creacion-masiva').click(function() {
+                        // Chequeo que haya dos oficinas seleccionadas como mínimo
+                        if(dt.rows({ selected: true}).count() > 1) {
+                            // Obtengo los ids seleccionados
+                            var idSeleccionados = dt.rows({ selected: true}).ids().toArray();
+                            // Invoco al controller
+                            location.href = Routing.generate('oficina_addTurnosOficinas', {'ids': JSON.stringify(idSeleccionados)});
+                        } else {
+                            alert('Debe seleccionar por lo menos 2 oficinas');
+                        }
+                    });
                 });
-            });
+            });            
         });
     </script>  
     

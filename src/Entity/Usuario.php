@@ -264,9 +264,22 @@ class Usuario implements UserInterface
         return $this;
     }
 
-    public function getUsuario() {
+    public function getUsuario()
+    {
         return $this->getUsername();
     }
 
-
+    /**
+     * Método usado en Datatable
+     */
+    public function getApeNom()
+    {
+        if ($this->apellido && $this->nombre)
+            return $this->apellido . ', ' . $this->nombre;
+        else if ($this->apellido && !$this->nombre)
+            return $this->apellido;
+        else if (!$this->apellido && $this->nombre)
+            return $this->nombre;
+        return '';
+    }
 }
