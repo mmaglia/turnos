@@ -22,7 +22,7 @@
         </tbody>
     </table>
 
-    <a class="btn btn-secondary float-left volver" href="{{ path('localidad_index') }}">Volver a la Lista</a>
+    <a class="btn btn-secondary float-left volver" href="#" onclick="history.back(); return false;">Volver a la Lista</a>
     <a class="btn btn-secondary float-left volver" href="{{ path('localidad_edit', {'id': localidad.id}) }}">Editar</a>
     {{ include('localidad/_delete_form.html.twig') }}
 {% endblock %}

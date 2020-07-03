@@ -6,7 +6,7 @@
 	<h1>Gestión de Usuarios</h1>
 	<div class="top-listas">		
 		{% if is_granted('ROLE_EDITOR') %}
-			<div class="row">
+			<div id="botonera-usuario" class="row" style="display: none;">
 				<div class="col-12">
 					<div class="float-right boton">
 						<a class="btn btn-primary" href="{{ path('usuario_new') }}">Crear Nuevo Usuario</a>
@@ -40,18 +40,23 @@
 
 {% block javascripts %}
 	{{ parent() }}
-	<script src="{{ asset('bundles/datatables/js/datatables.js') }}"></script>
 	<script>
 		$(function () {
-            $(document).ready(function () {
-                $(".alert").delay(3500).slideUp(2000);
-            });
+			$(".alert").delay(3500).slideUp(2000);
 
 			var grillaUsuarios = $('#usuarioList').initDataTables( {{ datatable_settings(datatable) }}, {
 				dom: "B<'row' <'#busqueda.col-sm-1 text-left'f><'col-sm-11 text-right'i><'col-sm-12' tr>><'row' <'col-sm-6'l><'col-sm-6 text-right'p>>",
-                buttons: [],
-                searching: true
-			});
+				buttons: [],
+				searching: true,
+				language: {
+					"url": "{{ asset('/static/traslation_dt_es.json') }}"
+				}
+			}).then(function (dt) {
+				dt.on('init', function(settings, json) {
+					$('#botonera-usuario').show();  
+					alert('acac');                      
+				});
+			});            		
         });
 	</script>
 

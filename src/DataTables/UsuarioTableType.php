@@ -25,23 +25,18 @@ class UsuarioTableType extends AbstractController implements DataTableTypeInterf
      */
     public function configure(DataTable $dataTable, array $options)
     {
+        $dataTable->add('id', TextColumn::class, ['label' => '#', 'searchable' => false]);
         $dataTable->add('username', TextColumn::class, ['label' => 'Usuario', 'searchable' => true, 'globalSearchable' => true]);
         $dataTable->add('rolesUsuario', TextColumn::class, ['label' => 'Roles', 'searchable' => false, 'render' => function ($value, $context) {
             return str_replace('ROLE_', '', implode(', ', $context->getRoles()));
         }]);
-        $dataTable->add('apenom', TextColumn::class, ['label' => 'Apellido y Nombres', 'searchable' => true, 'globalSearchable' => true, 'render' => function ($value, $context) {
-            $apellido = $context->getApellido();
-            $nombres = $context->getNombre();
-            if ($apellido && $nombres)
-                return $apellido . ', ' . $nombres;
-            else if ($apellido && !$nombres)
-                return $apellido;
-            else if (!$apellido && $nombres)
-                return $nombres;
-            return '';
+        $dataTable->add('apenom', TextColumn::class, ['label' => 'Apellido y Nombres', 'orderable' => true, 'searchable' => true, 'field' => 'u.apellido', 'globalSearchable' => true, 'render' => function ($value, $context) {
+            return $context->getApeNom();
         }]);
         $dataTable->add('oficina', TextColumn::class, ['label' => 'Oficina', 'searchable' => false,  'field' => 'u.oficina']);
-        $dataTable->add('ultimo_acceso', DateTimeColumn::class, ['label' => 'Acceso', 'format' => 'd-m-Y']);
+        $dataTable->add('fecha_alta', DateTimeColumn::class, ['label' => 'Alta', 'format' => 'd-m-Y', 'className' => 'text-center']);
+        $dataTable->add('fecha_baja', DateTimeColumn::class, ['label' => 'Baja', 'format' => 'd-m-Y', 'className' => 'text-center']);
+        $dataTable->add('ultimo_acceso', DateTimeColumn::class, ['label' => 'Último Acceso', 'format' => 'd-m-Y', 'className' => 'text-center']);
         $dataTable->add('cantidad_accesos', TextColumn::class, ['label' => 'Accesos', 'className' => 'text-center']);
         if ($this->isGranted(('ROLE_EDITOR'))) {
             $dataTable->add('acciones', TextColumn::class, ['label' => 'Acciones', 'className' => 'text-center', 'render' => function ($value, $context) {

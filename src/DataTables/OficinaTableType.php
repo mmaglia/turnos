@@ -26,14 +26,15 @@ class OficinaTableType extends AbstractController implements DataTableTypeInterf
      */
     public function configure(DataTable $dataTable, array $options)
     {
+        $dataTable->add('', TextColumn::class, ['label' => '']);
         $dataTable->add('id', TextColumn::class, ['label' => '#', 'searchable' => false]);
         $dataTable->add('oficina', TextColumn::class, ['label' => 'Oficina', 'searchable' => true, 'globalSearchable' => true]);
         $dataTable->add('localidad', TextColumn::class, ['label' => 'Localidad', 'searchable' => false,  'field' => 'o.localidad']);
-        $dataTable->add('horaInicioAtencion', DateTimeColumn::class, ['label' => 'Inicio', 'searchable' => false, 'format' => 'H:i']);
-        $dataTable->add('horaFinAtencion', DateTimeColumn::class, ['label' => 'Fin', 'searchable' => false, 'format' => 'H:i']);
-        $dataTable->add('frecuenciaAtencion', TextColumn::class, ['label' => 'Frecuencia', 'searchable' => false]);
+        $dataTable->add('horaInicioAtencion', DateTimeColumn::class, ['label' => 'Inicio', 'searchable' => false, 'orderable' => false, 'className' => 'text-center', 'format' => 'H:i']);
+        $dataTable->add('horaFinAtencion', DateTimeColumn::class, ['label' => 'Fin', 'searchable' => false, 'orderable' => false, 'className' => 'text-center', 'format' => 'H:i']);
+        $dataTable->add('frecuenciaAtencion', TextColumn::class, ['label' => 'Frecuencia', 'searchable' => false, 'orderable' => false, 'className' => 'text-center']);
         $dataTable->add('habilitada', BoolColumn::class, ['label' => 'Habilitada', 'searchable' => false, 'className' => 'text-center', 'trueValue' => '<i class="fas fa-check"></i>', 'falseValue' => '<i class="fa fa-times"></i>', 'nullValue' => 'unknown']);
-        //$dataTable->add('ultimo_acceso', DateTimeColumn::class, ['label' => 'Último Turno', 'format' => 'd-m-Y']);
+        //$dataTable->add('ultimoTurno', DateTimeColumn::class, ['label' => 'Último Turno', 'format' => 'd-m-Y']);
         if ($this->isGranted(('ROLE_EDITOR'))) {
             $dataTable->add('acciones', TextColumn::class, ['label' => 'Acciones', 'className' => 'text-center', 'render' => function ($value, $context) {
                 return '&nbsp;&nbsp;<a href="' . $this->generateUrl('oficina_show', ['id' => $context->getId()]) . '" title="Ver"><i class="fas fa-eye"></i></a>' .
@@ -42,18 +43,18 @@ class OficinaTableType extends AbstractController implements DataTableTypeInterf
                     '&nbsp;&nbsp;<a href="' . $this->generateUrl('borraDiaAgendaTurnosbyOficina', ['id' => $context->getId()]) . '" title="Elimina un día de la Agenda de ' . $context . '"><i class="far fa-calendar-minus"></i></a>';
             }]);
         }
+        $dataTable->addOrderBy('localidad', DataTable::SORT_ASCENDING);
+        $dataTable->addOrderBy('horaInicioAtencion', DataTable::SORT_ASCENDING);
+        $dataTable->addOrderBy('oficina', DataTable::SORT_ASCENDING);
         $dataTable->createAdapter(ORMAdapter::class, [
             'entity' => Oficina::class,
             'query' => function (QueryBuilder $builder) {
-                /*$builder
-                    ->select('o')
-                    ->from(Oficina::class, 'o');*/
-                $builder->getEntityManager()->createQuery('SELECT o.id as id, o.oficina as oficina, l.localidad as localidad, o.horaInicioAtencion as horaInicioAtencion, o.horaFinAtencion as horaFinAtencion, o.frecuenciaAtencion as frecuenciaAtencion, o.habilitada as habilitada,                        
-                        FROM App\Entity\Oficina o 
-                        left join o.localidad l
-                        ORDER BY l.localidad, o.horaInicioAtencion, o.oficina');
+                // De deja comentado el mecanismo encarado para determinar ultimoTurno (sin resolver todavía)
+                /*$builder2 = clone $builder; 
+                $subQuery = $builder2->select('MAX(t.fechaHora) as ultimoTurno')->from(Turno::class, 't')->where('t.oficina = o.id');
+                $builder->select(array('partial o.{id, oficina, localidad, horaInicioAtencion, horaFinAtencion, frecuenciaAtencion, habilitada}'))->addSelect('(' . $subQuery->getDQL() . ')')->from(Oficina::class, 'o');*/
+                $builder->select('o')->from(Oficina::class, 'o');
             }
         ]);
-        // (select max(t.fechaHora) from App\Entity\Turno t where t.oficina = o) as ultimoTurno
     }
 }

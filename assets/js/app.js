@@ -5,6 +5,12 @@
  * (and its CSS file) in your base layout (base.html.twig).
  */
 
+// Configuración inicial requerida por FOSJsRoutingBundle
+const routes = require('./js_routes.json');
+import Routing from  '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/public/js/router.min.js';
+
+Routing.setRoutingData(routes);
+
 const $ = require('jquery');
 
 // create global $ and jQuery variables
