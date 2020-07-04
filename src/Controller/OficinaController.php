@@ -32,9 +32,20 @@ class OficinaController extends AbstractController
      */
     public function index(Request $request, OficinaRepository $oficinaRepository, PaginatorInterface $paginator): Response
     {
-        $oficinas =  $paginator->paginate($oficinaRepository->findAllWithUltimoTurno(), $request->query->getInt('page', 1), 50);
+
+        $oficinas = $oficinaRepository->findAllWithUltimoTurno(); // Lista completa de Oficinas
+
+        // Si el usuario conectado está asociado a una oficina que admite AutoGestión, filtra la lista de oficinas para que contenga sólo la Oficina del usuario
+        if ($this->getUser()->getOficina()->getAutoGestion()) {
+            $oficinaId = $this->getUser()->getOficina()->getId();   // Obtengo Id de la Oficina asociada al Usuario
+            $key = array_search($oficinaId, array_column($oficinas, 'id')); // Busco en la colección de $oficinas la oficina del usuario
+            $oficinas = [$oficinas[$key]]; // Filtro la lista de $oficinas únicamente para que contenga la Oficina del Usuario
+        }
+         
+        $listaOficinas =  $paginator->paginate($oficinas, $request->query->getInt('page', 1), 50);
+
         return $this->render('oficina/index.html.twig', [
-            'oficinas' =>  $oficinas
+            'oficinas' =>  $listaOficinas
         ]);
     }
 
