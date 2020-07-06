@@ -38,6 +38,7 @@
         "mkdirp": "^1.0.4",
         "moment": "^2.24.0",
         "pdfmake": "^0.1.65",
+        "prod": "^1.0.1",
         "typeface-roboto": "^0.0.75"
     }
 }

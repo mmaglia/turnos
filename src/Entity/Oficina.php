@@ -63,6 +63,16 @@ class Oficina
      */
     private $habilitada;
 
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $autoExtend;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $autoGestion;
+
     public function __construct()
     {
         $this->turnos = new ArrayCollection();
@@ -226,6 +236,30 @@ class Oficina
     public function setHabilitada(bool $habilitada): self
     {
         $this->habilitada = $habilitada;
+
+        return $this;
+    }
+
+    public function getAutoExtend(): ?bool
+    {
+        return $this->autoExtend;
+    }
+
+    public function setAutoExtend(?bool $autoExtend): self
+    {
+        $this->autoExtend = $autoExtend;
+
+        return $this;
+    }
+
+    public function getAutoGestion(): ?bool
+    {
+        return $this->autoGestion;
+    }
+
+    public function setAutoGestion(?bool $autoGestion): self
+    {
+        $this->autoGestion = $autoGestion;
 
         return $this;
     }

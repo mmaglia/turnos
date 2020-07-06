@@ -29,6 +29,7 @@
             </div>
         {% endfor %}
     {% endfor %}
+<<<<<<< HEAD
     <div class="row">
 		<div class="col-12">
 			<div id="oficinaList">
@@ -40,6 +41,77 @@
 			</div>
 		</div>
 	</div>
+=======
+
+    <form id="frmOficinas" method="post" action="{{ path('oficina_addTurnosOficinas') }}">
+        {% if is_granted('ROLE_EDITOR') %} 
+            <a class="btn btn-primary float-left" href="#" onclick="document.getElementById('frmOficinas').submit();">Crear Nuevos Turnos para las Oficinas Seleccionadas</a>
+            &nbsp;&nbsp;
+            <a class="btn btn-primary" href="{{ path('oficina_deshacer') }}">Deshace Ultima Generación de Turnos</a>    
+        {% endif %}
+        <div class="table table-hover">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col" class="col-1 ancho-1"><input type="checkbox" id="selectAll" /></th>
+                        <th scope="col" class="col-1 ancho-1">ID</th>
+                        <th scope="col" class="col-4 ancho-5 text-center">Oficina</th>
+                        <th scope="col" class="col-2">Localidad</th>
+                        <th scope="col" class="col-1 text-center ancho-2">Inicio</th>
+                        <th scope="col" class="col-1 text-center ancho-2">Fin</th>
+                        <th scope="col" class="col-1 text-center">Frecuencia</th>
+                        <th scope="col" class="col-1 ancho-2">Extensión Automática</th>
+                        <th scope="col" class="col-1 ancho-2">Auto Gestión</th>
+                        <th scope="col" class="col-1 ancho-2">Habilitada</th>
+                        <th scope="col" class="col-1 text-center">Último Turno</th>
+                        {% if is_granted('ROLE_EDITOR') %} 
+                            <th class="text-center">Acciones</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                {# Lee y muestra todos los mensajes flash #}
+                {% for oficina in oficinas %}
+                    <tr>
+                        <td class="col-1 ancho-1"><input type="checkbox" name="oficinaID[]" value="{{ oficina.id }}"></td>
+                        <td class="col-1 ancho-1">{{ oficina.id }}</td>
+                        <td class="col-4 ancho-5">{{ oficina.oficina|trim }}</td>
+                        <td class="col-2">{{ oficina.localidad|trim }}</td>
+                        <td class="col-1 text-center ancho-2">{{ oficina.horaInicioAtencion ? oficina.horaInicioAtencion|date('H:i') : '' }}</td>
+                        <td class="col-1 text-center ancho-2">{{ oficina.horaFinAtencion ? oficina.horaFinAtencion|date('H:i') : '' }}</td>
+                        <td class="col-1 text-center ancho-3">{{ oficina.frecuenciaAtencion }}</td>
+                        <td class="col-1 text-center ancho-2">{{ oficina.autoExtend ? '<i class="fas fa-check"></i>' : '' }} </td>
+                        <td class="col-1 text-center ancho-2">{{ oficina.autoGestion ? '<i class="fas fa-check"></i>' : '' }} </td>
+                        <td class="col-1 text-center ancho-2">{{ oficina.habilitada ? '<i class="fas fa-check"></i>' : '' }} </td>
+                        <td class="col-1 text-center ancho-3">{{ oficina.ultimoTurno ? oficina.ultimoTurno|date('Y-m-d H:i') : '' }}</td>
+                        {% if is_granted('ROLE_EDITOR') %} 
+                            <td class="table-bordered table-secondary d-print-none" style="width:180px;">
+                                <a href="{{ path('oficina_show', {'id': oficina.id}) }}" title="Ver"><i class="fas fa-eye"></i></a>
+                                &nbsp;&nbsp;
+                                <a href="{{ path('oficina_edit', {'id': oficina.id}) }}" title="Editar"><i class="fas fa-pen"></i></a>
+                                &nbsp;&nbsp;
+                                <a href="{{ path('oficina_addTurnos', {'id': oficina.id}) }}" title="Crear Nuevos Turnos para {{ oficina.oficina }} ({{oficina.localidad}})"><i class="far fa-calendar-plus"></i></a>
+                                &nbsp;&nbsp;
+                                <a href="{{ path('borraDiaAgendaTurnosbyOficina', {'id': oficina.id}) }}" title="Elimina un día de la Agenda de {{ oficina.oficina }} ({{oficina.localidad}})"><i class="far fa-calendar-minus"></i></a>
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="14">No hay registros</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <div class="float-right">
+                {{ knp_pagination_render(oficinas) }}
+            </div>
+            <div class="float-left blockquote-footer">
+                Viendo {{ oficinas.getPaginationData()['currentItemCount'] < oficinas.getPaginationData()['numItemsPerPage'] ? oficinas.getPaginationData()['currentItemCount'] : oficinas.getPaginationData()['numItemsPerPage'] }} oficinas de un total de {{ oficinas.getTotalItemCount }}
+            </div>
+        </div>
+    </form>
+>>>>>>> feature/Turnos_AutoExtend
 {% endblock %}
 
 {% block javascripts %}

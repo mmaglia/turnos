@@ -19,7 +19,11 @@ use DateTime;
 use DateInterval;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+<<<<<<< HEAD
 use Omines\DataTablesBundle\DataTableFactory;
+=======
+use Symfony\Component\HttpFoundation\JsonResponse;
+>>>>>>> feature/Turnos_AutoExtend
 
 /**
  * @Route("/oficina")
@@ -36,6 +40,7 @@ class OficinaController extends AbstractController
 
     public function __construct(DataTableFactory $datatableFactory)
     {
+<<<<<<< HEAD
         $this->datatableFactory = $datatableFactory;
     }
 
@@ -55,6 +60,23 @@ class OficinaController extends AbstractController
         }
 
         return $this->render('oficina/index.html.twig', ['datatable' => $table]);
+=======
+
+        $oficinas = $oficinaRepository->findAllWithUltimoTurno(); // Lista completa de Oficinas
+
+        // Si el usuario conectado está asociado a una oficina que admite AutoGestión, filtra la lista de oficinas para que contenga sólo la Oficina del usuario
+        if ($this->getUser()->getOficina()->getAutoGestion()) {
+            $oficinaId = $this->getUser()->getOficina()->getId();   // Obtengo Id de la Oficina asociada al Usuario
+            $key = array_search($oficinaId, array_column($oficinas, 'id')); // Busco en la colección de $oficinas la oficina del usuario
+            $oficinas = [$oficinas[$key]]; // Filtro la lista de $oficinas únicamente para que contenga la Oficina del Usuario
+        }
+         
+        $listaOficinas =  $paginator->paginate($oficinas, $request->query->getInt('page', 1), 50);
+
+        return $this->render('oficina/index.html.twig', [
+            'oficinas' =>  $listaOficinas
+        ]);
+>>>>>>> feature/Turnos_AutoExtend
     }
 
     /**
@@ -358,6 +380,114 @@ class OficinaController extends AbstractController
         return $this->redirectToRoute('oficina_index');
     }
 
+
+    /**
+     * @Route("/autoExtend/{oficinaIdDesde}/{oficinaIdHasta}/{cantidadDias}", name="oficina_addTurnos_autoExtend", methods={"GET","POST"})
+     * 
+     * @IsGranted("IS_AUTHENTICATED_ANONYMOUSLY")
+     */
+    public function addTurnos_autoExtend(Request $request, TurnoRepository $turnoRepository, LoggerInterface $logger, OficinaRepository $oficinaRepository, SessionInterface $session, int $oficinaIdDesde, int $oficinaIdHasta, $cantidadDias=1): Response
+    {        
+
+        $inicioProceso = (new \DateTime());
+
+        // Recibo parámetros
+        $oficinaIdDesde = $request->attributes->get('_route_params')['oficinaIdDesde'];
+        $oficinaIdHasta = $request->attributes->get('_route_params')['oficinaIdHasta'];
+        $cantidadDias       = $request->attributes->get('_route_params')['cantidadDias'];
+
+        // Obtengo lista de Oficinas en el rango de ID indicados que tienen activa la funcionalidad de autoExtend
+        $oficinas = $oficinaRepository->findOficinasAutoExtend($oficinaIdDesde, $oficinaIdHasta);
+
+        // Valido parámetros
+        if ($oficinaIdDesde > 0 && $oficinaIdHasta > 0 && $oficinaIdHasta > $oficinaIdDesde && $oficinas) {
+            $cantOficinas = 0;
+            $totalTurnosGenerados = 0;
+
+            foreach ($oficinas as $oficina) {
+                // Se establece cuales son los días feriados (definidos en el .env a nivel de aplicación)
+                $feriados = '';
+                if ($oficina['circunscripcion'] == 1 || $oficina['circunscripcion'] == 4 || $oficina['circunscripcion'] == 5 ) {
+                    $feriados = $_ENV['FERIADOS_SANTA_FE'];
+                }
+                if ($oficina['circunscripcion'] == 2 || $oficina['circunscripcion'] == 3 ) {
+                    $feriados = $_ENV['FERIADOS_ROSARIO'];
+                }
+                $aFeriados = explode(',', $feriados);
+
+                $ultimoTurno = $turnoRepository->findUltimoTurnoByOficina($oficina['id']);
+                if ($ultimoTurno) {     // Verifica que la Oficina tenga generado al menos un turno
+                                        // Sino, no procesa porque la generación se basa en la copia de turnos del último día
+                    $cantOficinas++;
+                    $ultimoTurno = $ultimoTurno[0]->getFechaHora();
+
+                    // Obtiene todos los turnos del último día de la Oficina
+                    $turnosUltimoDia = $turnoRepository->findTurnosByFecha($oficina['id'], $ultimoTurno);
+
+                    $i = 0;
+                    while (true) {  // Busca un día válido para generar turnos
+                        // Incrementa fecha en un 1 día
+                        $fechaTurno = $ultimoTurno->add(new DateInterval('P1D'));
+
+                        // Verifico que no sea sábado (6) o domingo (7)
+                        if ($fechaTurno->format('N') >= 6) {
+                            continue; // Salteo el día
+                        }
+
+                        // Verifico que no sea el mes de enero
+                        if ($fechaTurno->format('n') == 1) {
+                            continue; // Salteo el día
+                        }
+
+                        // Verifico que no esté en la lista de feriados
+                        if (in_array($fechaTurno->format('d/m/Y'), $aFeriados)) {
+                            continue; // Salteo el día
+                        }
+
+                        // Encontrado el dia válido, se generan nuevos turnos para ese día a partir de los turnos del último día generado
+                        // El turno se establece para la fecha encontrada y para la hora correspondiente al día anterior
+                        // Se obtiene así un esquema idéntico de turnos, tanto en cantidad como en frecuencia a partir del último día de la Oficina
+                        foreach ($turnosUltimoDia as $turno) {
+                            $nuevoTurno = new Turno();
+                            $nuevoTurno->setFechaHora(new DateTime($fechaTurno->format('Y-m-d ') . $turno->getFechaHora()->format('H:i:s')));
+                            $nuevoTurno->setOficina($oficinaRepository->findById($oficina['id']));
+                            $nuevoTurno->setEstado(1);
+
+                            $totalTurnosGenerados++;
+
+                            $this->getDoctrine()->getManager()->persist($nuevoTurno);    
+                            $this->getDoctrine()->getManager()->flush();
+                        }
+
+                        // Itera en función a la cant. de días que se pasa argumento
+                        if (++$i == $cantidadDias) {
+                            break; 
+                        }
+                    }
+                }
+            }
+
+            $finProceso = (new \DateTime());
+            $logger->info('Creación Automática de Turnos', [
+                'OficinaIdDesde' => $oficinaIdDesde,
+                'OficinaIdHasta' => $oficinaIdHasta,
+                'Cant. de Días'  => $cantidadDias,
+                'Cant. de Oficinas que Generaron' => $cantOficinas,
+                'Cant. de Turnos Totales' => $totalTurnosGenerados,
+                'Iniciado' => $inicioProceso->format('Y-m-d H:i:s'),
+                'Fin' => $finProceso->format('Y-m-d H:i:s'),
+                'Tiempo' => $inicioProceso->diff($finProceso)->format('%i minutos %s segundos'),
+                'IP' => $request->getClientIp()
+                ]
+            );
+
+            return new JsonResponse("Proceso Finalizado");
+
+        }
+
+    }   
+
+
     /**
      * @Route("/{id}", name="oficina_show", methods={"GET"})
      */
@@ -422,4 +552,5 @@ class OficinaController extends AbstractController
 
         return $this->redirectToRoute('oficina_addTurnos');
     }
+    
 }
