@@ -34,10 +34,10 @@ class UsuarioTableType extends AbstractController implements DataTableTypeInterf
             return $context->getApeNom();
         }]);
         $dataTable->add('oficina', TextColumn::class, ['label' => 'Oficina', 'searchable' => false,  'field' => 'u.oficina']);
-        $dataTable->add('fecha_alta', DateTimeColumn::class, ['label' => 'Alta', 'format' => 'd-m-Y', 'className' => 'text-center']);
-        $dataTable->add('fecha_baja', DateTimeColumn::class, ['label' => 'Baja', 'format' => 'd-m-Y', 'className' => 'text-center']);
-        $dataTable->add('ultimo_acceso', DateTimeColumn::class, ['label' => 'Último Acceso', 'format' => 'd-m-Y', 'className' => 'text-center']);
-        $dataTable->add('cantidad_accesos', TextColumn::class, ['label' => 'Accesos', 'className' => 'text-center']);
+        $dataTable->add('fecha_alta', DateTimeColumn::class, ['label' => 'Alta', 'format' => 'd-m-Y', 'className' => 'text-center', 'searchable' => false]);
+        $dataTable->add('fecha_baja', DateTimeColumn::class, ['label' => 'Baja', 'format' => 'd-m-Y', 'className' => 'text-center', 'searchable' => false]);
+        $dataTable->add('ultimo_acceso', DateTimeColumn::class, ['label' => 'Último Acceso', 'format' => 'd-m-Y', 'className' => 'text-center', 'searchable' => false]);
+        $dataTable->add('cantidad_accesos', TextColumn::class, ['label' => 'Accesos', 'className' => 'text-center', 'searchable' => false]);
         if ($this->isGranted(('ROLE_EDITOR'))) {
             $dataTable->add('acciones', TextColumn::class, ['label' => 'Acciones', 'className' => 'text-center', 'render' => function ($value, $context) {
                 return '&nbsp;&nbsp;<a href="' . $this->generateUrl('usuario_show', ['id' => $context->getId()]) . '" title="Ver"><i class="fas fa-eye"></i></a>' .

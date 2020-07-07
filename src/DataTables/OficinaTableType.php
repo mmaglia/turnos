@@ -48,12 +48,16 @@ class OficinaTableType extends AbstractController implements DataTableTypeInterf
         $dataTable->addOrderBy('oficina', DataTable::SORT_ASCENDING);
         $dataTable->createAdapter(ORMAdapter::class, [
             'entity' => Oficina::class,
-            'query' => function (QueryBuilder $builder) {
+            'query' => function (QueryBuilder $builder) use ($options) {
                 // De deja comentado el mecanismo encarado para determinar ultimoTurno (sin resolver todavía)
                 /*$builder2 = clone $builder; 
                 $subQuery = $builder2->select('MAX(t.fechaHora) as ultimoTurno')->from(Turno::class, 't')->where('t.oficina = o.id');
                 $builder->select(array('partial o.{id, oficina, localidad, horaInicioAtencion, horaFinAtencion, frecuenciaAtencion, habilitada}'))->addSelect('(' . $subQuery->getDQL() . ')')->from(Oficina::class, 'o');*/
-                $builder->select('o')->from(Oficina::class, 'o');
+                if (count($options) > 0) {
+                    $builder->select('o')->from(Oficina::class, 'o')->where('o.id = ' . $options[0]);
+                } else {
+                    $builder->select('o')->from(Oficina::class, 'o');
+                }
             }
         ]);
     }

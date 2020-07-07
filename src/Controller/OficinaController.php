@@ -19,11 +19,8 @@ use DateTime;
 use DateInterval;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-<<<<<<< HEAD
 use Omines\DataTablesBundle\DataTableFactory;
-=======
 use Symfony\Component\HttpFoundation\JsonResponse;
->>>>>>> feature/Turnos_AutoExtend
 
 /**
  * @Route("/oficina")
@@ -40,7 +37,6 @@ class OficinaController extends AbstractController
 
     public function __construct(DataTableFactory $datatableFactory)
     {
-<<<<<<< HEAD
         $this->datatableFactory = $datatableFactory;
     }
 
@@ -54,29 +50,18 @@ class OficinaController extends AbstractController
             $session->remove('oficinasSeleccionadas');
         }
 
-        $table = $this->datatableFactory->createFromType(OficinaTableType::class, array())->handleRequest($request);
+        // Si el usuario conectado está asociado a una oficina que admite AutoGestión, filtra la lista de oficinas para que contenga sólo la Oficina del usuario
+        $oficinaId = null;
+        if (!is_null($this->getUser()->getOficina()) && $this->getUser()->getOficina()->getAutoGestion()) {
+            $oficinaId = $this->getUser()->getOficina()->getId();   // Obtengo Id de la Oficina asociada al Usuario
+        }
+
+        $table = $this->datatableFactory->createFromType(OficinaTableType::class, is_null($oficinaId) ? array() : array($oficinaId))->handleRequest($request);
         if ($table->isCallback()) {
             return $table->getResponse();
         }
 
         return $this->render('oficina/index.html.twig', ['datatable' => $table]);
-=======
-
-        $oficinas = $oficinaRepository->findAllWithUltimoTurno(); // Lista completa de Oficinas
-
-        // Si el usuario conectado está asociado a una oficina que admite AutoGestión, filtra la lista de oficinas para que contenga sólo la Oficina del usuario
-        if ($this->getUser()->getOficina()->getAutoGestion()) {
-            $oficinaId = $this->getUser()->getOficina()->getId();   // Obtengo Id de la Oficina asociada al Usuario
-            $key = array_search($oficinaId, array_column($oficinas, 'id')); // Busco en la colección de $oficinas la oficina del usuario
-            $oficinas = [$oficinas[$key]]; // Filtro la lista de $oficinas únicamente para que contenga la Oficina del Usuario
-        }
-         
-        $listaOficinas =  $paginator->paginate($oficinas, $request->query->getInt('page', 1), 50);
-
-        return $this->render('oficina/index.html.twig', [
-            'oficinas' =>  $listaOficinas
-        ]);
->>>>>>> feature/Turnos_AutoExtend
     }
 
     /**
@@ -386,8 +371,8 @@ class OficinaController extends AbstractController
      * 
      * @IsGranted("IS_AUTHENTICATED_ANONYMOUSLY")
      */
-    public function addTurnos_autoExtend(Request $request, TurnoRepository $turnoRepository, LoggerInterface $logger, OficinaRepository $oficinaRepository, SessionInterface $session, int $oficinaIdDesde, int $oficinaIdHasta, $cantidadDias=1): Response
-    {        
+    public function addTurnos_autoExtend(Request $request, TurnoRepository $turnoRepository, LoggerInterface $logger, OficinaRepository $oficinaRepository, SessionInterface $session, int $oficinaIdDesde, int $oficinaIdHasta, $cantidadDias = 1): Response
+    {
 
         $inicioProceso = (new \DateTime());
 
@@ -407,17 +392,17 @@ class OficinaController extends AbstractController
             foreach ($oficinas as $oficina) {
                 // Se establece cuales son los días feriados (definidos en el .env a nivel de aplicación)
                 $feriados = '';
-                if ($oficina['circunscripcion'] == 1 || $oficina['circunscripcion'] == 4 || $oficina['circunscripcion'] == 5 ) {
+                if ($oficina['circunscripcion'] == 1 || $oficina['circunscripcion'] == 4 || $oficina['circunscripcion'] == 5) {
                     $feriados = $_ENV['FERIADOS_SANTA_FE'];
                 }
-                if ($oficina['circunscripcion'] == 2 || $oficina['circunscripcion'] == 3 ) {
+                if ($oficina['circunscripcion'] == 2 || $oficina['circunscripcion'] == 3) {
                     $feriados = $_ENV['FERIADOS_ROSARIO'];
                 }
                 $aFeriados = explode(',', $feriados);
 
                 $ultimoTurno = $turnoRepository->findUltimoTurnoByOficina($oficina['id']);
                 if ($ultimoTurno) {     // Verifica que la Oficina tenga generado al menos un turno
-                                        // Sino, no procesa porque la generación se basa en la copia de turnos del último día
+                    // Sino, no procesa porque la generación se basa en la copia de turnos del último día
                     $cantOficinas++;
                     $ultimoTurno = $ultimoTurno[0]->getFechaHora();
 
@@ -455,13 +440,13 @@ class OficinaController extends AbstractController
 
                             $totalTurnosGenerados++;
 
-                            $this->getDoctrine()->getManager()->persist($nuevoTurno);    
+                            $this->getDoctrine()->getManager()->persist($nuevoTurno);
                             $this->getDoctrine()->getManager()->flush();
                         }
 
                         // Itera en función a la cant. de días que se pasa argumento
                         if (++$i == $cantidadDias) {
-                            break; 
+                            break;
                         }
                     }
                 }
@@ -478,14 +463,11 @@ class OficinaController extends AbstractController
                 'Fin' => $finProceso->format('Y-m-d H:i:s'),
                 'Tiempo' => $inicioProceso->diff($finProceso)->format('%i minutos %s segundos'),
                 'IP' => $request->getClientIp()
-                ]
-            );
+            ]);
 
             return new JsonResponse("Proceso Finalizado");
-
         }
-
-    }   
+    }
 
 
     /**
@@ -552,5 +534,4 @@ class OficinaController extends AbstractController
 
         return $this->redirectToRoute('oficina_addTurnos');
     }
-    
 }

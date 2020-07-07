@@ -83,16 +83,11 @@
                                             <a class="dropdown-item" href="{{ path('organismo_index') }}">Organismos</a>
                                         {% endif %}
                                     {% endif %}
-<<<<<<< HEAD
-                                    <a class="dropdown-item" href="{{ path('oficina_index') }}">Oficinas</a>
-                                    <a class="dropdown-item" href="{{ path('usuario_index') }}">Usuarios</a>
-=======
                                     {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') or (app.user.getOficina().getAutoGestion()) %}
                                         <a class="dropdown-item" href="{{ path('oficina_index') }}">Oficinas</a>
                                     {% endif %}
                                     {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') %}
-                                        <a class="dropdown-item" href="{{ path('usuario_index') }}">Gestionar Usuarios</a>
->>>>>>> feature/Turnos_AutoExtend
+                                        <a class="dropdown-item" href="{{ path('usuario_index') }}">Usuarios</a>
 {#                                    <a class="dropdown-item" href="{{ path('config_index') }}">Configuración</a> #}
                                     {% endif %}
                                 </div>
