@@ -27,6 +27,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Routing\Annotation\Route;
 use Psr\Log\LoggerInterface;
@@ -395,7 +397,7 @@ class TurnoController extends AbstractController
      * 
      * @Route("/TurnosWeb/notificacion", name="emailConfirmacionTurno", methods={"GET","POST"})
      */
-    public function sendEmail(SessionInterface $session, MailerInterface $mailer, LoggerInterface $logger)
+    public function sendEmail(SessionInterface $session, MailerInterface $mailer, LoggerInterface $logger, UrlGeneratorInterface $urlGenerator)
     {
         $turno = $session->get('turno');
         
@@ -409,6 +411,9 @@ class TurnoController extends AbstractController
                     $mailTemplate = 'turno/email_confirmacion_turno_oralidad.html.twig';
                 }
 
+                $hash = $this->encrypt($turno->getId());
+                $ruta = $urlGenerator->generate('cancelacionTurno', [], UrlGeneratorInterface::ABSOLUTE_URL) . '?code=' . $hash;
+
                 $fromAdrress = $_ENV['MAIL_FROM'];
                 $email = (new TemplatedEmail())
                     ->from($fromAdrress)
@@ -418,6 +423,7 @@ class TurnoController extends AbstractController
                     ->context([
                         'expiration_date' => new \DateTime('+7 days'),
                         'turno' => $turno,
+                        'urlCancelacion' => $ruta
                     ]);
                 $mailer->send($email);
                 $this->addFlash('info', 'Se ha enviado un correo a la dirección ' . $turno->getPersona()->getEmail());
@@ -504,6 +510,86 @@ class TurnoController extends AbstractController
 
         return $response;
     }
+
+
+    /**
+     * @Route("/TurnosWeb/cancelacion", name="cancelacionTurno", methods={"GET","POST"})
+     * 
+     */
+    public function cancelacionTurno(Request $request, TurnoRepository $turnoRepository, SessionInterface $session, LoggerInterface $logger): Response
+    {
+        $mensaje='';
+        $error='';
+
+        //Construyo el formulario al vuelo
+        // Verifico si recibo parámetro por GET y lo traslado al formulario
+        $code = (($request->query->get('code')) ? $request->query->get('code') : '');
+
+        $form = $this->createFormBuilder()
+            ->add('dni', IntegerType::class, 
+                [
+                    'label' => 'DNI', 
+                    'help' => ' Ingrese el DNI del solicitante del turno',
+                    'required' => true,                     
+                    'attr' => array('autofocus' => true, 'min' => '1000000', 'max' => '99999999')
+                ])
+            ->add('code', HiddenType::class, ['data' => $code])
+            ->getForm();
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $dni = $request->request->get('form')['dni'];
+            $codigo = $request->request->get('form')['code'];
+
+            $idTurno = $this->decrypt($codigo); // Obtengo el ID del turno desencriptado
+
+            if ( $idTurno) {
+                $turno = $turnoRepository->findById($idTurno);
+                if ($turno->getPersona() && $turno->getPersona()->getDni() && $turno->getPersona()->getDni() == $dni) {                    
+                    $mensaje = 'El turno de fecha ha sido cancelado';
+                    $logger->info(('Cancelación de turno efectuada por el solicitante'), ['Turno ID' => $idTurno, 'DNI' => $dni]);
+
+                    // Almacena datos del rechazo
+                    $turnoRechazado = new TurnoRechazado();
+                    $turnoRechazado->setOficina($turno->getOficina());
+                    $turnoRechazado->setFechaHoraRechazo(new \DateTime(date("Y-m-d H:i:s")));
+                    $turnoRechazado->setFechaHoraTurno($turno->getFechaHora());
+                    $turnoRechazado->setMotivo($turno->getMotivo());
+                    if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
+                        $turnoRechazado->setNotebook($turno->getNotebook());
+                        $turnoRechazado->setZoom($turno->getZoom());
+                    }
+                    $turnoRechazado->setPersona($turno->getPersona());
+                    $turnoRechazado->setEmailEnviado(isset($request->request->get('turno_rechazar')['enviarMail']));
+                    $turnoRechazado->setMotivoRechazo('Cancelación de turno efectuada por el solicitante');
+
+                    // Libero el turno
+                    $turno->setEstado(1);
+                    $turno->setPersona(null);
+                    $turno->setMotivo('');
+                    if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
+                        $turno->setNotebook(false);
+                        $turno->setZoom(false);
+                    }
+
+                    // Grabo
+                    $this->getDoctrine()->getManager()->persist($turnoRechazado);
+                    $this->getDoctrine()->getManager()->flush();
+                }
+                else {
+                    $error = 'No se ha encontrado el turno para su cancelación. Verifique que el DNI sea el mismo que oportunamente se ingresó al solicitar el turno.';
+                }
+            }
+        }
+                                                                                           
+        return $this->render('turno/cancelacion_turno.html.twig', [
+            'mensaje' => $mensaje,
+            'error' => $error,
+            'turno' => (isset($turno) ? $turno : ''),
+            'form' => $form->createView(),
+        ]);
+    }
+
 
     /**
      * @Route("/turno/{id}", name="turno_show", methods={"GET"})
@@ -1078,8 +1164,9 @@ class TurnoController extends AbstractController
 
         /* Base64 Encoded Encryption */
         $enc_data = base64_encode(openssl_encrypt($data, $method, $pass, true, $iv));
+        $enc_data = strtr(base64_encode($data), '+/=', '._-');
 
-        return $enc_data;
+        return strtr($enc_data, '+/=', '._-');
 
     }
 
@@ -1099,7 +1186,8 @@ class TurnoController extends AbstractController
         $pass = $_ENV['APP_SECRET']; 
         
         /* Decode and Decrypt */
-        $dec_data = openssl_decrypt(base64_decode($enc_data), $method, $pass, true, $iv);
+        $dec_data = openssl_decrypt(base64_decode(strstr($enc_data, '._-', '+/=')), $method, $pass, true, $iv);
+        $dec_data = base64_decode(strtr($enc_data, '._-', '+/='));
         
         return $dec_data;
     }
