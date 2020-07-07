@@ -196,3 +196,8 @@ table.dataTable tbody>tr.selected, table.dataTable tbody>tr>.selected {
 .top-listas > div.boton {
   margin-bottom: 5px;
 }
+
+// Peso de fuente para helpers MPCivil
+#turno3_oficina_help, #turno3_tipo_causa_help, #turno3_defensorias_help {
+  font-weight: 800 !important;
+}

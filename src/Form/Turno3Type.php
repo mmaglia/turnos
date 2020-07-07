@@ -7,6 +7,7 @@ use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -22,13 +23,13 @@ class Turno3Type extends AbstractType
                 'attr' => ['autofocus' => true],
                 'required' => true,
                 'mapped' => false
-                ])
+            ])
             ->add('localidad', EntityType::class, [
                 'class' => 'App\Entity\Localidad',
                 'placeholder' => 'Seleccione una Localidad',
                 'required' => true,
-                'mapped' => false                
-                ])               
+                'mapped' => false
+            ])
             ->add('oficina', EntityType::class, [
                 'class' => 'App\Entity\Oficina',
                 'label'    => 'Oficina',
@@ -36,50 +37,57 @@ class Turno3Type extends AbstractType
                 'placeholder' => 'Seleccione una Oficina',
                 'mapped' => false,
                 'help'   => ($_ENV['SISTEMA_TURNOS_MPE'] ? '-' : '')
-                ]);
+            ]);
 
 
-        if ($_ENV['SISTEMA_TURNOS_WEB'] || $_ENV['SISTEMA_TURNOS_MPE'])
-        {
+        if ($_ENV['SISTEMA_TURNOS_WEB'] || $_ENV['SISTEMA_TURNOS_MPE']) {
             $builder->add('motivo', null, ['help'   => ($_ENV['SISTEMA_TURNOS_MPE'] ? '-' : '')]);
         }
 
-        if ($_ENV['SISTEMA_ORALIDAD_CIVIL'])
-        {
+        if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
             $builder
-                ->add('motivo',null, ['help' => 'helpDatosAdicionales'])
+                ->add('motivo', null, ['help' => 'helpDatosAdicionales'])
                 ->add('notebook', null, ['help' => 'helperRequiereNotebook'])
-                ->add('zoom', null, ['label'    => 'Reunión Zoom', 'help' => 'helperRequiereZoom'])
-            ;
+                ->add('zoom', null, ['label'    => 'Reunión Zoom', 'help' => 'helperRequiereZoom']);
         }
-        
+
 
         $builder->addEventListener(
             FormEvents::PRE_SUBMIT,
-            function (FormEvent $event) 
-            {
+            function (FormEvent $event) {
                 $data = $event->getData();
                 $form = $event->getForm();
 
-                //oficina is not mandatory
-                if (!$data['oficina']) {
+                // Si no viene seteada la oficina devuelvo un error
+                if (!key_exists('oficina', $data) || !$data['oficina']) {
+                    $form->addError(new FormError('Debe ingresar la Oficina'));
                     return;
                 }
+
+                // Si esta corriendo MPE y viene seteada como oficina alguna defensoría o la OGD y no viene el motivo devuelvo un error
+                if ($_ENV['SISTEMA_TURNOS_MPE']) {
+                    if ($data['oficina'] > 1 && (!key_exists('motivo', $data) || !$data['motivo'])) {
+                        $form->addError(new FormError('Debe ingresar un Motivo de Trámite'));
+                        return;
+                    }
+                }
                 $oficinaId = $data['oficina'];
-        
+
                 $form->add('oficina', EntityType::class, array(
                     'class' => 'App\Entity\Oficina',
                     'label'    => 'Oficina',
                     'required' => true,
                     'placeholder' => 'Seleccione una Oficina',
-                    'query_builder' => function(EntityRepository $er) use ($oficinaId){
+                    'query_builder' => function (EntityRepository $er) use ($oficinaId) {
                         return $er->createQueryBuilder('s')
                             ->where('s.id = ' . $oficinaId);
-                    }));
-            });
+                    }
+                ));
+            }
+        );
 
 
-/*
+        /*
         $builder->addEventListener(
             FormEvents::POST_SET_DATA,
             function (FormEvent $event) 
@@ -106,7 +114,7 @@ class Turno3Type extends AbstractType
                 }
             }
         );
-*/        
+*/
     }
 
     public function configureOptions(OptionsResolver $resolver)
