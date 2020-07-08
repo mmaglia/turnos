@@ -54,7 +54,7 @@ class Oficina
     private $usuarios;
 
     /**
-     * @ORM\Column(type="string", length=50, nullable=true)
+     * @ORM\Column(type="string", length=200, nullable=true)
      */
     private $telefono;
 
@@ -62,6 +62,16 @@ class Oficina
      * @ORM\Column(type="boolean")
      */
     private $habilitada;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $autoExtend;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $autoGestion;
 
     public function __construct()
     {
@@ -226,6 +236,30 @@ class Oficina
     public function setHabilitada(bool $habilitada): self
     {
         $this->habilitada = $habilitada;
+
+        return $this;
+    }
+
+    public function getAutoExtend(): ?bool
+    {
+        return $this->autoExtend;
+    }
+
+    public function setAutoExtend(?bool $autoExtend): self
+    {
+        $this->autoExtend = $autoExtend;
+
+        return $this;
+    }
+
+    public function getAutoGestion(): ?bool
+    {
+        return $this->autoGestion;
+    }
+
+    public function setAutoGestion(?bool $autoGestion): self
+    {
+        $this->autoGestion = $autoGestion;
 
         return $this;
     }

@@ -22,6 +22,8 @@
 
 <p><strong>Teléfono de Contacto: </strong>{{ turno.persona.telefono }}</p>
 
+<p><strong>FECHA: </strong><strong>{{ turno.fechaHora |date('d/m/Y') }}</strong> a las <strong>{{ turno.fechaHora |date('H:i')}}hs.</strong></p>
+
 <br>
 
-<p><strong>FECHA: </strong><strong>{{ turno.fechaHora |date('d/m/Y') }}</strong> a las <strong>{{ turno.fechaHora |date('H:i')}}hs.</strong></p>
+<p>Podrá cancelar este turno ingresando a la siguiente dirección: <a  href="{{urlCancelacion}}">{{urlCancelacion}}</a></p>

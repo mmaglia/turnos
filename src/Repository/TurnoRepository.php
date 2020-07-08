@@ -342,4 +342,22 @@ class TurnoRepository extends ServiceEntityRepository
         return $result;
     }    
 
+
+    public function findTurnosByFecha($oficina_id, $fecha_hora)
+    {
+        $result = $this->getEntityManager()
+        ->createQuery('
+            SELECT t
+            FROM App\Entity\Turno t
+            WHERE t.oficina = :oficina_id and t.fechaHora BETWEEN :desde AND :hasta ORDER BY t.oficina, t.fechaHora
+            '
+        )
+        ->setParameter(':oficina_id', $oficina_id)
+        ->setParameter(':desde',  $fecha_hora->format('Y-m-d  00:00:00'))
+        ->setParameter(':hasta', $fecha_hora->format('Y-m-d  23:59:59'))
+        ->getResult();
+
+        return $result;
+    }    
+
 }

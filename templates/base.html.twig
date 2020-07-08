@@ -68,19 +68,28 @@
                                 {% if SistemaOralidadCivil %}
                                     <a class="dropdown-item" href="{{ asset('docs/Manual_de_Usuario_Oralidad.pdf') }}" target="_blank">Manual de Usuario</a>
                                 {% endif %}
+                                {% if SistemaTurnosMPE %}
+                                    <a class="dropdown-item" href="{{ asset('docs/Manual_de_Usuario_MPE.pdf') }}" target="_blank">Manual de Usuario</a>
+                                {% endif %}
                             </div>
                         </li>
-                        {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') %}
+                        {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') or (app.user.getOficina().getAutoGestion()) %}
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle text-light" href="#" id="dropdownAdministrarId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Administrar</a>
                                 <div class="dropdown-menu" aria-labelledby="dropdownAdministrarId">
-                                    <a class="dropdown-item" href="{{ path('localidad_index') }}">Localidades</a>
-                                    {% if SistemaOralidadCivil %}
-                                        <a class="dropdown-item" href="{{ path('organismo_index') }}">Organismos</a>
+                                    {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') %}
+                                        <a class="dropdown-item" href="{{ path('localidad_index') }}">Localidades</a>
+                                        {% if SistemaOralidadCivil %}
+                                            <a class="dropdown-item" href="{{ path('organismo_index') }}">Organismos</a>
+                                        {% endif %}
                                     {% endif %}
-                                    <a class="dropdown-item" href="{{ path('oficina_index') }}">Oficinas</a>
-                                    <a class="dropdown-item" href="{{ path('usuario_index') }}">Gestionar Usuarios</a>
+                                    {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') or (app.user.getOficina().getAutoGestion()) %}
+                                        <a class="dropdown-item" href="{{ path('oficina_index') }}">Oficinas</a>
+                                    {% endif %}
+                                    {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') %}
+                                        <a class="dropdown-item" href="{{ path('usuario_index') }}">Usuarios</a>
 {#                                    <a class="dropdown-item" href="{{ path('config_index') }}">Configuración</a> #}
+                                    {% endif %}
                                 </div>
                             </li>
                         {% endif %}
@@ -142,13 +151,16 @@
         {% block javascripts %}
             {{ encore_entry_script_tags('js/app') }}
             <script src="{{ asset('js/locales/bootstrap-datepicker.es.min.js') }}"></script>
+            <script src="{{ asset('bundles/datatables/js/datatables.js') }}"></script>
+            <script src="{{ asset('bundles/fosjsrouting/js/router.min.js') }}"></script>
+            <script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>
             <script>
                 $(function () {
                     // Agrega un * a todos los campos que son requeridos
                     $('label.required').append('<sup><strong>&nbsp;*</strong></sup>');
 
                     // Procesa ocultamiento mensajes tipo flash
-                    $(".alert").delay(1000).slideUp(500);
+                    $(".flashes-messages").delay(1000).slideUp(500);
 
                 });
             </script>

@@ -4,6 +4,7 @@ $blue: darken(#006600, 5%);
 // the ~ allows you to reference things in node_modules
 @import "~bootstrap/scss/bootstrap";
 @import "~bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css";
+@import '~datatables.net-select-bs4/css/select.bootstrap4.min.css';
 @import '~datatables.net-bs4/css/dataTables.bootstrap4.min.css';
 @import "~@fortawesome/fontawesome-free/css/all.css";
 
@@ -166,38 +167,19 @@ legend {
 /******************************
 * CSS Para Tablas del Backend *
 *******************************/
+// Se cambia color de fila seleccionada
+table.dataTable tbody>tr.selected, table.dataTable tbody>tr>.selected {
+  background-color: #658a65;
+}
+
+// Quito flechitas arriba y abajo de la paginación
+.custom-select {
+  background: none;
+}
 
 // Se agrega margen de arriba a las tablas
 .btn-top {
   margin-bottom: 1rem;
-}
-
-// Se fijan header de tablas
-.table-fixed tbody {
-  height: 500px;
-  overflow-y: auto;
-  width: 100%;
-}
-
-.table-fixed thead,
-.table-fixed tbody,
-.table-fixed tr,
-.table-fixed td,
-.table-fixed th {
-  display: block;
-}
-
-.table-fixed tbody td,
-.table-fixed tbody th,
-.table-fixed thead > tr > th {
-  float: left;
-  position: relative;
-
-  &::after {
-    content: "";
-    clear: both;
-    display: block;
-  }
 }
 
 // Parte superior de las listas
@@ -215,41 +197,7 @@ legend {
   margin-bottom: 5px;
 }
 
-// Estilos de columna Acciones
-.table-fixed td.d-print-none {
-  background-color: rgb(245, 245, 245);
-}
-
-.ancho-1 {
-  flex: 0 0 2.33333%; 
-  max-width: 2.33333%;
-}
-
-.ancho-2 {
-  flex: 0 0 4.33333%; 
-  max-width: 4.33333%;
-}
-
-.ancho-3 {
-  flex: 0 0 9.33333%; 
-  max-width: 9.33333%;
-}
-
-.ancho-6 {
-  flex: 0 0 12.33333%; 
-  max-width: 12.33333%;
-}
-
-.ancho-4 {
-  flex: 0 0 20.33333%; 
-  max-width: 20.33333%;
-}
-
-.ancho-5 {
-  flex: 0 0 38.33333%; 
-  max-width: 38.33333%;
-}
-
-.linea-roja {
-  color: red;
+// Peso de fuente para helpers MPCivil
+#turno3_oficina_help, #turno3_tipo_causa_help, #turno3_defensorias_help {
+  font-weight: 800 !important;
 }

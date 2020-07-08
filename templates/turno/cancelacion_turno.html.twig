@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Cancelación de Turno{% endblock %}
+
+{% block body %}
+    <div class="row mt-3 mb-5">
+        <div class="col-3"><img src="{{asset('images/logo.png')}}" class="rounded float-left" alt="Poder Judicial" height="85"></div>
+        <div class="col-6">
+            <h1>{% trans %}Cancelación de Turno{% endtrans %}</h1>
+        </div>
+        <div class="col-3"></div>
+    </div>
+
+    {% if mensaje %}
+        <p class="text-center text-primary">
+            El turno de fecha {{ turno.fechaHora |date('d/m/Y') }} a las {{ turno.fechaHora |date('H:i')}}hs. para {{ turno.oficina.oficina }} - {{ turno.oficina.localidad.localidad }} (Poder Judicial de Santa Fe) ha sido cancelado.
+        </p>
+    {% else %}
+        {{ include('turno/_form.html.twig') }}
+    {% endif %}
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(function() {
+
+            var mensaje = '{{mensaje}}'
+            var error = '{{error}}'
+            
+            if (!mensaje) {
+                $('#cancelar').hide()
+                $('#confirmar').html('Cancelar Turno')    
+            }
+
+            if (error) {
+                $('#form_dni_help').html(error)
+                $('#form_dni_help').attr('class', 'text-danger')
+            }
+
+            // Deshabilito tecla Enter en los input del formulario
+            $("form input").bind("keypress", function(e) {
+                if (e.keyCode == 13) {
+                    return false;
+                }
+            });
+        })
+    </script>
+{% endblock %}     

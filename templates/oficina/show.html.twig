@@ -31,10 +31,22 @@
                 <th>Frecuencia Atención</th>
                 <td>{{ oficina.frecuenciaAtencion }}</td>
             </tr>
+            <tr>
+                <th>Ampliar Agenda Automáticamente</th>
+                <td>{{ oficina.autoExtend ? 'Si' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>Permitir que el usuario administre la Agenda </th>
+                <td>{{ oficina.autoGestion ? 'Si' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>Habilitada</th>
+                <td>{{ oficina.autoExtend ? 'Si' : 'No' }}</td>
+            </tr>
         </tbody>
     </table>
 
-    <a class="btn btn-secondary float-left volver" href="{{ path('oficina_index') }}">Volver a la Lista</a>
+    <a class="btn btn-secondary float-left volver" href="#" onclick="history.back(); return false;">Volver a la Lista</a>
     <a class="btn btn-secondary float-left volver" href="{{ path('oficina_edit', {'id': oficina.id}) }}">Editar</a>
     {{ include('oficina/_delete_form.html.twig') }}
 {% endblock %}

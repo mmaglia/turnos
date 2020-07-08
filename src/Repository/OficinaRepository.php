@@ -23,7 +23,7 @@ class OficinaRepository extends ServiceEntityRepository
     {
         return $this->getEntityManager()
             ->createQuery('
-                SELECT o.id, o.oficina, l.localidad as localidad, o.horaInicioAtencion, o.horaFinAtencion, o.frecuenciaAtencion, o.telefono, o.habilitada,
+                SELECT o.id, o.oficina, l.localidad as localidad, o.horaInicioAtencion, o.horaFinAtencion, o.frecuenciaAtencion, o.telefono, o.habilitada, o.autoExtend, o.autoGestion, 
                         (select max(t.fechaHora) from App\Entity\Turno t where t.oficina = o) as ultimoTurno 
                 FROM App\Entity\Oficina o left join o.localidad l
                 ORDER BY l.localidad, o.horaInicioAtencion, o.oficina'
@@ -54,6 +54,19 @@ class OficinaRepository extends ServiceEntityRepository
             ->getArrayResult();
         ;
     }
+
+    public function findOficinasHabilitadasByLocalidadWithTelefono($localidad_id)
+    {
+        return $this->createQueryBuilder('o')
+            ->select('o.id, o.oficina as oficina, o.telefono')
+            ->andWhere('o.habilitada = true and o.localidad = :val')
+            ->setParameter('val', $localidad_id)
+            ->orderBy('o.id')
+            ->getQuery()
+            ->getArrayResult();
+        ;
+    }
+
 
     public function findAllOficinas()
     {
@@ -103,6 +116,49 @@ class OficinaRepository extends ServiceEntityRepository
             ->getArrayResult();
         ;
     }
+
+
+    public function findOficinasAutoExtend($oficinaIdDesde, $oficinaIdHasta)
+    {
+        return $this->createQueryBuilder('o')
+
+            ->select('o.id, o.oficina as oficina, l.localidad, c.id as circunscripcion')
+            ->innerJoin('o.localidad', 'l')
+            ->innerJoin('l.circunscripcion', 'c')
+            ->andWhere('o.habilitada = true and o.autoExtend = true and o.id >= :desde and o.id <= :hasta')
+            ->setParameter('desde', $oficinaIdDesde)
+            ->setParameter('hasta', $oficinaIdHasta)
+            ->orderBy('oficina')
+            ->getQuery()
+            ->getArrayResult();
+        ;
+    }
+
+    public function findOficinasAgendasLlenas($umbralOcupacion = 80) {
+        $sql = "SELECT o.id, o.oficina, o.localidad_id, 
+                        TRUNC(  (select count(*) from turno where fecha_hora > now() and persona_id is not null and turno.oficina_id = o.id)::decimal / 
+                                (select count(*) from turno where fecha_hora > now() and turno.oficina_id = o.id)::decimal * 100,2) as Ocupacion
+                FROM turno t inner join oficina o ON o.id = t.oficina_id
+                WHERE t.fecha_hora > now() and o.auto_extend = true
+                GROUP BY o.id, o.oficina, o.localidad_id
+                HAVING ((select count(*) from turno where fecha_hora > now() and persona_id is not null and turno.oficina_id = o.id)::decimal / 
+                        (select count(*) from turno where fecha_hora > now() and turno.oficina_id = o.id)::decimal * 100) >= :umbral
+                ORDER BY   ((select count(*) from turno where fecha_hora > now() and persona_id is not null and turno.oficina_id = o.id)::decimal / 
+                            (select count(*) from turno where fecha_hora > now() and turno.oficina_id = o.id)::decimal * 100) DESC
+            ";
+        
+        $em = $this->getEntityManager();
+        $statement = $em->getConnection()->prepare($sql);
+        $statement->bindValue('umbral', $umbralOcupacion);
+        $statement->execute();
+        $result = $statement->fetchAll();
+
+        return $result;
+
+    }
+
+    
+
 
 
 }

@@ -58,7 +58,7 @@
         </tbody>
     </table>
 
-    <a class="btn btn-secondary float-left volver" href="{{ path('usuario_index') }}">Vover a la lista</a>
+    <a class="btn btn-secondary float-left volver" href="#" onclick="history.back(); return false;">Vover a la lista</a>
     <a class="btn btn-secondary float-left volver" href="{{ path('usuario_edit', {'id': usuario.id}) }}">Editar</a>
     {{ include('usuario/_delete_form.html.twig') }}
 {% endblock %}

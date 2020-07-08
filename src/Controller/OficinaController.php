@@ -2,11 +2,11 @@
 
 namespace App\Controller;
 
+use App\DataTables\OficinaTableType;
 use App\Entity\Oficina;
 use App\Form\OficinaType;
 use App\Form\AddTurnosType;
 use App\Repository\OficinaRepository;
-use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,22 +19,49 @@ use DateTime;
 use DateInterval;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Omines\DataTablesBundle\DataTableFactory;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
  * @Route("/oficina")
  */
 class OficinaController extends AbstractController
-{   
+{
 
     /**
-     * @Route("/", name="oficina_index", methods={"GET"})
+     * Variable auxiliar para crear datatables
+     *
+     * @var [DataTableFactory]
      */
-    public function index(Request $request, OficinaRepository $oficinaRepository, PaginatorInterface $paginator): Response
+    protected $datatableFactory;
+
+    public function __construct(DataTableFactory $datatableFactory)
     {
-        $oficinas =  $paginator->paginate($oficinaRepository->findAllWithUltimoTurno(), $request->query->getInt('page', 1), 50);
-        return $this->render('oficina/index.html.twig', [
-            'oficinas' =>  $oficinas
-        ]);
+        $this->datatableFactory = $datatableFactory;
+    }
+
+    /**
+     * @Route("/", name="oficina_index")
+     */
+    public function index(Request $request, SessionInterface $session): Response
+    {
+        // Si existe la variable de sesión de multiple oficinas, lo elimino
+        if ($session->get('oficinasSeleccionadas')) {
+            $session->remove('oficinasSeleccionadas');
+        }
+
+        // Si el usuario conectado está asociado a una oficina que admite AutoGestión, filtra la lista de oficinas para que contenga sólo la Oficina del usuario
+        $oficinaId = null;
+        if (!is_null($this->getUser()->getOficina()) && $this->getUser()->getOficina()->getAutoGestion()) {
+            $oficinaId = $this->getUser()->getOficina()->getId();   // Obtengo Id de la Oficina asociada al Usuario
+        }
+
+        $table = $this->datatableFactory->createFromType(OficinaTableType::class, is_null($oficinaId) ? array() : array($oficinaId))->handleRequest($request);
+        if ($table->isCallback()) {
+            return $table->getResponse();
+        }
+
+        return $this->render('oficina/index.html.twig', ['datatable' => $table]);
     }
 
     /**
@@ -63,12 +90,12 @@ class OficinaController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/addTurnos", name="oficina_addTurnos", methods={"GET","POST"})
+     * @Route("/{id}/addTurnos", name="oficina_addTurnos", methods={"GET","POST"}, options={"expose"=true})
      * 
      * @IsGranted("ROLE_EDITOR")
      */
-    public function addTurnos(Request $request, Oficina $oficina, TurnoRepository $turnoRepository, LoggerInterface $logger, OficinaRepository $oficinaRepository, SessionInterface $session, int $id=1): Response
-    {        
+    public function addTurnos(Request $request, Oficina $oficina, TurnoRepository $turnoRepository, LoggerInterface $logger, OficinaRepository $oficinaRepository, SessionInterface $session, int $id = 1): Response
+    {
         // Evalúa si se encuentran seleccionadas varias oficinas
         $oficinasSeleccionadas = '';
         $indiceOficinasSeleccionadas = 0;
@@ -97,14 +124,14 @@ class OficinaController extends AbstractController
             'cantTurnosSuperpuestos' => 1,
             'cantidadDias' => $cantidadDias,
             'soloUnTurno' => false,
-            ]);
+        ]);
         $form->handleRequest($request);
 
         // Procesa Datos del Formulario
         if ($form->isSubmitted() && $form->isValid()) {
             $feriados = $request->request->get('add_turnos')['feriados'];
             $aFeriados = explode(',', $feriados);
-            
+
             $minutosDesplazamiento = $request->request->get('add_turnos')['minutosDesplazamiento'];
 
             // Si se opta por "Sólo un turno por rango horario" cantTurnosSuperpuestos puede no llegar como parámetro. Para ese caso se establece por defecto el valor 1.
@@ -112,12 +139,12 @@ class OficinaController extends AbstractController
 
             $idTurnosGenerados = [];
 
-            while (true) {                
+            while (true) {
                 if ($oficinasSeleccionadas) {
                     // Establece los valores de fecha de Inicio y Frecuencia por cada Oficina que se seleccionó
                     $oficina = $oficinaRepository->findById($oficinasSeleccionadas[$indiceOficinasSeleccionadas]);
                     $fechaHoraUltimoTurno = $oficinaRepository->findUltimoTurnoById($oficinasSeleccionadas[$indiceOficinasSeleccionadas]);
-                    $frecuencia = $oficina->getFrecuenciaAtencion();               
+                    $frecuencia = $oficina->getFrecuenciaAtencion();
 
                     // Controla que existan turnos previos
                     if ($fechaHoraUltimoTurno) {
@@ -128,13 +155,12 @@ class OficinaController extends AbstractController
                     $fechaInicio = $aPartirde->format('d/m/Y'); // Para auditar en el log con el formato adecuado
 
                     $soloUnTurno = false; // Evito un control innecesario de buscar si existe el turno. Todos son turnos nuevos.
-                }
-                else {
+                } else {
                     $fechaInicio = $request->request->get('add_turnos')['fechaInicio'];
                     $soloUnTurno = isset($request->request->get('add_turnos')['soloUnTurno']);
 
                     // Establece las 0hs del día seleccionado en formato DateTime
-                    $aPartirde = new \DateTime(substr($fechaInicio,-4) . '-' . substr($fechaInicio,3,2) . '-' . substr($fechaInicio, 0,2));
+                    $aPartirde = new \DateTime(substr($fechaInicio, -4) . '-' . substr($fechaInicio, 3, 2) . '-' . substr($fechaInicio, 0, 2));
                     $aPartirde->sub(new DateInterval('P1D')); // Resta un día al día de comienzo porque incremento al comienzo del bucle siguiente
                 }
 
@@ -146,20 +172,20 @@ class OficinaController extends AbstractController
                     // Si se optó por una fecha 'Hasta' se calcula la diferencia en días entre el inicio y el fin
                     $logFechaFin = $request->request->get('add_turnos')['fechaFin'];
                     $fechaFin = $request->request->get('add_turnos')['fechaFin'];
-                    $fechaFin = new \DateTime(substr($fechaFin,-4) . '-' . substr($fechaFin,3,2) . '-' . substr($fechaFin, 0,2));
+                    $fechaFin = new \DateTime(substr($fechaFin, -4) . '-' . substr($fechaFin, 3, 2) . '-' . substr($fechaFin, 0, 2));
                     $cantidadDias = $fechaFin->diff(($aPartirde))->days + 1;
-                    $logCantidadDias = $cantidadDias-1; 
+                    $logCantidadDias = $cantidadDias - 1;
                 }
 
                 // Me aseguro que sólo se genere un turno por rango si no se quiere más que eso (sobre todo por si viene por generaicón múltiple)
                 if ($soloUnTurno) {
-                    $cantTurnos = 1; 
+                    $cantTurnos = 1;
                 }
 
                 // Recorre cada día del intervalo indicado
                 $totalTurnosGenerados = 0;
                 $nuevoTurno = $aPartirde;
-                for ($dia = 1; $dia <= $cantidadDias; $dia++){    
+                for ($dia = 1; $dia <= $cantidadDias; $dia++) {
                     // Incrementa fecha en un 1 día
                     $nuevoTurno = $aPartirde->add(new DateInterval('P1D'));
 
@@ -176,12 +202,12 @@ class OficinaController extends AbstractController
                     // Establece la hora máxima para el día que se está generando
                     $ultimoTurnoDelDia = new DateTime($nuevoTurno->format('Y-m-d H:i'));
                     $ultimoTurnoDelDia = $ultimoTurnoDelDia->setTime($oficina->getHoraFinAtencion()->format('H'), $oficina->getHoraFinAtencion()->format('i'));
-//                    $ultimoTurnoDelDia->add(new DateInterval('PT' . $minutosDesplazamiento . 'M'));
+                    //                    $ultimoTurnoDelDia->add(new DateInterval('PT' . $minutosDesplazamiento . 'M'));
 
                     // Establece la hora de Inicio de Atención
                     $nuevoTurno = $nuevoTurno->setTime($oficina->getHoraInicioAtencion()->format('H'), $oficina->getHoraInicioAtencion()->format('i'));
                     $nuevoTurno->add(new DateInterval('PT' . $minutosDesplazamiento . 'M'));
-                    
+
                     // Recorre intervalos para el día en proceso
                     while (true) {
                         $existeTurno = false;
@@ -191,23 +217,23 @@ class OficinaController extends AbstractController
 
                         if (!$existeTurno || !$soloUnTurno) {
                             // Genera el alta del turno (simple por inexistencia previa o múltiples para el mismo horario)                           
-                            for ($k=1; $k <= $cantTurnos; $k++) {
+                            for ($k = 1; $k <= $cantTurnos; $k++) {
                                 $totalTurnosGenerados++;
                                 $turno = new Turno();
                                 $turno->setFechaHora($nuevoTurno);
                                 $turno->setOficina($oficina);
                                 $turno->setEstado(1);
 
-                                $this->getDoctrine()->getManager()->persist($turno);    
+                                $this->getDoctrine()->getManager()->persist($turno);
                                 $this->getDoctrine()->getManager()->flush();
 
                                 $idTurnosGenerados[] = $turno->getId(); // Guarda información para Deshacer
 
                             }
                         }
-                        
+
                         $nuevoTurno = $aPartirde->add(new DateInterval('PT' . $frecuencia . 'M'));
-                        
+
                         if ($nuevoTurno >= $ultimoTurnoDelDia) {
                             break;
                         }
@@ -217,9 +243,9 @@ class OficinaController extends AbstractController
                 $this->addFlash('info', $oficina . ': ' . $totalTurnosGenerados . ' turnos nuevos. Ultimo turno Generado: ' . ($request->request->get('add_turnos')['cantidadDias'] ? $nuevoTurno->format('d/m/Y') : $logFechaFin));
 
                 $logger->info('Creación de Nuevos Turnos', [
-                    'Oficina' => $oficina->getOficinayLocalidad(), 
+                    'Oficina' => $oficina->getOficinayLocalidad(),
                     'Desde' => $fechaInicio,
-                    'Hasta' => ($request->request->get('add_turnos')['cantidadDias'] ? $nuevoTurno->format('d/m/Y') : $logFechaFin), 
+                    'Hasta' => ($request->request->get('add_turnos')['cantidadDias'] ? $nuevoTurno->format('d/m/Y') : $logFechaFin),
                     'Feriados' => $feriados,
                     'Cant. Turnos Superpuestos' => $cantTurnos,
                     'Minutos Desplazamiento' => $minutosDesplazamiento,
@@ -227,11 +253,10 @@ class OficinaController extends AbstractController
                     'Sólo un Turno' => $soloUnTurno,
                     'Turnos Generados' => $totalTurnosGenerados,
                     'Usuario' => $this->getUser()->getUsuario()
-                    ]
-                );
+                ]);
 
                 // Condición de Salida del While (no se seleccionaron Oficinas o se recorrieron todas las que se habían seleccionado)
-                if (!$oficinasSeleccionadas || $indiceOficinasSeleccionadas++ == count($oficinasSeleccionadas)-1) {
+                if (!$oficinasSeleccionadas || $indiceOficinasSeleccionadas++ == count($oficinasSeleccionadas) - 1) {
                     break;
                 }
             }
@@ -239,7 +264,7 @@ class OficinaController extends AbstractController
             //Guarda ID de Turnos Generados en Session por si se desea deshacer
             $session->set('idTurnosGenerados', $idTurnosGenerados);
             $session->remove('oficinasSeleccionadas'); // En caso de existir, libero la selección de session
-            
+
             return $this->redirectToRoute('oficina_index');
         }
 
@@ -250,7 +275,7 @@ class OficinaController extends AbstractController
             'oficinasSeleccionadas' => $oficinasSeleccionadas,
             'form' => $form->createView(),
         ]);
-    }   
+    }
 
     /**
      * @Route("/{id}/borraDiaAgendaTurnosbyOficina", name="borraDiaAgendaTurnosbyOficina", methods={"GET", "POST"})
@@ -271,8 +296,8 @@ class OficinaController extends AbstractController
                 'format' => 'dd/MM/yyyy',
                 'label' => 'Seleccione Fecha a Borrar',
                 'attr' => ['class' => 'text-danger js-datepicker'],
-                'required' =>true,
-                ])
+                'required' => true,
+            ])
             ->getForm();
         $form->handleRequest($request);
 
@@ -288,13 +313,12 @@ class OficinaController extends AbstractController
             if ($cantTurnosBorrados) {
                 $this->addFlash('info', $oficina . ': ' . $cantTurnosBorrados . ' turnos borrados');
                 $logger->info('Turnos Borrados por Oficina', [
-                    'Oficina' => $oficina->getOficinayLocalidad(), 
+                    'Oficina' => $oficina->getOficinayLocalidad(),
                     'Desde' => $desde->format('d/m/Y'),
                     'Hasta' => $hasta->format('d/m/Y'),
                     'Cantidad de Turnos' => $cantTurnosBorrados,
                     'Usuario' => $this->getUser()->getUsuario()
-                    ]
-                );
+                ]);
             }
 
             return $this->redirectToRoute('oficina_index');
@@ -304,7 +328,7 @@ class OficinaController extends AbstractController
             'oficina' => $oficina,
             'form' => $form->createView(),
         ]);
-    }       
+    }
 
     /**
      * @Route("/deshaceUltimaGeneracion", name="oficina_deshacer", methods={"GET","POST"})
@@ -312,10 +336,10 @@ class OficinaController extends AbstractController
     public function deshaceUltimaGeneracion(SessionInterface $session, TurnoRepository $turnoRepository, LoggerInterface $logger)
     {
         $idTurnosGenerados = $session->get('idTurnosGenerados');
-        $cont=0;
+        $cont = 0;
 
         if ($idTurnosGenerados) {
-            foreach($idTurnosGenerados as $idTurno) {
+            foreach ($idTurnosGenerados as $idTurno) {
                 $cont++;
                 $turno = $turnoRepository->findById($idTurno);
                 $this->getDoctrine()->getManager()->remove($turno);
@@ -328,9 +352,7 @@ class OficinaController extends AbstractController
             $logger->info('Deshacer Creación de Nuevos Turnos', [
                 'Cant. de Turnos Revertidos' => $cont,
                 'Usuario' => $this->getUser()->getUsuario()
-                ]
-            );
-
+            ]);
         } else {
             $this->addFlash('info', ' Nada para deshacer.');
         }
@@ -343,12 +365,172 @@ class OficinaController extends AbstractController
         return $this->redirectToRoute('oficina_index');
     }
 
+
+    /**
+     * Creación masiva de Turnos para un rango de Oficinas establecido por su ID. La cantidad de días a crear es opcional. 
+     * Si no se indica, por defecto se extenderá un día la agenda de las Oficinas involucradas
+     * Este método establece una interfaz de llamada mediante una URL. Luego se delega la creación al método addTurnosByOficinaID()
+     * 
+     * @param integer oficinaDesde   
+     * @param integer oficinaHasta
+     * @param integer cantidadDias
+     * 
+     * @Route("/cronAutoExtend/{oficinaIdDesde?}/{oficinaIdHasta?}/{cantidadDias?}", name="oficina_addTurnos_autoExtend", methods={"GET","POST"})
+     * 
+     * @IsGranted("IS_AUTHENTICATED_ANONYMOUSLY")
+     */
+    public function addTurnos_autoExtend(Request $request, LoggerInterface $logger): Response
+    {
+        // Recibo parámetros
+        $oficinaIdDesde = (isset($request->attributes->get('_route_params')['oficinaIdDesde']) ? $request->attributes->get('_route_params')['oficinaIdDesde'] : 0);
+        $oficinaIdHasta = (isset($request->attributes->get('_route_params')['oficinaIdHasta']) ? $request->attributes->get('_route_params')['oficinaIdHasta'] : 0);
+        $cantidadDias   = (isset($request->attributes->get('_route_params')['cantidadDias']) ? $request->attributes->get('_route_params')['cantidadDias'] : 1);
+
+        return $this->addTurnosByOficinaID($oficinaIdDesde, $oficinaIdHasta, $cantidadDias, $request, $logger);
+    }
+
+
+    /**
+     * Creación masiva de Turnos para un rango de Oficinas establecido por su ID. La cantidad de días a crear es opcional. 
+     * Si no se indica, por defecto se extenderá un día la agenda de las Oficinas involucradas
+     * 
+     * @param integer oficinaDesde   
+     * @param integer oficinaHasta
+     * @param integer cantidadDias
+     * 
+     * @IsGranted("IS_AUTHENTICATED_ANONYMOUSLY")
+     */
+    public function addTurnosByOficinaID(int $oficinaIdDesde, int $oficinaIdHasta, $cantidadDias = 1, Request $request, LoggerInterface $logger): Response
+    {
+
+        $oficinaRepository = $this->getDoctrine()->getRepository(Oficina::class);
+        $turnoRepository = $this->getDoctrine()->getRepository(Turno::class);
+
+        $inicioProceso = (new \DateTime());
+
+        // Obtengo lista de Oficinas en el rango de ID indicados que tienen activa la funcionalidad de autoExtend
+        $aOficinas = $oficinaRepository->findOficinasAutoExtend($oficinaIdDesde, $oficinaIdHasta);
+
+        // Valido parámetros
+        if ($oficinaIdDesde > 0 && $oficinaIdHasta > 0 && $oficinaIdHasta >= $oficinaIdDesde && $aOficinas) {
+            $cantOficinas = 0;
+            $totalTurnosGenerados = 0;
+
+            foreach ($aOficinas as $aOficina) {
+                // Se establece cuales son los días feriados (definidos en el .env a nivel de aplicación)
+                $feriados = '';
+                if ($aOficina['circunscripcion'] == 1 || $aOficina['circunscripcion'] == 4 || $aOficina['circunscripcion'] == 5) {
+                    $feriados = $_ENV['FERIADOS_SANTA_FE'];
+                }
+                if ($aOficina['circunscripcion'] == 2 || $aOficina['circunscripcion'] == 3) {
+                    $feriados = $_ENV['FERIADOS_ROSARIO'];
+                }
+                $aFeriados = explode(',', $feriados);
+
+                // Verifica que la Oficina tenga generado al menos un turno
+                // Sino, no procesa porque la generación se basa en la copia de turnos del último día
+                $ultimoTurno = $turnoRepository->findUltimoTurnoByOficina($aOficina['id']);
+                if ($ultimoTurno) {
+                    
+                    $cantOficinas++;
+                    $ultimoTurno = $ultimoTurno[0]->getFechaHora();
+
+                    // Obtiene todos los turnos del último día de la Oficina
+                    $turnosUltimoDia = $turnoRepository->findTurnosByFecha($aOficina['id'], $ultimoTurno);
+
+                    $i = 0;
+                    while (true) {  // Busca un día válido para generar turnos
+                        // Incrementa fecha en un 1 día
+                        $fechaTurno = $ultimoTurno->add(new DateInterval('P1D'));
+
+                        // Verifico que no sea sábado (6) o domingo (7)
+                        if ($fechaTurno->format('N') >= 6) {
+                            continue; // Salteo el día
+                        }
+
+                        // Verifico que no sea el mes de enero
+                        if ($fechaTurno->format('n') == 1) {
+                            continue; // Salteo el día
+                        }
+
+                        // Verifico que no esté en la lista de feriados
+                        if (in_array($fechaTurno->format('d/m/Y'), $aFeriados)) {
+                            continue; // Salteo el día
+                        }
+
+                        // Encontrado el dia válido, se generan nuevos turnos para ese día a partir de los turnos del último día generado
+                        // El turno se establece para la fecha encontrada y para la hora correspondiente al día anterior
+                        // Se obtiene así un esquema idéntico de turnos, tanto en cantidad como en frecuencia a partir del último día de la Oficina
+                        $oficina = $oficinaRepository->findById($aOficina['id']); // Obtengo instancia de la Oficina
+                        foreach ($turnosUltimoDia as $turno) {
+                            $nuevoTurno = new Turno();
+                            $nuevoTurno->setFechaHora(new DateTime($fechaTurno->format('Y-m-d ') . $turno->getFechaHora()->format('H:i:s')));
+                            $nuevoTurno->setOficina($oficina);
+                            $nuevoTurno->setEstado(1);
+
+                            $totalTurnosGenerados++;
+
+                            $this->getDoctrine()->getManager()->persist($nuevoTurno);
+                            $this->getDoctrine()->getManager()->flush();
+                        }
+
+                        // Itera en función a la cant. de días que se pasa argumento
+                        if (++$i == $cantidadDias) {
+                            break;
+                        }
+                    }
+                }
+            }
+
+            $finProceso = (new \DateTime());
+            $logger->info('Creación Automática de Turnos', [
+                'OficinaIdDesde' => $oficinaIdDesde,
+                'OficinaIdHasta' => $oficinaIdHasta,
+                'Cant. de Días'  => $cantidadDias,
+                'Cant. de Oficinas que Generaron' => $cantOficinas,
+                'Cant. de Turnos Totales' => $totalTurnosGenerados,
+                'Iniciado' => $inicioProceso->format('Y-m-d H:i:s'),
+                'Fin' => $finProceso->format('Y-m-d H:i:s'),
+                'Tiempo' => $inicioProceso->diff($finProceso)->format('%i minutos %s segundos'),
+                'IP' => $request->getClientIp()
+            ]);
+
+            return new JsonResponse("Proceso Finalizado");
+        }
+
+        return new JsonResponse("Ninguna Oficina Procesada");
+    }
+
+    /**
+     * Creación masiva de Turnos para Oficinas que alcancen el umbral máximo de ocupación de la agenda
+     * 
+     * @Route("/cronAutoExtendAgendasLlenas", name="oficina_addTurnos_autoExtendAgendasLlenas", methods={"GET","POST"})
+     * 
+     * @IsGranted("IS_AUTHENTICATED_ANONYMOUSLY")
+     */
+    public function addTurnos_autoExtendAgendasLlenas(Request $request, LoggerInterface $logger, OficinaRepository $oficinaRepository): Response
+    {
+
+        $logger->info('Creación Automática de Turnos para Agendas Próximas a Llenarse Iniciada', ['IP' => $request->getClientIp()]);
+        // Busca Oficinas que admitan auto extensión cuyas Agendas superan el umbral de ocupación establecido
+        $aOficinasLlenas = $oficinaRepository->findOficinasAgendasLlenas();
+
+        foreach ($aOficinasLlenas as $aOficina) {
+            $oficinaId = $aOficina['id'];
+            $this->addTurnosByOficinaID($oficinaId, $oficinaId, 1, $request, $logger);
+        }
+        $logger->info('Creación Automática de Turnos para Agendas Próximas a Llenarse Finalizada', ['IP' => $request->getClientIp()]);
+
+        return new JsonResponse('Proceso Finalizado');
+    }    
+
+
     /**
      * @Route("/{id}", name="oficina_show", methods={"GET"})
      */
     public function show(Oficina $oficina): Response
     {
-        
+
         return $this->render('oficina/show.html.twig', [
             'oficina' => $oficina,
         ]);
@@ -361,7 +543,7 @@ class OficinaController extends AbstractController
      */
     public function edit(Request $request, Oficina $oficina): Response
     {
-        
+
         $form = $this->createForm(OficinaType::class, $oficina);
         $form->handleRequest($request);
 
@@ -382,7 +564,7 @@ class OficinaController extends AbstractController
      */
     public function delete(Request $request, Oficina $oficina): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$oficina->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $oficina->getId(), $request->request->get('_token'))) {
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->remove($oficina);
             $entityManager->flush();
@@ -393,17 +575,18 @@ class OficinaController extends AbstractController
 
 
     /**
-     * @Route("/addTurnosOficinas", name="oficina_addTurnosOficinas", methods={"GET","POST"})
+     * @Route("/addTurnosOficinas/{ids}", name="oficina_addTurnosOficinas", methods={"GET"}, options={"expose"=true})
      */
-    public function addTurnosOficinas(Request $request, OficinaRepository $oficinaRepository, SessionInterface $session)
+    public function addTurnosOficinas(Request $request, SessionInterface $session, $ids)
     {
 
-        $idSeleccionados = $request->request->get('oficinaID');
-
+        if (!isset($ids)) {
+            $this->addFlash('warning', 'Se generó un problema con las oficinas seleccionadas');
+            return $this->redirectToRoute('oficina_index');
+        }
         // Guardo selección de oficinas en session y llamo al método para agregar turnos
-        $session->set('oficinasSeleccionadas', $idSeleccionados);
+        $session->set('oficinasSeleccionadas', json_decode($ids));
 
         return $this->redirectToRoute('oficina_addTurnos');
-
     }
 }

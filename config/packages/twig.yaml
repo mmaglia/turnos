@@ -3,5 +3,6 @@ twig:
     globals:
         SistemaTurnosWeb : '%env(SISTEMA_TURNOS_WEB)%'
         SistemaOralidadCivil: '%env(SISTEMA_ORALIDAD_CIVIL)%'
+        SistemaTurnosMPE : '%env(SISTEMA_TURNOS_MPE)%'
     form_themes:
         ['bootstrap_4_layout.html.twig']
