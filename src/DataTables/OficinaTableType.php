@@ -33,6 +33,8 @@ class OficinaTableType extends AbstractController implements DataTableTypeInterf
         $dataTable->add('horaInicioAtencion', DateTimeColumn::class, ['label' => 'Inicio', 'searchable' => false, 'orderable' => false, 'className' => 'text-center', 'format' => 'H:i']);
         $dataTable->add('horaFinAtencion', DateTimeColumn::class, ['label' => 'Fin', 'searchable' => false, 'orderable' => false, 'className' => 'text-center', 'format' => 'H:i']);
         $dataTable->add('frecuenciaAtencion', TextColumn::class, ['label' => 'Frecuencia', 'searchable' => false, 'orderable' => false, 'className' => 'text-center']);
+        $dataTable->add('autoExtend', BoolColumn::class, ['label' => 'Extensión Automática', 'searchable' => false, 'className' => 'text-center', 'trueValue' => '<i class="fas fa-check"></i>', 'falseValue' => '<i class="fa fa-times"></i>', 'nullValue' => '']);
+        $dataTable->add('autoGestion', BoolColumn::class, ['label' => 'Auto Gestión', 'searchable' => false, 'className' => 'text-center', 'trueValue' => '<i class="fas fa-check"></i>', 'falseValue' => '<i class="fa fa-times"></i>', 'nullValue' => '']);
         $dataTable->add('habilitada', BoolColumn::class, ['label' => 'Habilitada', 'searchable' => false, 'className' => 'text-center', 'trueValue' => '<i class="fas fa-check"></i>', 'falseValue' => '<i class="fa fa-times"></i>', 'nullValue' => 'unknown']);
         //$dataTable->add('ultimoTurno', DateTimeColumn::class, ['label' => 'Último Turno', 'format' => 'd-m-Y']);
         if ($this->isGranted(('ROLE_EDITOR'))) {

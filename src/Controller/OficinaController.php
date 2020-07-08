@@ -367,47 +367,76 @@ class OficinaController extends AbstractController
 
 
     /**
-     * @Route("/autoExtend/{oficinaIdDesde}/{oficinaIdHasta}/{cantidadDias}", name="oficina_addTurnos_autoExtend", methods={"GET","POST"})
+     * Creación masiva de Turnos para un rango de Oficinas establecido por su ID. La cantidad de días a crear es opcional. 
+     * Si no se indica, por defecto se extenderá un día la agenda de las Oficinas involucradas
+     * Este método establece una interfaz de llamada mediante una URL. Luego se delega la creación al método addTurnosByOficinaID()
+     * 
+     * @param integer oficinaDesde   
+     * @param integer oficinaHasta
+     * @param integer cantidadDias
+     * 
+     * @Route("/cronAutoExtend/{oficinaIdDesde?}/{oficinaIdHasta?}/{cantidadDias?}", name="oficina_addTurnos_autoExtend", methods={"GET","POST"})
      * 
      * @IsGranted("IS_AUTHENTICATED_ANONYMOUSLY")
      */
-    public function addTurnos_autoExtend(Request $request, TurnoRepository $turnoRepository, LoggerInterface $logger, OficinaRepository $oficinaRepository, SessionInterface $session, int $oficinaIdDesde, int $oficinaIdHasta, $cantidadDias = 1): Response
+    public function addTurnos_autoExtend(Request $request, LoggerInterface $logger): Response
     {
+        // Recibo parámetros
+        $oficinaIdDesde = (isset($request->attributes->get('_route_params')['oficinaIdDesde']) ? $request->attributes->get('_route_params')['oficinaIdDesde'] : 0);
+        $oficinaIdHasta = (isset($request->attributes->get('_route_params')['oficinaIdHasta']) ? $request->attributes->get('_route_params')['oficinaIdHasta'] : 0);
+        $cantidadDias   = (isset($request->attributes->get('_route_params')['cantidadDias']) ? $request->attributes->get('_route_params')['cantidadDias'] : 1);
+
+        return $this->addTurnosByOficinaID($oficinaIdDesde, $oficinaIdHasta, $cantidadDias, $request, $logger);
+    }
+
+
+    /**
+     * Creación masiva de Turnos para un rango de Oficinas establecido por su ID. La cantidad de días a crear es opcional. 
+     * Si no se indica, por defecto se extenderá un día la agenda de las Oficinas involucradas
+     * 
+     * @param integer oficinaDesde   
+     * @param integer oficinaHasta
+     * @param integer cantidadDias
+     * 
+     * @IsGranted("IS_AUTHENTICATED_ANONYMOUSLY")
+     */
+    public function addTurnosByOficinaID(int $oficinaIdDesde, int $oficinaIdHasta, $cantidadDias = 1, Request $request, LoggerInterface $logger): Response
+    {
+
+        $oficinaRepository = $this->getDoctrine()->getRepository(Oficina::class);
+        $turnoRepository = $this->getDoctrine()->getRepository(Turno::class);
 
         $inicioProceso = (new \DateTime());
 
-        // Recibo parámetros
-        $oficinaIdDesde = $request->attributes->get('_route_params')['oficinaIdDesde'];
-        $oficinaIdHasta = $request->attributes->get('_route_params')['oficinaIdHasta'];
-        $cantidadDias       = $request->attributes->get('_route_params')['cantidadDias'];
-
         // Obtengo lista de Oficinas en el rango de ID indicados que tienen activa la funcionalidad de autoExtend
-        $oficinas = $oficinaRepository->findOficinasAutoExtend($oficinaIdDesde, $oficinaIdHasta);
+        $aOficinas = $oficinaRepository->findOficinasAutoExtend($oficinaIdDesde, $oficinaIdHasta);
 
         // Valido parámetros
-        if ($oficinaIdDesde > 0 && $oficinaIdHasta > 0 && $oficinaIdHasta > $oficinaIdDesde && $oficinas) {
+        if ($oficinaIdDesde > 0 && $oficinaIdHasta > 0 && $oficinaIdHasta >= $oficinaIdDesde && $aOficinas) {
             $cantOficinas = 0;
             $totalTurnosGenerados = 0;
 
-            foreach ($oficinas as $oficina) {
+            foreach ($aOficinas as $aOficina) {
                 // Se establece cuales son los días feriados (definidos en el .env a nivel de aplicación)
                 $feriados = '';
-                if ($oficina['circunscripcion'] == 1 || $oficina['circunscripcion'] == 4 || $oficina['circunscripcion'] == 5) {
+                if ($aOficina['circunscripcion'] == 1 || $aOficina['circunscripcion'] == 4 || $aOficina['circunscripcion'] == 5) {
                     $feriados = $_ENV['FERIADOS_SANTA_FE'];
                 }
-                if ($oficina['circunscripcion'] == 2 || $oficina['circunscripcion'] == 3) {
+                if ($aOficina['circunscripcion'] == 2 || $aOficina['circunscripcion'] == 3) {
                     $feriados = $_ENV['FERIADOS_ROSARIO'];
                 }
                 $aFeriados = explode(',', $feriados);
 
-                $ultimoTurno = $turnoRepository->findUltimoTurnoByOficina($oficina['id']);
-                if ($ultimoTurno) {     // Verifica que la Oficina tenga generado al menos un turno
-                    // Sino, no procesa porque la generación se basa en la copia de turnos del último día
+                // Verifica que la Oficina tenga generado al menos un turno
+                // Sino, no procesa porque la generación se basa en la copia de turnos del último día
+                $ultimoTurno = $turnoRepository->findUltimoTurnoByOficina($aOficina['id']);
+                if ($ultimoTurno) {
+                    
                     $cantOficinas++;
                     $ultimoTurno = $ultimoTurno[0]->getFechaHora();
 
                     // Obtiene todos los turnos del último día de la Oficina
-                    $turnosUltimoDia = $turnoRepository->findTurnosByFecha($oficina['id'], $ultimoTurno);
+                    $turnosUltimoDia = $turnoRepository->findTurnosByFecha($aOficina['id'], $ultimoTurno);
 
                     $i = 0;
                     while (true) {  // Busca un día válido para generar turnos
@@ -432,10 +461,11 @@ class OficinaController extends AbstractController
                         // Encontrado el dia válido, se generan nuevos turnos para ese día a partir de los turnos del último día generado
                         // El turno se establece para la fecha encontrada y para la hora correspondiente al día anterior
                         // Se obtiene así un esquema idéntico de turnos, tanto en cantidad como en frecuencia a partir del último día de la Oficina
+                        $oficina = $oficinaRepository->findById($aOficina['id']); // Obtengo instancia de la Oficina
                         foreach ($turnosUltimoDia as $turno) {
                             $nuevoTurno = new Turno();
                             $nuevoTurno->setFechaHora(new DateTime($fechaTurno->format('Y-m-d ') . $turno->getFechaHora()->format('H:i:s')));
-                            $nuevoTurno->setOficina($oficinaRepository->findById($oficina['id']));
+                            $nuevoTurno->setOficina($oficina);
                             $nuevoTurno->setEstado(1);
 
                             $totalTurnosGenerados++;
@@ -467,7 +497,32 @@ class OficinaController extends AbstractController
 
             return new JsonResponse("Proceso Finalizado");
         }
+
+        return new JsonResponse("Ninguna Oficina Procesada");
     }
+
+    /**
+     * Creación masiva de Turnos para Oficinas que alcancen el umbral máximo de ocupación de la agenda
+     * 
+     * @Route("/cronAutoExtendAgendasLlenas", name="oficina_addTurnos_autoExtendAgendasLlenas", methods={"GET","POST"})
+     * 
+     * @IsGranted("IS_AUTHENTICATED_ANONYMOUSLY")
+     */
+    public function addTurnos_autoExtendAgendasLlenas(Request $request, LoggerInterface $logger, OficinaRepository $oficinaRepository): Response
+    {
+
+        $logger->info('Creación Automática de Turnos para Agendas Próximas a Llenarse Iniciada', ['IP' => $request->getClientIp()]);
+        // Busca Oficinas que admitan auto extensión cuyas Agendas superan el umbral de ocupación establecido
+        $aOficinasLlenas = $oficinaRepository->findOficinasAgendasLlenas();
+
+        foreach ($aOficinasLlenas as $aOficina) {
+            $oficinaId = $aOficina['id'];
+            $this->addTurnosByOficinaID($oficinaId, $oficinaId, 1, $request, $logger);
+        }
+        $logger->info('Creación Automática de Turnos para Agendas Próximas a Llenarse Finalizada', ['IP' => $request->getClientIp()]);
+
+        return new JsonResponse('Proceso Finalizado');
+    }    
 
 
     /**

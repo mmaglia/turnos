@@ -134,6 +134,31 @@ class OficinaRepository extends ServiceEntityRepository
         ;
     }
 
+    public function findOficinasAgendasLlenas($umbralOcupacion = 80) {
+        $sql = "SELECT o.id, o.oficina, o.localidad_id, 
+                        TRUNC(  (select count(*) from turno where fecha_hora > now() and persona_id is not null and turno.oficina_id = o.id)::decimal / 
+                                (select count(*) from turno where fecha_hora > now() and turno.oficina_id = o.id)::decimal * 100,2) as Ocupacion
+                FROM turno t inner join oficina o ON o.id = t.oficina_id
+                WHERE t.fecha_hora > now() and o.auto_extend = true
+                GROUP BY o.id, o.oficina, o.localidad_id
+                HAVING ((select count(*) from turno where fecha_hora > now() and persona_id is not null and turno.oficina_id = o.id)::decimal / 
+                        (select count(*) from turno where fecha_hora > now() and turno.oficina_id = o.id)::decimal * 100) >= :umbral
+                ORDER BY   ((select count(*) from turno where fecha_hora > now() and persona_id is not null and turno.oficina_id = o.id)::decimal / 
+                            (select count(*) from turno where fecha_hora > now() and turno.oficina_id = o.id)::decimal * 100) DESC
+            ";
+        
+        $em = $this->getEntityManager();
+        $statement = $em->getConnection()->prepare($sql);
+        $statement->bindValue('umbral', $umbralOcupacion);
+        $statement->execute();
+        $result = $statement->fetchAll();
+
+        return $result;
+
+    }
+
+    
+
 
 
 }

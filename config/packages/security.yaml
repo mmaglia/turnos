@@ -38,7 +38,7 @@ security:
 #        - { path: ^/$, role: IS_AUTHENTICATED_ANONYMOUSLY }
 #        - { path: ^((?!TurnosWeb).)*$, role: ROLE_USER }       
 
-        - { path: ((TurnosWeb|autoExtend|^/login$|^/$)), role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: (TurnosWeb|/cron|^/login$|^/$), role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: /, role: ROLE_USER }       
 
     role_hierarchy:
