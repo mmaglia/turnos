@@ -991,14 +991,9 @@ class TurnoController extends AbstractController
      * 
      * @return string JSON con las Oficinas del MP Civil de una Localidad
      */
-    public function oficinasMPCivilByLocalidad($localidad_id = 2, OficinaRepository $oficinaRepository)        
+    public function oficinasMPCivilByLocalidad($localidad_id, OficinaRepository $oficinaRepository)        
     {
-        $oficinas = [];
-        if ($localidad_id == 2) {
-            // ROSARIO
-            $oficinas = $oficinaRepository->findOficinasHabilitadasByLocalidadWithTelefono($localidad_id);
-        }
-
+        $oficinas = $oficinaRepository->findOficinasHabilitadasByLocalidadWithTelefono($localidad_id);
         return new JsonResponse($oficinas);
     }
 

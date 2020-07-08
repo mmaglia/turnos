@@ -91,17 +91,16 @@
 {% block javascripts %}
     {{ parent() }}
     <script>
-        $(function() {
-            var textoListaCircunscripcionVacia = '<option value="" disabled selected>Seleccione una Circunscripción</option>';
-            var textoListaLocalidadVacia = '<option value="" disabled selected>Seleccione una Localidad</option>';
-            var textoListaOficinaVacia = '<option value="" disabled selected>Seleccione una Oficina</option>';
+        $(function() {            
+            let textoListaLocalidadVacia = '<option value="" disabled selected>Seleccione una Localidad</option>';
+            let textoListaOficinaVacia = '<option value="" disabled selected>Seleccione una Oficina</option>';
 
-            var sistema = document.querySelector('.js-sistema-mpe');
-            var SistemaTurnosMPE = sistema.dataset.isAuthenticated;
+            let sistema = document.querySelector('.js-sistema-mpe');
+            let SistemaTurnosMPE = sistema.dataset.isAuthenticated;
 
             $('#turno3_circunscripcion').change(function() {
-                var circunscripcion_id = $(this).val();
-                var localidad_id = $(this).val();
+                let circunscripcion_id = $(this).val();
+                let localidad_id = $(this).val();
                 if (circunscripcion_id) {
                     $.ajax({
                         url:"/TurnosWeb/localidades_habilitadas_circunscripcion/" + circunscripcion_id,
@@ -116,23 +115,45 @@
                                 });   
                             } else {
                                 $('#turno3_localidad').html('<option value="" disabled selected>Ninguna Localidad Actualmente Disponible</option>');
-                            }
-
-                            // Limpio lista de Oficinas porque cambiaron
-                            $('#turno3_oficina').html(textoListaOficinaVacia);
+                            }                           
 
                             // Actualizo lista de Localidades
                             $('#turno3_localidad').change();
+
+                            // Limpio lista de Oficinas porque cambiaron
+                            $('#turno3_oficina').html(textoListaOficinaVacia);
                         }
-                    })
+                    });
+                    // Si se esta dentro del sistema MPE oculto los div de densorías y muestro el botón de confirmar
+                    if({{ SistemaTurnosMPE }}) {
+                        $('#opciones').hide();
+                        $('#motivos').hide();
+                        $('#tipo_causa').hide();
+                        $('#defensorias').hide();
+                        $('#confirmar').show();
+
+                        // Destildo si hay algun tipo de trámite chequeado
+                        $('#opciones input[type=checkbox]').prop('checked',false);
+
+                        // Elimino las defensorias cargadas con anterioridad
+                        $('#turno3_defensorias').empty();
+
+                        // Oculto el motivo de consulta tambien
+                        $('#turno3_motivo').parent().hide();
+                        // Limpio el motivo de consulta tb
+                        $('#turno3_motivo').val('');
+
+                        // Limpio el helper de oficina
+                        $('#turno3_oficina_help').html('');
+                    }
                 } else {
                     $('#turno3_localidad').html('');
                 }
             });
 
-            var defensoriasCiviles;
+            let defensoriasCiviles;
             $('#turno3_localidad').change(function() {
-                var localidad_id = $(this).val();                
+                let localidad_id = $(this).val();                
                 if (localidad_id) {
                     // Diferencio la llamada ajax dependiendo del sistema que se esta ejecutando                    
                     if({{ SistemaTurnosMPE }}) {
@@ -188,6 +209,7 @@
             ******************************/
             if({{ SistemaTurnosMPE }}) {
                 const textoRecordatorio = 'Comuníquese al teléfono: ';
+                let motivoDelTramite = '';
 
                 // Manejo de click sobre checkbox de opciones
                 $('.opciones').click(function(e) {
@@ -203,17 +225,16 @@
                     // Oculto el combo de defensorias
                     $('#defensorias').hide();
 
-                    // Limpio el motivo de consulta
-                    $('#turno3_motivo').val('');
-
                     if(this.id == 'opciones-1') {
                         // Si seleccionó la opción 1 (Consulta Trámite del Expediente), escondo los motivos y el boton confirmar                       
                         $('#motivos').hide();
+                        $('#turno3_motivo').parent().hide();
                         $('#confirmar').hide();
                     } else if(this.id == 'opciones-2') {
                         // Si seleccionó la opción 2 (Trámites Presenciales con Turno), muestro los motivos y el boton confirmar
                         $('#motivos').show();
-                        $('#confirmar').show();    
+                        $('#confirmar').show();   
+                        $('#turno3_motivo').parent().show(); 
 
                         // Destildo si hay algun motivo chequeado
                         $('#motivos input[type=checkbox]').prop('checked',false);
@@ -224,50 +245,50 @@
                 $('.motivos').click(function(e) {
                     // Solo un chekbox seleccionado
                     $('.motivos').not(this).prop('checked', false);
-                    $('#turno3_motivo').val($("label[for='" + this.id + "']").html());
+                    motivoDelTramite = $("label[for='" + this.id + "']").html(); 
                 });
 
                 $('#turno3_oficina_help').html('');
                 $('#turno3_motivo_help').html('');
 
                 $('#turno3_oficina').change(function() {
-                    var oficina_id = $(this).val();                
+                    let oficina_id = $(this).val();                
                     if (oficina_id) {
-                        // Si seleccionó Ministerio Pupilar seteo el teléfono del ministerio como helper y escondo todos los div subsiguientes. 
+                        // Si seleccionó Ministerio Pupilar (Rosario o Santa Fe)seteo el teléfono del ministerio como helper y escondo todos los div subsiguientes. 
                         // También muestro el motivo de consulta y muestro el boton de confirmar
-                        if(oficina_id == 1) {
+                        if(oficina_id == 1 || oficina_id == 13) {
                             $('#turno3_oficina_help').html(textoRecordatorio + defensoriasCiviles[0].telefono);
-                            $('#turno3_motivo').parent().show();//.prop('disabled', false);                            
+                            $('#turno3_motivo').parent().show();                           
                             $('#opciones').hide();
                             $('#tipo_causa').hide();
                             $('#defensorias').hide();
                             $('#confirmar').show();
                         } else {  
                             // Si seleccionó Defensorías Civiles, blanqueo el helper, deshabilito el motivo de consulta
-                            $('#turno3_motivo').parent().hide();//.prop('disabled', true);
+                            $('#turno3_motivo').parent().hide();
                             $('#turno3_oficina_help').html('');
+
+                            // Limpio el motivo de consulta tb
+                            $('#turno3_motivo').val('');                            
 
                             // Muestro el combo de opciones
                             $('#opciones').show();                                               
                         }
                         $('#motivos').hide();
-                    } else {
-                        // Escondo todo el div de opciones
-                        $('#opciones').hide();
-                    }
 
-                    // Limpio motivo
-                    $('#turno3_motivo').val('');
+                    } 
+                    // Destildo si hay algun tipo de trámite chequeado
+                    $('#opciones input[type=checkbox]').prop('checked',false);
                 });
 
                 // Debido a que el selector turno3_tipo_causa es agregado dinámicamente rescato su cambio de la siguiente manera.                
                 $('#turno3_tipo_causa').change(function() {
                     
-                    var tipo_causa_id  = $(this).val();   
+                    let tipo_causa_id  = $(this).val();   
                     if (tipo_causa_id == 2) {                 
                         // Si eligió Conozco mi Defensoría, despliego un combo con todas las defensorías disponibles
                         if($('#turno3_defensorias option').length == 0) {
-                            var comboDef = '';
+                            let comboDef = '';
                             $.each(defensoriasCiviles,function(key, registro) {
                                 if(key > 1) {
                                     comboDef += '<option value='+registro.id+'>'+registro.oficina+'</option>';
@@ -304,25 +325,34 @@
 
                 // En el cambio de defensorías, actualizo su teléfono en el helper
                 $('#turno3_defensorias').change( function() {
-                    var id_def = $(this).val();                    
-                    $('#turno3_defensorias_help').html(textoRecordatorio + defensoriasCiviles[id_def-1].telefono);
+                    let id_def = $(this).val();  
+                    // Busco el teléfono dentro de los datos de las defensorías
+                    let telefonoDef = '';
+                    $.each(defensoriasCiviles,function(key, registro) {
+                        if(registro.id == id_def) {
+                            telefonoDef = registro.telefono;
+                            return;
+                        }
+                    });                 
+                    $('#turno3_defensorias_help').html(textoRecordatorio + telefonoDef);
                 });
 
                 // Intercepto el submit del form
+                // Seteo como oficina la que corresponda segun la elección del usuario    
                 $('form[name="turno3"]').submit( function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    var formT3 = this;
-                    // Seteo como oficina la que corresponda segun la elección del usuario                    
-                    if($('#turno3_oficina option:selected').val() == -1) {
-                        // Si seleccionó Defensorías Civiles                        
-                        var opcion = $('#turno3_tipo_causa option:selected').val();
+                    let formT3 = this;
+                    
+                    // Si seleccionó Defensorías Civiles                 
+                    if($('#turno3_oficina option:selected').val() == -1) {                                               
+                        let opcion = $('#turno3_tipo_causa option:selected').val();
                         if(opcion) {
                             if($('#turno3_tipo_causa option:selected').val() == 1) {
-                                // Seteo como oficina a la OGD
+                                // Seteo como oficina a la OGD para rosario o mesa de entrada para santa fe
                                 $('#turno3_oficina option').eq(3).prop('selected', true);
                             } else {
-                                if($("#defensorias").is(":visible")){
+                                if($("#defensorias").is(":visible")) {
                                     // Seteo como oficina a la defensoría que corresponda                             
                                     $('#turno3_oficina option').eq(parseInt($('#turno3_defensorias option:selected').val())+1).prop('selected', true);
                                 } else {
@@ -334,17 +364,27 @@
                             // Seteo como null la oficina                         
                             $('#turno3_oficina option').eq(0).prop('selected', true);
                         }            
-                    }    
+                    } 
+
+                    // Si hay un motivo del trámite lo pre-coloco  en el motivo de consulta
+                    if(motivoDelTramite.length > 0) {
+                        let motivoConsulta = $('#turno3_motivo').val();
+                        $('#turno3_motivo').val(motivoDelTramite + ' - ' + motivoConsulta);
+                    }
+                    
+
                     // Submiteo el formulario                
                     formT3.submit();                    
                 });
                 
-                $('#tipo_causa').hide();
-                $('#defensorias').hide();
-                $('#turno3_circunscripcion').val(2).change();
+                // De arranque en el sistema MPE oculto el motivo de consulta. 
+                $('#turno3_motivo').parent().hide();
+                // Limpio el motivo de consulta tb
+                $('#turno3_motivo').val('');
             }
-            
-            $('#turno3_motivo').parent().show();                        
+                   
+            $('#turno3_circunscripcion option').eq(0).prop('disabled', true);    
+            $('#turno3_circunscripcion option').eq(0).prop('selected', true);            
             $('#turno3_localidad').html(textoListaLocalidadVacia);
             $('#turno3_oficina').html(textoListaOficinaVacia);
         });

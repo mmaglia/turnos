@@ -54,7 +54,7 @@ class Oficina
     private $usuarios;
 
     /**
-     * @ORM\Column(type="string", length=50, nullable=true)
+     * @ORM\Column(type="string", length=200, nullable=true)
      */
     private $telefono;
 
