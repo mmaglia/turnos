@@ -18,6 +18,11 @@ class LocalidadType extends AbstractType
     {
         $builder
             ->add('localidad', null, ['required' => true])
+            ->add('feriadosLocales', null, 
+                [
+                    'label' => 'Feriados Locales',
+                    'help' => 'Ingrese lista en formato dd/mm separada por coma (,). Ej: 30/09, 07/10'
+                ])
             ->add(
                 'circunscripcion',
                 EntityType::class,

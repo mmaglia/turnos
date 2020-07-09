@@ -38,6 +38,11 @@ class Localidad
      */
     private $organismos;
 
+    /**
+     * @ORM\Column(type="string", length=100, nullable=true)
+     */
+    private $feriadosLocales;
+
     public function __construct()
     {
         $this->oficinas = new ArrayCollection();
@@ -139,4 +144,28 @@ class Localidad
 
         return $this;
     }
+
+    public function getFeriadosLocales(): ?string
+    {
+        return $this->feriadosLocales;
+    }
+
+    public function setFeriadosLocales(?string $feriadosLocales): self
+    {
+        $this->feriadosLocales = $feriadosLocales;
+
+        return $this;
+    }
+
+    public function getFeriadosLocalesConAnio(string $anio = ''): ?string
+    {
+        if (!$this->feriadosLocales)
+            return '';
+
+        if (!$anio)
+            $anio = date('Y');
+
+        return str_replace(',' , '/' . $anio . ',', $this->feriadosLocales) . '/' . $anio;
+    }
+
 }

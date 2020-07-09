@@ -122,7 +122,7 @@ class OficinaRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('o')
 
-            ->select('o.id, o.oficina as oficina, l.localidad, c.id as circunscripcion')
+            ->select('o.id, o.oficina as oficina, l.id as localidad_id, l.localidad, c.id as circunscripcion')
             ->innerJoin('o.localidad', 'l')
             ->innerJoin('l.circunscripcion', 'c')
             ->andWhere('o.habilitada = true and o.autoExtend = true and o.id >= :desde and o.id <= :hasta')
@@ -134,7 +134,8 @@ class OficinaRepository extends ServiceEntityRepository
         ;
     }
 
-    public function findOficinasAgendasLlenas($umbralOcupacion = 80) {
+    public function findOficinasAgendasLlenas($umbralOcupacion = 80)
+    {
         $sql = "SELECT o.id, o.oficina, o.localidad_id, 
                         TRUNC(  (select count(*) from turno where fecha_hora > now() and persona_id is not null and turno.oficina_id = o.id)::decimal / 
                                 (select count(*) from turno where fecha_hora > now() and turno.oficina_id = o.id)::decimal * 100,2) as Ocupacion

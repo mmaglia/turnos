@@ -88,7 +88,7 @@
                                     {% endif %}
                                     {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') %}
                                         <a class="dropdown-item" href="{{ path('usuario_index') }}">Usuarios</a>
-{#                                    <a class="dropdown-item" href="{{ path('config_index') }}">Configuración</a> #}
+                                        <a class="dropdown-item" href="{{ path('config_index') }}">Configuración</a>
                                     {% endif %}
                                 </div>
                             </li>

@@ -16,6 +16,7 @@ class AddTurnosType extends AbstractType
         $builder
         ->add('fechaInicio', DateType::class, [
             'widget' => 'single_text',
+            'help' => '.',
             'html5' => false,
             'format' => 'dd/MM/yyyy',
             'label' => 'Fecha de Inicio',
@@ -24,10 +25,10 @@ class AddTurnosType extends AbstractType
             ])
         ->add('feriados', DateType::class, [
             'widget' => 'single_text',
-            'help' => 'Indique las fechas para las que no desea generar turnos (feriados y días no laborables)',
+            'help' => 'Indique las fechas adicionales para las que no desea generar turnos',
             'html5' => false,
             'format' => 'dd/MM/yyyy',
-            'label' => 'Fechas exceptuadas',
+            'label' => 'Fechas exceptuadas adicionales a los feriados indicados',
             'attr' => ['class' => 'text-primary js-datepicker'],
             'required' =>false,
             ])

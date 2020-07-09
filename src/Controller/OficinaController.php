@@ -4,9 +4,12 @@ namespace App\Controller;
 
 use App\DataTables\OficinaTableType;
 use App\Entity\Oficina;
+use App\Entity\Config;
+use App\Entity\Localidad;
 use App\Form\OficinaType;
 use App\Form\AddTurnosType;
 use App\Repository\OficinaRepository;
+use App\Repository\ConfigRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -101,6 +104,10 @@ class OficinaController extends AbstractController
         $indiceOficinasSeleccionadas = 0;
         if ($session->get('oficinasSeleccionadas')) {
             $oficinasSeleccionadas = $session->get('oficinasSeleccionadas');
+            $feriados = $this->diasFeriados(); // Obtiene lista de Feriados Nacionales
+        }
+        else {
+            $feriados = $this->diasFeriados($oficina->getLocalidad()->getId()); // Obtiene lista de Feriados Nacionales y Locales
         }
 
         // Propone como fecha de generación el día siguiente al último turno
@@ -129,9 +136,7 @@ class OficinaController extends AbstractController
 
         // Procesa Datos del Formulario
         if ($form->isSubmitted() && $form->isValid()) {
-            $feriados = $request->request->get('add_turnos')['feriados'];
-            $aFeriados = explode(',', $feriados);
-
+            $fechasExceptuadas = $request->request->get('add_turnos')['feriados'];
             $minutosDesplazamiento = $request->request->get('add_turnos')['minutosDesplazamiento'];
 
             // Si se opta por "Sólo un turno por rango horario" cantTurnosSuperpuestos puede no llegar como parámetro. Para ese caso se establece por defecto el valor 1.
@@ -162,6 +167,14 @@ class OficinaController extends AbstractController
                     // Establece las 0hs del día seleccionado en formato DateTime
                     $aPartirde = new \DateTime(substr($fechaInicio, -4) . '-' . substr($fechaInicio, 3, 2) . '-' . substr($fechaInicio, 0, 2));
                     $aPartirde->sub(new DateInterval('P1D')); // Resta un día al día de comienzo porque incremento al comienzo del bucle siguiente
+                }
+
+                // Gestiona Feriados Nacionales, Locales y Fechas Exceptuadas
+                $feriados = $this->diasFeriados($oficina->getLocalidad()->getId()); // Obtiene lista de Feriados Nacionales y Locales
+                if ($fechasExceptuadas) {
+                    $aFeriados = explode(',', str_replace(' ', '', $feriados . ', ' . $fechasExceptuadas));
+                } else {
+                    $aFeriados = explode(',', str_replace(' ', '', $feriados));
                 }
 
                 // Obtiene cantidad de días para la generación
@@ -270,6 +283,7 @@ class OficinaController extends AbstractController
 
         return $this->render('oficina/add_turnos.html.twig', [
             'oficina' => $oficina,
+            'feriados' => $feriados,
             'fechaHoraUltimoTurno' => $fechaHoraUltimoTurno,
             'aPartirde' => $aPartirde,
             'oficinasSeleccionadas' => $oficinasSeleccionadas,
@@ -394,17 +408,17 @@ class OficinaController extends AbstractController
      * Creación masiva de Turnos para un rango de Oficinas establecido por su ID. La cantidad de días a crear es opcional. 
      * Si no se indica, por defecto se extenderá un día la agenda de las Oficinas involucradas
      * 
-     * @param integer oficinaDesde   
-     * @param integer oficinaHasta
-     * @param integer cantidadDias
+     * @param int $oficinaDesde   
+     * @param int $oficinaHasta
+     * @param int $cantidadDias
      * 
      * @IsGranted("IS_AUTHENTICATED_ANONYMOUSLY")
      */
     public function addTurnosByOficinaID(int $oficinaIdDesde, int $oficinaIdHasta, $cantidadDias = 1, Request $request, LoggerInterface $logger): Response
     {
 
-        $oficinaRepository = $this->getDoctrine()->getRepository(Oficina::class);
-        $turnoRepository = $this->getDoctrine()->getRepository(Turno::class);
+        $oficinaRepository  = $this->getDoctrine()->getRepository(Oficina::class);
+        $turnoRepository    = $this->getDoctrine()->getRepository(Turno::class);
 
         $inicioProceso = (new \DateTime());
 
@@ -415,17 +429,9 @@ class OficinaController extends AbstractController
         if ($oficinaIdDesde > 0 && $oficinaIdHasta > 0 && $oficinaIdHasta >= $oficinaIdDesde && $aOficinas) {
             $cantOficinas = 0;
             $totalTurnosGenerados = 0;
-
             foreach ($aOficinas as $aOficina) {
-                // Se establece cuales son los días feriados (definidos en el .env a nivel de aplicación)
-                $feriados = '';
-                if ($aOficina['circunscripcion'] == 1 || $aOficina['circunscripcion'] == 4 || $aOficina['circunscripcion'] == 5) {
-                    $feriados = $_ENV['FERIADOS_SANTA_FE'];
-                }
-                if ($aOficina['circunscripcion'] == 2 || $aOficina['circunscripcion'] == 3) {
-                    $feriados = $_ENV['FERIADOS_ROSARIO'];
-                }
-                $aFeriados = explode(',', $feriados);
+                $feriados = $this->diasFeriados($aOficina['localidad_id']); // Obtiene lista de Feriados Nacionales y Locales
+                $aFeriados = explode(',', str_replace(' ', '', $feriados));
 
                 // Verifica que la Oficina tenga generado al menos un turno
                 // Sino, no procesa porque la generación se basa en la copia de turnos del último día
@@ -508,12 +514,14 @@ class OficinaController extends AbstractController
      * 
      * @IsGranted("IS_AUTHENTICATED_ANONYMOUSLY")
      */
-    public function addTurnos_autoExtendAgendasLlenas(Request $request, LoggerInterface $logger, OficinaRepository $oficinaRepository): Response
+    public function addTurnos_autoExtendAgendasLlenas(Request $request, LoggerInterface $logger, OficinaRepository $oficinaRepository, ConfigRepository $configRepository): Response
     {
 
         $logger->info('Creación Automática de Turnos para Agendas Próximas a Llenarse Iniciada', ['IP' => $request->getClientIp()]);
+
         // Busca Oficinas que admitan auto extensión cuyas Agendas superan el umbral de ocupación establecido
-        $aOficinasLlenas = $oficinaRepository->findOficinasAgendasLlenas();
+        $umbralAgendaLlena = $configRepository->findByClave('Umbral Agenda Llena')->getValor();
+        $aOficinasLlenas = $oficinaRepository->findOficinasAgendasLlenas($umbralAgendaLlena);       
 
         foreach ($aOficinasLlenas as $aOficina) {
             $oficinaId = $aOficina['id'];
@@ -523,7 +531,6 @@ class OficinaController extends AbstractController
 
         return new JsonResponse('Proceso Finalizado');
     }    
-
 
     /**
      * @Route("/{id}", name="oficina_show", methods={"GET"})
@@ -589,4 +596,34 @@ class OficinaController extends AbstractController
 
         return $this->redirectToRoute('oficina_addTurnos');
     }
+
+    /**
+     * Retorna lista de días feriados para una localidad
+     * Si no se recibe la localidad como parámetro retorna lista de Feriados Nacionales
+     * 
+     * @param   $localidadID    ID de Localidad para considerar feriados locales
+     * @return  string          Lista separada con comas (,) con feriados nacionales y locales de la Localidad
+     */
+
+    public function diasFeriados(int $localidadId = 0)
+    {
+        $configRepository       = $this->getDoctrine()->getRepository(Config::class);
+        $localidadRepository    = $this->getDoctrine()->getRepository(Localidad::class);
+
+        $feriadosNacionales = $configRepository->findByClave('Feriados Nacionales')->getValor();
+
+        $feriadosLocales = '';
+        if ($localidadId) {
+            $feriadosLocales = $localidadRepository->findOneBy(['id' => $localidadId])->getFeriadosLocalesConAnio();
+        }
+
+        $feriados = $feriadosNacionales . ($feriadosLocales ? ', ' . $feriadosLocales : '');
+
+        return $feriados;
+
+//        $aFeriados = explode(',', str_replace(' ', '', $feriados));
+
+    }
+
 }
+

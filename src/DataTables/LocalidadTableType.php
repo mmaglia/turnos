@@ -27,6 +27,7 @@ class LocalidadTableType extends AbstractController implements DataTableTypeInte
     {
         $dataTable->add('id', TextColumn::class, ['label' => '#', 'searchable' => false]);
         $dataTable->add('localidad', TextColumn::class, ['label' => 'Localidad', 'globalSearchable' => true]);
+        $dataTable->add('feriadosLocales', TextColumn::class, ['label' => 'Feriados Locales', 'globalSearchable' => false]);
         $dataTable->add('circunscripcion', TextColumn::class, ['label' => 'Circunscripción', 'searchable' => false,  'field' => 'l.circunscripcion']);
         if ($this->isGranted(('ROLE_EDITOR'))) {
             $dataTable->add('acciones', TextColumn::class, ['label' => 'Acciones', 'className' => 'text-center', 'render' => function ($value, $context) {

@@ -10,7 +10,7 @@
                 Generación Masiva de Turnos
             </div>
             <div class="card-body">
-                <h5 class="card-title text-center">{{ oficinasSeleccionadas ? 'Oficinas múltiples seleccionadas' : oficina.oficina ~ '(' ~ oficina.localidad ~ ')' }}</h5>
+                <h5 class="card-title text-center">{{ oficinasSeleccionadas ? 'Oficinas múltiples seleccionadas' : oficina.oficina ~ ' (' ~ oficina.localidad ~ ')' }}</h5>
                 <div class="row">
                     <div class="col-2"></div>
                     <div class="col-8">
@@ -47,7 +47,7 @@
                 {% endif %}
                 <p class="card-text text-justify">Puede optar entre generar turnos hasta un día en particular o por una cantidad de días corridos a partir de la fecha de inicio.</p>
                 <p class="card-text text-justify">Puede optar por establecer los minutos de desplazamiento con respecto a la hora de inicio de atención o no.</p>
-                <p class="card-text text-justify">Los turnos se crean para todos los días de lunes a viernes (no considera feriados). Puede eliminar un día en particular para toda una localidad desde la gestión de localidades o desde este mismo módulo para una Oficina en particular.</p>
+                <p class="card-text text-justify">Los turnos se crean para todos los días de lunes a viernes con excepción de los días feriados indicados. Puede eliminar un día en particular para toda una localidad desde la gestión de localidades o desde este mismo módulo para una Oficina en particular.</p>
                 {% if not oficinasSeleccionadas %}                
                     <p class="card-text text-justify">Por defecto la generación admite más de un mismo turno en el mismo horario. <strong>Si ya existen turnos para el mismo día y horario este proceso añadirá nuevos turnos</strong>. Si usted no desea que sea así asegúrse de marcar <i>"Sólo un turno por rango horario"</i>.</p>
                 {% endif %}
@@ -81,14 +81,6 @@
                     </div>
 
                 <fieldset class="border p-2">
-                    <legend class="w-auto text-primary">Feriados y días no laborables</legend>
-                    <div class="row">
-                        <div class="col-12">
-                            {{ form_row(form.feriados) }}
-                        </div>
-                    </div>
-                </fieldset>
-                <fieldset class="border p-2">
                     <legend class="w-auto text-primary">Criterios de Generación</legend>
                     <div class="row">
                         <div class="col-3">
@@ -99,6 +91,22 @@
                         </div>
                         <div class="col-3" id="soloUnTurno">
                             {{ form_row(form.soloUnTurno) }}
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="border p-2">
+                    <legend class="w-auto text-primary">Feriados y días no laborables</legend>
+                    <div class="row">
+                        <div class="col-12">
+                            {% if not oficinasSeleccionadas %}   
+                                <small class="form-text"><strong>Feriados Nacionales y Locales para los que no se generarán turnos:</strong></small>
+                                <small class="form-text text-muted ml-3 mb-3">{{ feriados }}</small>
+                            {% else %}
+                                <small class="form-text"><strong>Feriados Nacionales para los que no se generarán turnos:</strong></small>
+                                <small class="form-text text-muted ml-3">{{ feriados }}</small>
+                                <small class="form-text ml-3 mb-3"><strong>A los que se añadirán los feriados locales de cada localidad seleccionada</strong></small>
+                            {% endif %}
+                            {{ form_row(form.feriados) }}
                         </div>
                     </div>
                 </fieldset>
@@ -165,9 +173,6 @@
         
             })
             
-            // Agrega un * a todos los campos que son requeridos
-            $('label.required').append('<sup><strong>&nbsp;*</strong></sup>');
-
             // Si elige sólo un turno se deshabilita cant. de turnos por rango horario
             $('#soloUnTurno input').click(function() {                
                 if ($(this).prop("checked")) { 
@@ -183,6 +188,15 @@
             $('#add_turnos_cantidadDias').change(function() { 
                 $('#add_turnos_fechaFin').val('')
             })
+
+            var ultimoTurno = "{{ fechaHoraUltimoTurno ? fechaHoraUltimoTurno|date('d/m/Y H:i') : '' }}"
+            var oficinasSeleccionadas = "{{ oficinasSeleccionadas ? 1 : 0 }}"
+            if (oficinasSeleccionadas == '1') {
+                $('#add_turnos_fechaInicio_help').html('Deshabilitado por selección múltiple');
+            }
+            else {
+                $('#add_turnos_fechaInicio_help').html('Ultimo Turno creado el ' + ultimoTurno);
+            }
 
         });
     </script>
