@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\Config\Definition\Exception\Exception;
 use App\Entity\Turno;
 use App\Repository\TurnoRepository;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
@@ -419,6 +420,7 @@ class OficinaController extends AbstractController
 
         $oficinaRepository  = $this->getDoctrine()->getRepository(Oficina::class);
         $turnoRepository    = $this->getDoctrine()->getRepository(Turno::class);
+        $configRepository   = $this->getDoctrine()->getRepository(Config::class);
 
         $inicioProceso = (new \DateTime());
 
@@ -429,6 +431,15 @@ class OficinaController extends AbstractController
         if ($oficinaIdDesde > 0 && $oficinaIdHasta > 0 && $oficinaIdHasta >= $oficinaIdDesde && $aOficinas) {
             $cantOficinas = 0;
             $totalTurnosGenerados = 0;
+
+            // Busco valor de Configuración "Días mínimos futuros con turnos generados" para establecer un colchón de días mínimos a futuros de turnos generados
+            $margenDeTurnosFuturos = $configRepository->find(3);
+            if (!$margenDeTurnosFuturos || !$margenDeTurnosFuturos->getValor())
+                throw new Exception("Debe establecer un valor para el valor de configuración ID=3 - Días mínimos futuros con turnos generados");
+
+            $umbralDias = $margenDeTurnosFuturos->getValor();
+            $intervalo = 'P' . $umbralDias . 'D';
+
             foreach ($aOficinas as $aOficina) {
                 $feriados = $this->diasFeriados($aOficina['localidad_id']); // Obtiene lista de Feriados Nacionales y Locales
                 $aFeriados = explode(',', str_replace(' ', '', $feriados));
@@ -436,8 +447,13 @@ class OficinaController extends AbstractController
                 // Verifica que la Oficina tenga generado al menos un turno
                 // Sino, no procesa porque la generación se basa en la copia de turnos del último día
                 $ultimoTurno = $turnoRepository->findUltimoTurnoByOficina($aOficina['id']);
-                if ($ultimoTurno) {
-                    
+
+                // Además se controla que la oficina tenga turnos generados a futuro conforme a lo establecido por configuración
+                // o bien, si $oficinaIdDesde = oficinaIdHasta se asume que éste método es invocado por el proceso de control de agenda llenas
+                // En ese caso, procesa ignorando el márgen de turnos futuros establecidos por configuración
+                $diaActual = (new \DateTime)->createFromFormat('d/m/Y H:i:s', date('d/m/Y') . ' 00:00:00');
+                $margenTurnosFuturos = $diaActual->add(new DateInterval($intervalo));
+                if ($ultimoTurno && ($ultimoTurno[0]->getFechaHora() < $margenTurnosFuturos || $oficinaIdDesde == $oficinaIdHasta )) {
                     $cantOficinas++;
                     $ultimoTurno = $ultimoTurno[0]->getFechaHora();
 

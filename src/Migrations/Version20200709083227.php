@@ -26,6 +26,7 @@ final class Version20200709083227 extends AbstractMigration
         $this->addSql("UPDATE localidad SET feriados_locales = '15/11'");
         $this->addSql("INSERT INTO public.config(id, clave, valor) VALUES (1, 'Feriados Nacionales', '15/06/2020, 09/07/2020, 10/07/2020, 17/08/2020, 12/10/2020, 16/11/2020, 23/11/2020, 07/12/2020, 08/12/2020, 25/12/2020, 31/12/2020')");
         $this->addSql("INSERT INTO public.config(id, clave, valor) VALUES (2, 'Umbral Agenda Llena', 80)");
+        $this->addSql("INSERT INTO public.config(id, clave, valor) VALUES (3, 'Días mínimos futuros con turnos generados', 10)");
         $this->addSql("SELECT setval('config_id_seq', 2, true)");
     }
 
