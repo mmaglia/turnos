@@ -12,8 +12,8 @@
             <div class="card-body">
                 <h5 class="card-title text-center">{{ oficinasSeleccionadas ? 'Oficinas múltiples seleccionadas' : oficina.oficina ~ ' (' ~ oficina.localidad ~ ')' }}</h5>
                 <div class="row">
-                    <div class="col-2"></div>
-                    <div class="col-8">
+                    <div class="col-1"></div>
+                    <div class="col-10">
                         <div class="card bg-light mb-2" style="font-size: .8rem;">
                             {% if not oficinasSeleccionadas %}<div class="card-header"><strong>Datos de la Oficina</strong></div>{% endif %}
                             <div class="card-body">
@@ -37,21 +37,29 @@
                                     <p class="text-justify">Se considerán los parámetros de hora de inicio, hora de fin y frecuencia para cada Oficina en particular.</p>
                                     <p class="text-justify">La fecha de inicio será a partir del último turno para cada oficina en particular.</p>
                                 {% endif %}
+
+                                <br>
+                                <p class="text-center mb-2 mt-0"><a class="btn btn-secondary" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample" style="font-size: .8rem;"><strong>Descripción del Proceso de Generación</strong></a></p>
+                                <div class="collapse" id="collapseExample">
+                                    <div class="card card-body">
+                                        {% if not oficinasSeleccionadas %}   
+                                            <p class="card-text text-justify">Los turnos se crean a partir de la fecha indicada. Por defecto se propone el día siguiente al último existente en la agenda de la oficina. Es decir <strong>a partir del {{ aPartirde ? aPartirde|date('d/m/Y') : '' }}</strong> y por la cantidad de días que usted indique a continuación. </p>
+                                            <p class="card-text text-justify">Puede optar por indicar un día de inicio cualquiera. Por ejemplo puede añadir turnos a días generados previamente.</p>
+                                        {% endif %}
+                                            <p class="card-text text-justify">Puede optar entre generar turnos hasta un día en particular o por una cantidad de días corridos a partir de la fecha de inicio.</p>
+                                            <p class="card-text text-justify">Puede optar por establecer los minutos de desplazamiento con respecto a la hora de inicio de atención o no.</p>
+                                            <p class="card-text text-justify">Los turnos se crean para todos los días de lunes a viernes con excepción de los días feriados indicados. Puede eliminar un día en particular para toda una localidad desde la gestión de localidades o desde este mismo módulo para una Oficina en particular.</p>
+                                        {% if not oficinasSeleccionadas %}                
+                                            <p class="card-text text-justify">Por defecto la generación admite más de un mismo turno en el mismo horario. <strong>Si ya existen turnos para el mismo día y horario este proceso añadirá nuevos turnos</strong>. Si usted no desea que sea así asegúrse de marcar <i>"Sólo un turno por rango horario"</i>.</p>
+                                        {% endif %}
+                                        <p class="card-text text-center"><strong>Esta generación de turnos puede deshacerse en caso de ser necesario. Tenga en cuenta que sólo la última generación de turnos se puede deshacer siempre que no cierre la sesión a nivel de aplicación.</strong></p>
+                                    </div>
+                                </div>                
                             </div>
                         </div>       
                     </div>
-                </div>      
-                {% if not oficinasSeleccionadas %}   
-                    <p class="card-text text-justify">Los turnos se crean a partir de la fecha indicada. Por defecto se propone el día siguiente al último existente en la agenda de la oficina. Es decir <strong>a partir del {{ aPartirde ? aPartirde|date('d/m/Y') : '' }}</strong> y por la cantidad de días que usted indique a continuación. </p>
-                    <p class="card-text text-justify">Puede optar por indicar un día de inicio cualquiera. Por ejemplo puede añadir turnos a días generados previamente.</p>
-                {% endif %}
-                <p class="card-text text-justify">Puede optar entre generar turnos hasta un día en particular o por una cantidad de días corridos a partir de la fecha de inicio.</p>
-                <p class="card-text text-justify">Puede optar por establecer los minutos de desplazamiento con respecto a la hora de inicio de atención o no.</p>
-                <p class="card-text text-justify">Los turnos se crean para todos los días de lunes a viernes con excepción de los días feriados indicados. Puede eliminar un día en particular para toda una localidad desde la gestión de localidades o desde este mismo módulo para una Oficina en particular.</p>
-                {% if not oficinasSeleccionadas %}                
-                    <p class="card-text text-justify">Por defecto la generación admite más de un mismo turno en el mismo horario. <strong>Si ya existen turnos para el mismo día y horario este proceso añadirá nuevos turnos</strong>. Si usted no desea que sea así asegúrse de marcar <i>"Sólo un turno por rango horario"</i>.</p>
-                {% endif %}
-                <p class="card-text text-center"><strong>Esta generación de turnos puede deshacerse en caso de ser necesario. Tenga en cuenta que sólo la última generación de turnos se puede deshacer siempre que no cierre la sesión a nivel de aplicación.</strong></p>
+                </div> 
+
       
                 {{ form_start(form) }}
                 <div class="my-custom-class-for-errors">
