@@ -152,8 +152,9 @@
             });
 
             let defensoriasCiviles;
+            let localidad_id;
             $('#turno3_localidad').change(function() {
-                let localidad_id = $(this).val();                
+                localidad_id = $(this).val();                
                 if (localidad_id) {
                     // Diferencio la llamada ajax dependiendo del sistema que se esta ejecutando                    
                     if({{ SistemaTurnosMPE }}) {
@@ -345,7 +346,7 @@
                     let formT3 = this;
                     
                     // Si seleccionó Defensorías Civiles                 
-                    if($('#turno3_oficina option:selected').val() == -1) {                                               
+                    if($('#turno3_oficina option:selected').val() == -1) {                                              
                         let opcion = $('#turno3_tipo_causa option:selected').val();
                         if(opcion) {
                             if($('#turno3_tipo_causa option:selected').val() == 1) {
@@ -354,7 +355,11 @@
                             } else {
                                 if($("#defensorias").is(":visible")) {
                                     // Seteo como oficina a la defensoría que corresponda                             
-                                    $('#turno3_oficina option').eq(parseInt($('#turno3_defensorias option:selected').val())+1).prop('selected', true);
+                                    if(localidad_id == 1) {
+                                        $('#turno3_oficina option').eq(parseInt($('#turno3_defensorias option:selected').val())-11).prop('selected', true);
+                                    } else {
+                                        $('#turno3_oficina option').eq(parseInt($('#turno3_defensorias option:selected').val())+1).prop('selected', true);
+                                    }                                    
                                 } else {
                                     // Seteo como null la oficina
                                     $('#turno3_oficina option').eq(0).prop('selected', true);
