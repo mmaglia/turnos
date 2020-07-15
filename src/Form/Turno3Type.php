@@ -64,9 +64,9 @@ class Turno3Type extends AbstractType
                     return;
                 }
 
-                // Si esta corriendo MPE y viene seteada como oficina alguna defensoría o la OGD y no viene el motivo devuelvo un error
+                // Si esta corriendo MPE y viene seteada como oficina alguna defensoría o la OGD o la MEU y no viene el motivo devuelvo un error
                 if ($_ENV['SISTEMA_TURNOS_MPE']) {
-                    if ($data['oficina'] > 1 && (!key_exists('motivo', $data) || !$data['motivo'])) {
+                    if ($data['oficina'] != 1 && $data['oficina'] != 13 && (!key_exists('motivo', $data) || !$data['motivo'])) {
                         $form->addError(new FormError('Debe ingresar un Motivo de Trámite'));
                         return;
                     }
