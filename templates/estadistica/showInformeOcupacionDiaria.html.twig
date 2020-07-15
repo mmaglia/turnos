@@ -5,17 +5,23 @@
 {% block body %}
     <h1>Informe de Ocupación de Agendas </h1>
     <h2>{{subtitulo}}</h2>
+    <h6 class="text-center">{{ subTituloOrden }}</h6>
+    {% if subTituloExclusion %}
+        <h6 class="text-center">{{ subTituloExclusion }}</h6>
+    {% endif %}
     <br>
     {# Resumen Diario #}   
     {% if ocupacion | length > 0 %}
         <div class="container-fluid">
-            <div class="row">
-                <div class="col-12 float-right jsChart" data-is-authenticated="{{ grafico | length > 0 ? 'true' : 'false' }}">
-                    <div class="mb-3">
-                            <center><div id="div_chart"></div></center>
-                    <div class="card-footer text-muted text-center">La vista representa los turnos ocupados con relación a la cantidad total de turnos disponibles.</div>                                  
+           {% if tipoInforme != 1 or orden != 2 %}
+                <div class="row">
+                    <div class="col-12 float-right jsChart" data-is-authenticated="{{ grafico | length > 0 ? 'true' : 'false' }}">
+                        <div class="mb-3">
+                                <center><div id="div_chart"></div></center>
+                        <div class="card-footer text-muted text-center">La vista representa los turnos ocupados con relación a la cantidad total de turnos disponibles.</div>                                  
+                    </div>
                 </div>
-            </div>
+            {% endif %}
         </div>
         <div class="row">
             <div class="col-12">
@@ -31,6 +37,7 @@
                                         <th class="text-center">Ultimo Turno Disponible</th>
                                     {% endif %}
                                     {% if tipoInforme == 2%}
+                                        <th class="text-right">Disponibles</th>
                                         <th class="text-right" colspan="2">Otorgados</th>
                                         <th class="text-right" colspan="2">No Atendidos</th>
                                         <th class="text-right" colspan="2">Atendidos</th>
@@ -40,10 +47,10 @@
                                 </tr>
                             </thead>
                             <tbody>
-                        {% set cantidad = 0 %}
-                        {% set oficinas, turnos, otorgados, noatendidos, atendidos, noasistidos, rechazados = 0, 0, 0, 0, 0, 0, 0 %}
+                            {% set cantidad = 0 %}
+                            {% set oficinas, turnos, otorgados, noatendidos, atendidos, noasistidos, rechazados = 0, 0, 0, 0, 0, 0, 0 %}
 
-                        {% for oficina in ocupacion %}
+                            {% for oficina in ocupacion %}
                                 {% if tipoInforme == 2%}
                                     {% set cantidad = cantidad + oficina['otorgados'] %}
                                     {% set oficinas, turnos, otorgados, noatendidos, atendidos, noasistidos, rechazados = oficinas + 1, turnos + oficina['otorgados']
@@ -53,12 +60,19 @@
                                 <tr>
                                     <td class="">
                                         <a href="{{ path('turno_index', {'cboOficina': oficina['id']}) }}" target="_blank" title="Abrir Agenda de la Oficina">{{ oficina['oficina'] }} ({{oficina['localidad']}})</a>
+                                        {% if tipoInforme == 1%}                                       
+                                            <a href="{{ path('estadistica_show', {'start': desde, 'end':oficina['ultimoTurno']  | slice(8, 2) ~ '/' ~ oficina['ultimoTurno'] | slice(5, 2) ~ '/' ~ oficina['ultimoTurno'] | slice(0, 4), 'oficinas':oficina['id'], 'general':'general', 'semanal': '', 'detallado':'detallado', 'diasSinTurnos':'', 'soloDiasSinTurnos': ''}) }}" target="_blank" title="Estadística de la Oficina"><i class="float-right fas fa-chart-pie"></i></a>
+                                        {% endif %}
+                                        {% if tipoInforme == 2%}                                       
+                                            <a href="{{ path('estadistica_show', {'start': desde, 'end':oficina['ultimoTurno']  | slice(8, 2) ~ '/' ~ oficina['ultimoTurno'] | slice(5, 2) ~ '/' ~ oficina['ultimoTurno'] | slice(0, 4), 'oficinas':oficina['id'], 'general':'general', 'semanal': '', 'detallado':'detallado', 'diasSinTurnos':'', 'soloDiasSinTurnos': ''}) }}" target="_blank" title="Estadística de la Oficina"><i class="float-right fas fa-chart-pie"></i></a>
+                                        {% endif %}
                                     </td>
                                     <td class="text-right">{{ oficina['ocupacion'] | round(2) }}%</td>
                                     {% if tipoInforme == 1%}
                                         <td class="text-center">{{ oficina['ultimoTurno'] }}</td>
                                     {% endif %}
                                     {% if tipoInforme == 2%}
+                                        <td class="text-right">{{ oficina['total']}}</td>
                                         <td class="text-right">{{ oficina['otorgados'] + oficina['rechazados_libres']}}</td>
                                         <td class="text-right text-secondary">{{ oficina['otorgados'] > 0 ? '(' ~ (((oficina['otorgados'] + oficina['rechazados_libres']) / oficina['total'] * 100) | round(2)) ~ '%)'}}</td>
                                         <td class="text-right">{{ oficina['noatendidos'] }}</td>
@@ -70,8 +84,6 @@
                                         <td class="text-right">{{ oficina['rechazados_libres'] }}</td>
                                         <td class="text-right text-secondary">{{ oficina['otorgados'] > 0 ? '(' ~ ((oficina['rechazados_libres'] / (oficina['otorgados'] + oficina['rechazados_libres']) * 100) | round(2)) ~ '%)'}}</td>
                                     {% endif %}
-
-
                                 </tr>
                             {% endfor %}
                                 <tr>
@@ -91,7 +103,6 @@
                                         <td class="text-right" colspan="2"><b>{{atendidos}}</td>
                                         <td class="text-right" colspan="2"><b>{{noasistidos}}</td>
                                         <td class="text-right" colspan="2"><b>{{rechazados}}</td>
-
                                     {% endif %}
                                 </tr>
                             </tbody>

@@ -88,14 +88,27 @@ class EstadisticaController extends AbstractController
     public function show(Request $request, OficinaRepository $oficinaRepository, TurnoRepository $turnoRepository, LoggerInterface $logger): Response
     {
         // Recibe variables del Formulario
-        $desde = $request->request->get('start');
-        $hasta = $request->request->get('end');
-        $oficinaId = $request->request->get('oficinas');
-        $vistaGeneral = $request->request->get('general');
-        $vistaSemanal = $request->request->get('semanal');
-        $vistaDetallada = $request->request->get('detallado');
-        $vistaSinTurno = $request->request->get('diasSinTurnos');
-        $vistaSoloSinTurno = $request->request->get('soloDiasSinTurnos');
+        if ($request->request->get('start')) {
+            $desde = $request->request->get('start');
+            $hasta = $request->request->get('end');
+            $oficinaId = $request->request->get('oficinas');
+            $vistaGeneral = $request->request->get('general');
+            $vistaSemanal = $request->request->get('semanal');
+            $vistaDetallada = $request->request->get('detallado');
+            $vistaSinTurno = $request->request->get('diasSinTurnos');
+            $vistaSoloSinTurno = $request->request->get('soloDiasSinTurnos');
+        }
+
+        if (isset($_GET['start'])) {
+            $desde = $_GET['start'];
+            $hasta = $_GET['end'];
+            $oficinaId = $_GET['oficinas'];
+            $vistaGeneral = $_GET['general'];
+            $vistaSemanal = $_GET['semanal'];
+            $vistaDetallada = $_GET['detallado'];
+            $vistaSinTurno = $_GET['diasSinTurnos'];
+            $vistaSoloSinTurno = $_GET['soloDiasSinTurnos'];
+        }
 
         // Agrega rango horario a las fechas seleccionadas
         $desde = $desde . ' 00:00:00';
@@ -330,6 +343,13 @@ class EstadisticaController extends AbstractController
         // Recibe variables del Formulario
         $desde = $request->request->get('start');
         $tipoInforme = $request->request->get('inlineRadioOptions');
+        $orden = $request->request->get('orden');
+        $excluirOficinasFD = $request->request->get('chkOficinasFD');       
+
+        if (!$desde) {
+            $diaActual = new \DateTime();
+            $desde = $diaActual->format('d/m/Y');
+        }
 
         // Obtengo oficinas
         $oficinas = $oficinaRepository->findAllWithUltimoTurno();
@@ -344,6 +364,9 @@ class EstadisticaController extends AbstractController
             // Agenda Completa
             $subtitulo = 'Agenda Completa';
             foreach ($oficinas as $ofi) {
+                if ( $excluirOficinasFD && stristr($ofi['oficina'], 'firma digital con token')  )
+                    continue;
+
                 $cantTurnosOficina = $turnoRepository->findCantidadTurnosExistentes($ofi['id']); 
                 $nivelOcupacionAgenda = ($cantTurnosOficina ? $turnoRepository->findCantidadTurnosAsignados($ofi['id']) / $cantTurnosOficina : 0);
                 $datosOcupacion[] = ['id' => $ofi['id'], 'oficina' => $ofi['oficina'], 'localidad' => $ofi['localidad'], 'ultimoTurno' => $ofi['ultimoTurno'], 'habilitada' => $ofi['habilitada'], 'ocupacion' => $nivelOcupacionAgenda * 100];
@@ -361,22 +384,61 @@ class EstadisticaController extends AbstractController
             $diaDesde = $diaPrimerDia->format('d/m/Y H:i:s');
             $diaHasta = $diaPrimerDia->modify('+0 days')->format('d/m/Y 23:59:59');
             foreach ($oficinas as $ofi) {
+                if ( $excluirOficinasFD && stristr($ofi['oficina'], 'firma digital con token')  )
+                continue;
+
                 $estadistica = $turnoRepository->findEstadistica($diaDesde,$diaHasta, $ofi['id']);
                 $datosOcupacion[] = ['id' => $ofi['id'], 'oficina' => $ofi['oficina'], 'localidad' => $ofi['localidad'], 'ultimoTurno' => $ofi['ultimoTurno'], 'habilitada' => $ofi['habilitada'], 
                 'desde' => $estadistica['desde'], 'hasta' => $estadistica['hasta'], 'total' => $estadistica['total'], 'otorgados' => $estadistica['otorgados'], 'noatendidos' => $estadistica['noatendidos'], 'atendidos' => $estadistica['atendidos'], 'noasistidos' => $estadistica['noasistidos'], 'rechazados_ocupados' => $estadistica['rechazados_ocupados'], 'rechazados_libres' => $estadistica['rechazados_libres'],                
                 'ocupacion' => ($estadistica['total'] > 0 ? $estadistica['otorgados'] / $estadistica['total'] * 100 : 0)];
             }
         }
+
+         // Ordeno los Datos
         if (count($datosOcupacion)) {
             // Obtengo una lista de columnas de los elementos sobre los que quiero ordenar los resultados
             foreach ($datosOcupacion as $clave => $fila) {
                 $oficina[$clave] = $fila['oficina'];
                 $localidad[$clave] = $fila['localidad'];
                 $ocupacion[$clave] = $fila['ocupacion'];
+                if ($tipoInforme == 1)  {
+                    $ultimoTurno[$clave] = strtotime($fila['ultimoTurno']);
+                }
+                if ($tipoInforme == 2)  {
+                    $total[$clave] =$fila['total'];
+                }
             }
 
-            // Ordeno los datos
-            array_multisort($ocupacion, SORT_NUMERIC, SORT_DESC, $localidad, SORT_ASC, $oficina, SORT_ASC, $datosOcupacion);
+            if ($tipoInforme == 1) {
+                if ($orden == 1) {
+                    // Ordeno los datos por Nivel de Ocupación
+                    $subTituloOrden = 'Vista ordenada por Nivel de Ocupación';
+                    array_multisort($ocupacion, SORT_NUMERIC, SORT_DESC, $localidad, SORT_ASC, $oficina, SORT_ASC, $ultimoTurno, SORT_NUMERIC, SORT_DESC, $datosOcupacion);
+                }
+                if ($orden == 2) {
+                    // Ordeno los datos por Fecha del Ultimo Turno
+                    $subTituloOrden = 'Vista ordenada por Fecha del Ultimo Turno';
+                    array_multisort($ultimoTurno, SORT_ASC, $localidad, SORT_ASC, $oficina, SORT_ASC, $ocupacion, SORT_NUMERIC, SORT_DESC, $datosOcupacion);
+                }
+            }
+
+            if ($tipoInforme == 2) {
+                if ($orden == 1) {
+                    // Ordeno los datos por Nivel de Ocupación
+                    $subTituloOrden = 'Vista ordenada por Nivel de Ocupación';
+                    array_multisort($ocupacion, SORT_NUMERIC, SORT_DESC, $localidad, SORT_ASC, $oficina, SORT_ASC, $total, SORT_NUMERIC, SORT_DESC, $datosOcupacion);
+                }
+                if ($orden == 2) {
+                    // Ordeno los datos por Total de Turnos
+                    $subTituloOrden = 'Vista ordenada por Total de Turnos';
+                    array_multisort($total, SORT_NUMERIC, SORT_DESC, $localidad, SORT_ASC, $oficina, SORT_ASC, $ocupacion, SORT_NUMERIC, SORT_DESC, $datosOcupacion);
+                }
+            }
+        }
+
+        $subTituloExclusion = '';
+        if ($excluirOficinasFD) {
+            $subTituloExclusion = 'Excluyendo Oficinas de nombre "Firma Digital con Token - Obtención del Certificado"';
         }
     
         // Gráfico General
@@ -384,7 +446,23 @@ class EstadisticaController extends AbstractController
         $datosGrafico = [['Oficina', 'Cantidad']];
         
         foreach($datosOcupacion as $ocupacion) {
-            $datosGrafico[] = [$ocupacion['oficina'] . '(' . $ocupacion['localidad'] . ')', $ocupacion['ocupacion']];
+            if ($tipoInforme == 1) {
+                if ($orden == 1) {
+                    $datosGrafico[] = [$ocupacion['oficina'] . '(' . $ocupacion['localidad'] . ')', $ocupacion['ocupacion']];
+                }
+                if ($orden == 2) {
+                    $datosGrafico[] = [$ocupacion['oficina'] . '(' . $ocupacion['localidad'] . ')', $ocupacion['ocupacion']];
+                }
+            }
+
+            if ($tipoInforme == 2) {
+                if ($orden == 1) {
+                    $datosGrafico[] = [$ocupacion['oficina'] . '(' . $ocupacion['localidad'] . ')', $ocupacion['ocupacion']];
+                }
+                if ($orden == 2) {
+                    $datosGrafico[] = [$ocupacion['oficina'] . '(' . $ocupacion['localidad'] . ')', $ocupacion['total']];
+                }
+            }
         }
 
 
@@ -415,8 +493,12 @@ class EstadisticaController extends AbstractController
         );
 
         return $this->render('estadistica/showInformeOcupacionDiaria.html.twig', [
+            'desde' => $desde,
             'tipoInforme' => $tipoInforme,
+            'orden' => $orden,
             'subtitulo' => $subtitulo,
+            'subTituloOrden' => $subTituloOrden,
+            'subTituloExclusion' => $subTituloExclusion,
             'ocupacionGlobal' => $nivelOcupacionAgendaGlobal,
             'ocupacion' => $datosOcupacion,
             'grafico' => $grafico

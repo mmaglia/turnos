@@ -9,94 +9,96 @@
     {# Resumen General #}
     {% if estadisticaGeneral | length > 0 %}
         <div class="container-fluid">
-            <div class="row">
-                <div class="col-6">
-                    <div class="card border-primary mb-3" style="max-width: 35rem;">
-                        <div class="card-header"><strong>Resumen del Período {{desde}} al {{hasta}}</strong></div>
-                        <div class="card-body text-primary">
-                            <div class="row">
-                                <div class="col-sm-6 text-right">
-                                    Turnos Disponibles:
-                                    <br>
-                                    Otorgados:
-                                    <br>
-                                    No Atendidos:
-                                    <br>
-                                    Atendidos:
-                                    <br>
-                                    Ausentes:
-                                    <br>
-                                    Rechazados:
-                                    <br>
-                                </div>
-                                <div class="col-sm text-right">
-                                    {{ estadisticaGeneral['total'] }}
-                                    <br>
-                                    {{ estadisticaGeneral['otorgados'] + estadisticaGeneral['rechazados_libres']}}
-                                    <br>
-                                    {{ estadisticaGeneral['noatendidos'] }}
-                                    <br>
-                                    {{ estadisticaGeneral['atendidos'] }}
-                                    <br>
-                                    {{ estadisticaGeneral['noasistidos'] }}
-                                    <br>
-                                    {{ estadisticaGeneral['rechazados_libres']}}
-                                    <br>
-                                </div>
-                                <div class="col-sm-4 text-right" style="color:gray">
-                                    &nbsp;
-                                    <br>
-                                    {{ ((estadisticaGeneral['otorgados'] + estadisticaGeneral['rechazados_libres']) / estadisticaGeneral['total'] * 100) | round(2)}}%
-                                    <br>
-                                    {{ estadisticaGeneral['noatendidos'] > 0 ? (estadisticaGeneral['noatendidos'] / estadisticaGeneral['otorgados'] * 100) | round(2)}}%
-                                    <br>
-                                    {{ estadisticaGeneral['atendidos'] > 0 ? (estadisticaGeneral['atendidos'] / (estadisticaGeneral['otorgados'] + estadisticaGeneral['rechazados_libres']) * 100) | round(2)}}%
-                                    <br>
-                                    {{ estadisticaGeneral['noasistidos'] > 0 ? (estadisticaGeneral['noasistidos'] / (estadisticaGeneral['otorgados'] + estadisticaGeneral['rechazados_libres']) * 100) | round(2)}}%
-                                    <br>
-                                    {{ estadisticaGeneral['rechazados_libres'] > 0 ? ((estadisticaGeneral['rechazados_libres']) / (estadisticaGeneral['otorgados'] + estadisticaGeneral['rechazados_libres']) * 100) | round(2)}}% 
-                                </div>
-                            </div>
-                        </div>
-
-                        <center>
-                        <div class="card bg-light mb-2" style="max-width: 24rem; font-size:.85rem">
-                            <div class="card-header"><strong>Total de Rechazados: {{ estadisticaGeneral['rechazados_ocupados'] + estadisticaGeneral['rechazados_libres'] }}</strong></div>
+            <center>
+                <div class="row">
+                    <div class="col-lg-6 col-md-12">
+                        <div class="card border-primary mb-3" style="max-width: 40rem;">
+                            <div class="card-header"><strong>Resumen del Período {{desde}} al {{hasta}}</strong></div>
                             <div class="card-body text-primary">
                                 <div class="row">
-                                    <div class="col-sm-6 text-right">   
-                                        Vueltos a Ocupar:
+                                    <div class="col-sm-6 text-right">
+                                        Turnos Disponibles:
                                         <br>
-                                        Libres:
+                                        Otorgados:
+                                        <br>
+                                        No Atendidos:
+                                        <br>
+                                        Atendidos:
+                                        <br>
+                                        Ausentes:
+                                        <br>
+                                        Rechazados:
+                                        <br>
                                     </div>
                                     <div class="col-sm text-right">
-                                        {{ estadisticaGeneral['rechazados_ocupados'] }}
+                                        {{ estadisticaGeneral['total'] | number_format(0, ',', '.') }}
                                         <br>
-                                        {{ estadisticaGeneral['rechazados_libres'] }}
-                                    </div>
-    
-                                        <div class="col-sm-4 text-right" style="color:gray">
-{#                                        {{ (estadisticaGeneral['noasistidos'] / estadisticaGeneral['otorgados'] * 100) | round(2)}}% #}
+                                        {{ (estadisticaGeneral['otorgados'] + estadisticaGeneral['rechazados_libres']) | number_format(0, ',', '.') }}
                                         <br>
-{#                                        {{ (estadisticaGeneral['rechazados_ocupados'] / estadisticaGeneral['otorgados'] * 100) | round(2)}}% #}
+                                        {{ estadisticaGeneral['noatendidos'] | number_format(0, ',', '.') }}
+                                        <br>
+                                        {{ estadisticaGeneral['atendidos'] | number_format(0, ',', '.') }}
+                                        <br>
+                                        {{ estadisticaGeneral['noasistidos'] | number_format(0, ',', '.') }}
+                                        <br>
+                                        {{ estadisticaGeneral['rechazados_libres'] | number_format(0, ',', '.') }}
+                                        <br>
                                     </div>
+                                    <div class="col-sm-4 text-right" style="color:gray">
+                                        &nbsp;
+                                        <br>
+                                        {{ ((estadisticaGeneral['otorgados'] + estadisticaGeneral['rechazados_libres']) / estadisticaGeneral['total'] * 100) | number_format(2, ',', '.') }}%
+                                        <br>
+                                        {{ estadisticaGeneral['noatendidos'] > 0 ? (estadisticaGeneral['noatendidos'] / estadisticaGeneral['otorgados'] * 100) | number_format(2, ',', '.') }}%
+                                        <br>
+                                        {{ estadisticaGeneral['atendidos'] > 0 ? (estadisticaGeneral['atendidos'] / (estadisticaGeneral['otorgados'] + estadisticaGeneral['rechazados_libres']) * 100)| number_format(2, ',', '.') }}%
+                                        <br>
+                                        {{ estadisticaGeneral['noasistidos'] > 0 ? (estadisticaGeneral['noasistidos'] / (estadisticaGeneral['otorgados'] + estadisticaGeneral['rechazados_libres']) * 100)| number_format(2, ',', '.') }}%
+                                        <br>
+                                        {{ estadisticaGeneral['rechazados_libres'] > 0 ? ((estadisticaGeneral['rechazados_libres']) / (estadisticaGeneral['otorgados'] + estadisticaGeneral['rechazados_libres']) * 100)| number_format(2, ',', '.') }}% 
+                                    </div>
+                                </div>
                             </div>
-                          </div>  
-                          <div class="card-footer text-muted">Los turnos rechazados vueltos a ocupar no son considerados como turnos rechazados en las restantes vistas.</div>                                  
-                        </center>
-                    </div>
-                </div> 
 
-                <div class="col-6 float-right jsChart" data-is-authenticated="{{ piechart | length > 0 ? 'true' : 'false' }}">
-                    <div class="card border-primary mb-3" style="max-width: 60rem;">
-                        <div class="card-header"><strong>Vista General del Período {{desde}} al {{hasta}}</strong></div>
-                        <div class="card-body text-primary">
-                            <center><div id="div_chart"></div></center>
+                            <center>
+                            <div class="card bg-light mb-2" style="max-width: 30rem; font-size:.85rem">
+                                <div class="card-header"><strong>Total de Rechazados: {{ (estadisticaGeneral['rechazados_ocupados'] + estadisticaGeneral['rechazados_libres']) | number_format(0, ',', '.')  }}</strong></div>
+                                <div class="card-body text-primary">
+                                    <div class="row">
+                                        <div class="col-sm-6 text-right">   
+                                            Vueltos a Ocupar:
+                                            <br>
+                                            Libres:
+                                        </div>
+                                        <div class="col-sm text-right">
+                                            {{ estadisticaGeneral['rechazados_ocupados'] | number_format(0, ',', '.')  }}
+                                            <br>
+                                            {{ estadisticaGeneral['rechazados_libres'] | number_format(0, ',', '.')  }}
+                                        </div>
+        
+                                            <div class="col-sm-4 text-right" style="color:gray">
+    {#                                        {{ (estadisticaGeneral['noasistidos'] / estadisticaGeneral['otorgados'] * 100) | round(2)}}% #}
+                                            <br>
+    {#                                        {{ (estadisticaGeneral['rechazados_ocupados'] / estadisticaGeneral['otorgados'] * 100) | round(2)}}% #}
+                                        </div>
+                                </div>
+                            </div>  
+                            <div class="card-footer text-muted">Los turnos rechazados vueltos a ocupar no son considerados como turnos rechazados en las restantes vistas.</div>                                  
+                            </center>
+                        </div>
+                    </div> 
+
+                    <div class="col-lg-6 col-md-12 float-right jsChart" data-is-authenticated="{{ piechart | length > 0 ? 'true' : 'false' }}">
+                        <div class="card border-primary mb-3" style="max-width: 60rem;">
+                            <div class="card-header"><strong>Vista General del Período {{desde}} al {{hasta}}</strong></div>
+                            <div class="card-body text-primary">
+                                <center><div id="div_chart"></div></center>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </center>
     {% endif %}
 
     {% if estadisticaSemanal | length > 0 %}
