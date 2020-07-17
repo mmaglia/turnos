@@ -163,7 +163,8 @@ class Persona
         return $this;
     }
 
-    public function getPersona() {
+    public function getPersona()
+    {
         return $this->__toString();
     }
 
@@ -178,6 +179,4 @@ class Persona
 
         return $this;
     }
-
-
 }

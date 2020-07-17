@@ -58,7 +58,7 @@ class TurnoRechazarType extends AbstractType
                         $form->add('zoom', null, ['label' => 'Reunión Zoom', 'disabled' => true]);
                     }
             
-                    $form->add('motivoRechazo', TextareaType::class, ['label' => 'Motivo del Rechazo', 'mapped' => false, 'attr' => ['autofocus' => true]]);
+                    $form->add('motivoRechazo', TextareaType::class, ['label' => 'Motivo del Rechazo', 'mapped' => false, 'attr' => array('autofocus' => true, 'maxlength' => '1000')]);
                     $form->add('enviarMail', CheckboxType::class, [
                         'label'    => 'Notificar por Correo',
                         'mapped'   => false,

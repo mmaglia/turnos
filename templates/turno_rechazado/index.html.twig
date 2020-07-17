@@ -3,100 +3,45 @@
 {% block title %}Turnos Rechazados{% endblock %}
 
 {% block body %}
-
     <div class="row">
-        <div id="porcentajeAgendaAsignada" class="col col-3 text-left"></div>
-        <div class="col col-6 text-center">
-            <h1>Lista de Turnos Rechazados</h1>
+        <div class="col col-11 text-center">
+            <h1>Turnos Rechazados</h1>
         </div>
-        <div class="col col-3 text-right">
+        <div class="col col-1 text-right">
             <a href="{{path('turno_rechazado_index')}}" title="Actualizar Lista" class="d-print-none"><i class="fas fa-sync-alt"></i></a>
             &nbsp;&nbsp;&nbsp;&nbsp;
             <a onclick="window.print()" title="Imprimir Lista" class="d-print-none"><i class="fas fa-print fa-lg"></i></a>
         </div>
     </div>
-
-
-    <table class="table table-hover">
-        <thead>
-            <tr>
-                {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') %}
-                    <th>Oficina</th>
-                {% endif %}
-                <th>Rechazado</th>
-                <th>Turno</th>
-                <th>{% trans %}Persona{% endtrans %}</th>
-                <th>{% trans %}DNI{% endtrans %}</th>
-                <th>{% trans %}Motivo{% endtrans %}</th>
-                {% if SistemaOralidadCivil %}
-                    <th class="text-center">{% trans %}Notebook{% endtrans %}</th>
-                    <th class="text-center">{% trans %}Zoom{% endtrans %}</th>
-                {% endif %}                
-                <th>Motivo Rechazo</th>
-                <th class="text-center">Email Enviado</th>
-{#                <th>Acciones</th> #}
-            </tr>
-        </thead>
-        <tbody>
-        {% set cant = 0 %}
-        {% for turno_rechazado in turno_rechazados %}
-            {% set cant = cant + 1 %}
-            <tr>
-                {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') %}
-                    <td>{{ turno_rechazado.oficina }}</td>
-                {% endif %}
-                <td>{{ turno_rechazado.fechaHoraRechazo ? turno_rechazado.fechaHoraRechazo|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ turno_rechazado.fechaHoraTurno ? turno_rechazado.fechaHoraTurno|date('Y-m-d H:i:s') : '' }}</td>
-                <td {# Armo el tooltip considerando si existe persona vinculada al turno y si la persona registró el teléfono #}
-                    {% if turno_rechazado.persona is not null and turno_rechazado.persona != '' and turno_rechazado.persona.telefono is not null and turno_rechazado.persona.telefono != ''%}
-                        title="Correo:  {{ turno_rechazado.persona.email }}. Tel. Contacto: {{ turno_rechazado.persona.telefono }}"
-                    {% elseif turno_rechazado.persona is not null and turno_rechazado.persona != '' and (turno_rechazado.persona.telefono is null or turno_rechazado.persona.telefono == '') %}
-                            title="Correo:  {{ turno_rechazado.persona.email }}"
-                    {% endif %}
-                >
-                {% if SistemaTurnosWeb or SistemaTurnosMPE %}
-                    {{  turno_rechazado.persona is null or turno_rechazado.persona == '' ? '' : turno_rechazado.persona.apellido ~ ', ' ~ turno_rechazado.persona.nombre}}
-                    <td>{{ turno_rechazado.persona is null or turno_rechazado.persona == '' ? '' : turno_rechazado.persona.dni }}</td>
-                {% endif %}
-                {% if SistemaOralidadCivil %}
-                    {{  turno_rechazado.persona is null or turno_rechazado.persona == '' ? '' : turno_rechazado.persona.apellido ~ ' - ' ~ turno_rechazado.persona.nombre}}
-                    <td class="text-left">{{ turno_rechazado.persona is null or turno_rechazado.persona == '' ? '' : turno_rechazado.persona.organismo  ~ ' (' ~ turno_rechazado.persona.dni ~ ')' }}</td>
-                {% endif %}
-        
-                </td>
-                <td>{{ turno_rechazado.motivo }}</td>
-                {% if SistemaOralidadCivil %}
-                    <td class="text-center">{{ turno_rechazado.notebook ? '<i class="fas fa-check"></i>' : '' }}</td>
-                    <td class="text-center">{{ turno_rechazado.zoom ? '<i class="fas fa-check"></i>' : '' }}</td>
-                {% endif %}
-                <td>{{ turno_rechazado.motivoRechazo }}</td>
-                <td class="text-center">{{ turno_rechazado.emailEnviado ? '<i class="fas fa-check"></i>' : '' }}</td>
-{#                
-                <td>
-                    <a href="{{ path('turno_rechazado_show', {'id': turno_rechazado.id}) }}">show</a>
-                    <a href="{{ path('turno_rechazado_edit', {'id': turno_rechazado.id}) }}">edit</a>
-                </td>
-#}
-            </tr>
-        {% else %}
-            <tr>
-                {% if SistemaOralidadCivil %}
-                    <td colspan="9">No hay registros</td>
-                {% else %}
-                    <td colspan="7">No hay registros</td>
-                {% endif %}
-            </tr>
-        {% endfor %}
-        <div class="card border-primary mb-3 align-bottom float-right" style="max-width: 18rem; font-size: .8rem; background-color: rgb(255, 200, 200);">
-            <div class="card-body border-primary text-dark float-right" style="max-width: 18rem; padding: 0.3rem; background-color: rgb(255, 200, 200);">
-                <div class="card-body text-dark" style="font-size: 1rem;">
-                    Cantidad de Rechazos:
-                    <strong>{{ cant }}</strong>
-                </div>
-            </div>
-        </div>
-
-        </tbody>
-    </table>
-
+    <div class="row">
+		<div class="col-12">
+			<div id="rechazadosList">
+				<div class="d-flex justify-content-center">
+					<div class="spinner-border m-5" role="status">
+						<span class="sr-only">Cargando...</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+{% block javascripts %}
+	{{ parent() }}
+	<script>
+		$(function () {
+			var grillaRechazados = $('#rechazadosList').initDataTables( {{ datatable_settings(datatable) }}, {
+				dom: "B<'row' <'#busqueda.col-sm-1 text-left'f><'col-sm-11 text-right'i><'col-sm-12' tr>><'row' <'col-sm-6'l><'col-sm-6 text-right'p>>",
+                buttons: [],
+                searching: true,
+				language: {
+					"url": "{{ asset('build/static/traslation_dt_es.json') }}"
+				}
+			}).then(function (dt) {
+				dt.on('init', function(settings, json) {
+					$('#dt_filter input').attr("placeholder", "Fechas, Apellido, Nombre, DNI, Motivos");
+					$('#dt_filter input').width(300);                 
+				});
+			});
+		});
+	</script>
 {% endblock %}

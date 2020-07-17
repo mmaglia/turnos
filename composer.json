@@ -5,6 +5,7 @@
         "php": "^7.2.5",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "beberlei/doctrineextensions": "^1.2",
         "cmen/google-charts-bundle": "^3.2",
         "friendsofsymfony/ckeditor-bundle": "^2.2",
         "friendsofsymfony/jsrouting-bundle": "^2.6",

@@ -12,3 +12,6 @@ datatables:
 
     # You can for example override this to "tables" to keep the translation domains separated nicely
     translation_domain: 'messages'
+
+    # Load i18n data from DataTables CDN or locally
+    language_from_cdn: true

@@ -11,28 +11,16 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\Form\ChoiceList\View\ChoiceView;
 use App\Entity\Circunscripcion;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 
 class LocalidadType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('localidad', null, ['required' => true])
-            ->add('feriadosLocales', null, 
-                [
-                    'label' => 'Feriados Locales',
-                    'help' => 'Ingrese lista en formato dd/mm separada por coma (,). Ej: 30/09, 07/10'
-                ])
-            ->add(
-                'circunscripcion',
-                EntityType::class,
-                [
-                    'required' => true,
-                    'class' => Circunscripcion::class,
-                    'placeholder' => 'Seleccione una Circunscripción',
-                    'choice_label' => 'circunscripcion'
-                ]
-            );
+            ->add('localidad', TextType::class, ['required' => true, 'attr' => array('autofocus' => true, 'maxlength' => '80')])
+            ->add('feriadosLocales', TextType::class, ['label' => 'Feriados Locales','help' => 'Ingrese lista en formato dd/mm separada por coma (,). Ej: 30/09, 07/10', 'attr' => array('maxlength' => '100')])
+            ->add('circunscripcion', EntityType::class, ['required' => true, 'class' => Circunscripcion::class, 'placeholder' => 'Seleccione una Circunscripción', 'choice_label' => 'circunscripcion']);
     }
 
     public function configureOptions(OptionsResolver $resolver)

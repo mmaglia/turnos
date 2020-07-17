@@ -26,17 +26,23 @@ class UsuarioTableType extends AbstractController implements DataTableTypeInterf
     public function configure(DataTable $dataTable, array $options)
     {
         $dataTable->add('id', TextColumn::class, ['label' => '#', 'searchable' => false]);
-        $dataTable->add('username', TextColumn::class, ['label' => 'Usuario', 'searchable' => true, 'globalSearchable' => true]);
+        $dataTable->add('username', TextColumn::class, ['label' => 'Usuario', 'searchable' => true]);
         $dataTable->add('rolesUsuario', TextColumn::class, ['label' => 'Roles', 'searchable' => false, 'render' => function ($value, $context) {
             return str_replace('ROLE_', '', implode(', ', $context->getRoles()));
         }]);
-        $dataTable->add('apenom', TextColumn::class, ['label' => 'Apellido y Nombres', 'orderable' => true, 'searchable' => true, 'field' => 'u.apellido', 'globalSearchable' => true, 'render' => function ($value, $context) {
+        $dataTable->add('apenom', TextColumn::class, ['label' => 'Apellido y Nombres', 'orderable' => true, 'searchable' => true, 'field' => 'u.apellido', 'render' => function ($value, $context) {
             return $context->getApeNom();
         }]);
-        $dataTable->add('oficina', TextColumn::class, ['label' => 'Oficina', 'searchable' => false,  'field' => 'u.oficina']);
-        $dataTable->add('fecha_alta', DateTimeColumn::class, ['label' => 'Alta', 'format' => 'd-m-Y', 'className' => 'text-center', 'searchable' => false]);
-        $dataTable->add('fecha_baja', DateTimeColumn::class, ['label' => 'Baja', 'format' => 'd-m-Y', 'className' => 'text-center', 'searchable' => false]);
-        $dataTable->add('ultimo_acceso', DateTimeColumn::class, ['label' => 'Último Acceso', 'format' => 'd-m-Y', 'className' => 'text-center', 'searchable' => false]);
+        $dataTable->add('oficina', TextColumn::class, ['label' => 'Oficina', 'searchable' => false, 'field' => 'u.oficina']);
+        $dataTable->add('fecha_alta', DateTimeColumn::class, ['label' => 'Alta', 'format' => 'd-m-Y', 'className' => 'text-center', 'searchable' => true, 'operator' => 'LIKE', 'leftExpr' => "toChar(u.fecha_alta, 'DD-MM-YYYY HH24:MI:SS')", 'rightExpr' => function ($value) {
+            return '%' . $value . '%';
+        }]);
+        $dataTable->add('fecha_baja', DateTimeColumn::class, ['label' => 'Baja', 'format' => 'd-m-Y', 'className' => 'text-center', 'searchable' => true, 'operator' => 'LIKE', 'leftExpr' => "toChar(u.fecha_baja, 'DD-MM-YYYY HH24:MI:SS')", 'rightExpr' => function ($value) {
+            return '%' . $value . '%';
+        }]);
+        $dataTable->add('ultimo_acceso', DateTimeColumn::class, ['label' => 'Último Acceso', 'format' => 'd-m-Y', 'className' => 'text-center', 'searchable' => true, 'operator' => 'LIKE', 'leftExpr' => "toChar(u.ultimo_acceso, 'DD-MM-YYYY HH24:MI:SS')", 'rightExpr' => function ($value) {
+            return '%' . $value . '%';
+        }]);
         $dataTable->add('cantidad_accesos', TextColumn::class, ['label' => 'Accesos', 'className' => 'text-center', 'searchable' => false]);
         if ($this->isGranted(('ROLE_EDITOR'))) {
             $dataTable->add('acciones', TextColumn::class, ['label' => 'Acciones', 'className' => 'text-center', 'render' => function ($value, $context) {
@@ -44,7 +50,13 @@ class UsuarioTableType extends AbstractController implements DataTableTypeInterf
                     '&nbsp;&nbsp;<a href="' . $this->generateUrl('usuario_edit', ['id' => $context->getId()]) . '" title="Editar"><i class="fas fa-pen"></i></a>';
             }]);
         }
+
+        // Columnas duplicadas ocultas, para poder realizar busquedas individuales sobre campos puntuales
+        $dataTable->add('nombre', TextColumn::class, ['searchable' => true, 'visible' => false]);
+
+        // Orden de la grilla
         $dataTable->addOrderBy('username', DataTable::SORT_ASCENDING);
+
         $dataTable->createAdapter(ORMAdapter::class, [
             'entity' => Usuario::class,
             'query' => function (QueryBuilder $builder) {

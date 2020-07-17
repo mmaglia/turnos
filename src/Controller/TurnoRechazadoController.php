@@ -2,9 +2,10 @@
 
 namespace App\Controller;
 
+use App\DataTables\TurnoRechazadoTableType;
 use App\Entity\TurnoRechazado;
 use App\Form\TurnoRechazadoType;
-use App\Repository\TurnoRechazadoRepository;
+use Omines\DataTablesBundle\DataTableFactory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,24 +18,33 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 class TurnoRechazadoController extends AbstractController
 {
     /**
-     * @Route("/", name="turno_rechazado_index", methods={"GET"})
+     * Variable auxiliar para crear datatables
+     *
+     * @var [DataTableFactory]
      */
-    public function index(TurnoRechazadoRepository $turnoRechazadoRepository): Response
-    {
+    protected $datatableFactory;
 
-        if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_AUDITORIA_GESTION')) {
-            $turnos_rechazados = $turnoRechazadoRepository->findAllOrderedByColum('fechaHoraTurno');
-        } else {
-            if ($this->isGranted('ROLE_USER')) {
-                // Busca los rechazads correspondientes a la oficina del usuario logueado
-                $oficinaUsuario = $this->getUser()->getOficina();
-                $turnos_rechazados = $turnoRechazadoRepository->findAllOrderedByColum('fechaHoraTurno', null, $oficinaUsuario);
-            }
+    public function __construct(DataTableFactory $datatableFactory)
+    {
+        $this->datatableFactory = $datatableFactory;
+    }
+    /**
+     * @Route("/", name="turno_rechazado_index")
+     */
+    public function index(Request $request): Response
+    {
+        // Busca los rechazados correspondientes a la oficina del usuario logueado
+        $oficinaId = null;
+        if ($this->isGranted('ROLE_USER') && !is_null($this->getUser()->getOficina())) {
+            $oficinaId = $this->getUser()->getOficina()->getId();   // Obtengo Id de la Oficina asociada al Usuario
         }
 
-        return $this->render('turno_rechazado/index.html.twig', [
-            'turno_rechazados' => $turnos_rechazados
-        ]);
+        $table = $this->datatableFactory->createFromType(TurnoRechazadoTableType::class, is_null($oficinaId) ? array() : array($oficinaId))->handleRequest($request);
+        if ($table->isCallback()) {
+            return $table->getResponse();
+        }
+
+        return $this->render('turno_rechazado/index.html.twig', ['datatable' => $table]);
     }
 
     /**

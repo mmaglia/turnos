@@ -8,7 +8,7 @@
         "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
         "sInfoPostFix": "",
         "sSearch": "Buscar:",
-        "searchPlaceholder": "Apellidos, Nombres, Interno, Centrex, Externo",
+        "searchPlaceholder": "",
         "sUrl": "",
         "sInfoThousands": ",",
         "sLoadingRecords": "Cargando...",
@@ -25,8 +25,12 @@
         "select": {
             "rows": {
                 "_": "Esta seleccionando %d lineas",
-                "0": "",
+                "0": "Esta seleccionando 1 linea",
                 "1": ""
             }
+        },
+        "buttons" : {
+            "selectAll": "Todos",
+            "selectNone": "Ninguno"
         }
     }

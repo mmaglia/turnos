@@ -48,11 +48,12 @@
                 buttons: [],
                 searching: true,
 				language: {
-					"url": "{{ asset('/static/traslation_dt_es.json') }}"
+					"url": "{{ asset('build/static/traslation_dt_es.json') }}"
 				}
 			}).then(function (dt) {
 				dt.on('init', function(settings, json) {
 					$('#botonera-localidad').show();
+					$('#dt_filter input').attr("placeholder", "Localidad");
 				});
 			});
 		});

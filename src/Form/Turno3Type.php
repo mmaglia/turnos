@@ -6,6 +6,7 @@ use App\Entity\Turno;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormEvents;
@@ -20,7 +21,7 @@ class Turno3Type extends AbstractType
             ->add('circunscripcion', EntityType::class, [
                 'class' => 'App\Entity\Circunscripcion',
                 'placeholder' => 'Seleccione la Circunscripción',
-                'attr' => ['autofocus' => true],
+                'attr' => array('autofocus' => true),
                 'required' => true,
                 'mapped' => false
             ])
@@ -41,12 +42,12 @@ class Turno3Type extends AbstractType
 
 
         if ($_ENV['SISTEMA_TURNOS_WEB'] || $_ENV['SISTEMA_TURNOS_MPE']) {
-            $builder->add('motivo', null, ['help'   => ($_ENV['SISTEMA_TURNOS_MPE'] ? '-' : '')]);
+            $builder->add('motivo', TextType::class, ['help'   => ($_ENV['SISTEMA_TURNOS_MPE'] ? '-' : ''), 'attr' => array('maxlength' => '255')]);
         }
 
         if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
             $builder
-                ->add('motivo', null, ['help' => 'helpDatosAdicionales'])
+                ->add('motivo', TextType::class, ['help' => 'helpDatosAdicionales', 'attr' => array('maxlength' => '255')])
                 ->add('notebook', null, ['help' => 'helperRequiereNotebook'])
                 ->add('zoom', null, ['label'    => 'Reunión Zoom', 'help' => 'helperRequiereZoom']);
         }
