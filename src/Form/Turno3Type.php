@@ -42,12 +42,12 @@ class Turno3Type extends AbstractType
 
 
         if ($_ENV['SISTEMA_TURNOS_WEB'] || $_ENV['SISTEMA_TURNOS_MPE']) {
-            $builder->add('motivo', TextType::class, ['help'   => ($_ENV['SISTEMA_TURNOS_MPE'] ? '-' : ''), 'attr' => array('maxlength' => '255')]);
+            $builder->add('motivo',  TextType::class, ['required' => false, 'help'   => ($_ENV['SISTEMA_TURNOS_MPE'] ? '-' : ''), 'attr' => array('maxlength' => '255')]);
         }
 
         if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
             $builder
-                ->add('motivo', TextType::class, ['help' => 'helpDatosAdicionales', 'attr' => array('maxlength' => '255')])
+                ->add('motivo', TextType::class, ['required' => false, 'help' => 'helpDatosAdicionales', 'attr' => array('maxlength' => '255')])
                 ->add('notebook', null, ['help' => 'helperRequiereNotebook'])
                 ->add('zoom', null, ['label'    => 'Reunión Zoom', 'help' => 'helperRequiereZoom']);
         }
