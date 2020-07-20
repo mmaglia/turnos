@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Repository\TurnoRepository;
 use App\Repository\OficinaRepository;
 use App\Repository\TurnosDiariosRepository;
+use App\Repository\CircunscripcionRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -12,6 +13,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Psr\Log\LoggerInterface;
 use CMEN\GoogleChartsBundle\GoogleCharts\Charts\PieChart;
 use CMEN\GoogleChartsBundle\GoogleCharts\Charts\ColumnChart;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class EstadisticaController extends AbstractController
 {
@@ -80,6 +82,22 @@ class EstadisticaController extends AbstractController
             'desde' => $desde->format('d/m/Y'),
         ]);
     }
+
+
+    /**
+     * @Route("/estadistica/informeOcupacionPlena", name="informe_ocupacion_plena", methods={"GET", "POST"})
+     */
+    public function informeOcupacionPlena(OficinaRepository $oficinaRepository): Response
+    {
+
+        // Propone fecha (día actual)
+        $desde = new \DateTime(date("Y-m-d") . " 00:00:00");
+       
+        return $this->render('estadistica/indexInformeOcupacionPlena.html.twig', [
+            'desde' => $desde->format('d/m/Y'),
+        ]);
+    }
+    
      
 
     /**
@@ -505,4 +523,43 @@ class EstadisticaController extends AbstractController
         ]);
     }
 
+
+    /**
+     * @Route("/estadistica/showOcupacionPlena", name="informe_show_ocupacion_plena", methods={"GET", "POST"})
+     */
+    public function showOcupacionPlena(Request $request, OficinaRepository $oficinaRepository, TurnoRepository $turnoRepository, CircunscripcionRepository $circunscripcionRepository, LoggerInterface $logger): Response
+    {
+        $circunscripcionID = $request->request->get('circunscripcion');
+        $orden = $request->request->get('orden');
+
+        $orderBy = 'a.max DESC, 2, 1';
+        $ordenadoPor = 'Fecha Ult. 100%';
+        if ($orden == 2) {
+            $orderBy = '2, 1, a.max';
+            $ordenadoPor = 'Localidad y Organismo';
+        }
+
+        $circunscripcion = $circunscripcionRepository->find($circunscripcionID);
+
+        //Obtengo Datos para el Informe
+        $ocupacionesPlenas = $oficinaRepository->findMaximasOcupaciones($circunscripcionID, $orderBy);
+
+        // Audito la acción
+        $logger->info('Se emite informe de ocupación plena', [
+            'Circunscripción' => $circunscripcion,
+            'Usuario' => $this->getUser()->getUsuario()
+            ]
+        );
+
+
+        return $this->render('estadistica/showInformeOcupacionPlena.html.twig', [
+            'circunscripcion' => $circunscripcion,
+            'ordenadoPor' => $ordenadoPor,
+            'ocupacionesPlenas' => $ocupacionesPlenas
+        ]);
+        
+    }
+
+
 }
+

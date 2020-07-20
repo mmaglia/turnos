@@ -158,8 +158,37 @@ class OficinaRepository extends ServiceEntityRepository
 
     }
 
-    
 
+    public function findMaximasOcupaciones($circunscripcionID, $orderBy)
+    {
 
+        $em = $this->getEntityManager()->getConnection();
+        $sql = "
+            SELECT o.oficina, l.localidad, to_char(a.max, 'dd/mm/YYYY') as Maxima_Ocupacion, (a.max - now()::date) as dias,
+                (select max(fecha_hora::date) from turno t where t.oficina_id = o.id) as ultimoTurno,
+                ((select max(fecha_hora::date) from turno t where t.oficina_id = o.id) - a.max) as diasUltimoTurno
+            FROM oficina o inner join localidad l on l.id = o.localidad_id left join 
+                (select aux3.ofi,max(aux3.fec)
+                 from (select aux2.t01 as ofi, aux2.t02 as fec, sum(t03) as tot
+                        from (select t0.oficina_id as t01,t0.fecha_hora::date as t02,(case when t0.persona_id is null then 1 else 0 end) as t03
+                            from turno t0, (select t1.oficina_id as t11, t1.fecha_hora::date as t12
+                                                from turno t1
+                                                group by 1,2) aux
+                        where 	t0.oficina_id = aux.t11			       
+                                and t0.fecha_hora::date = aux.t12) as aux2
+                        group by 1,2) as aux3
+                 where aux3.tot = 0
+                 group by 1) a ON o.id = a.ofi
+            WHERE  l.circunscripcion_id = $circunscripcionID and a.max is not null and a.max >= now()::date
+            ORDER BY $orderBy
+        ";
+                    
+        $em = $this->getEntityManager();
+        $statement = $em->getConnection()->prepare($sql);
+        $statement->execute();
+        $result = $statement->fetchAll();
+        
+        return $result;
+    }    
 
 }

@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Informe de Ocupación Plena{% endblock %}
+
+{% block body %}
+    <h1>Fecha Máxima de Ocupación Plena por Oficina</h1>
+    <br>
+        <div class="row">
+            <div class="col-5"></div>
+            <div class="col-2 text-center form-group">
+                <form method="post" action="{{ path('informe_show_ocupacion_plena') }}">
+                    <div id="fechaHora" class="selectorFechaHora text-center" name="selectorFechaHora">
+                        <label for="cboCircunscripcion" id="lblCircunscripcion">Seleccione una Circunscripción</label>
+                        <select class="form-control" id="cboCircunscripcion" name="circunscripcion">
+                            <option value="1" selected>1. Santa Fe</option>
+                            <option value="2">2. Rosario</option>
+                            <option value="3">3. Venado Tuerto</option>
+                            <option value="4">4. Reconquista</option>
+                            <option value="5">5. Rafaela</option>
+                        </select>
+                        <br>
+                        <label for="cboOrden" id="lblOrden">Ordenar por</label>
+                        <select class="form-control" id="cboOrden" name="orden">
+                            <option value="1" selected>Fecha</option>
+                            <option value="2">Localidad y Organismo</option>
+                        </select>
+                    </div>
+                    <br><br>
+                    <center><button class="btn btn-primary">{{ button_label|default('Generar Informe') }}</button></center>
+                </form>
+            </div>
+        </div>
+
+{% endblock %}

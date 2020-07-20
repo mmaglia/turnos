@@ -24,10 +24,12 @@
                         <label for="txtFechaDesde" id="lblDesde">Ordenar por</label>
                         <div id="divOrden"><select class="form-control" id="cboOrden" name="orden"></select></div>
                     </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="chkOficinasFD" value="1" name="chkOficinasFD" checked>
-                        <label class="form-check-label" for="chkOficinasFD">Excluir Oficinas <i>"Firma Digital con Token - Obtención del Certificado"</i></label>
-                    </div>
+                    {% if SistemaTurnosWeb %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="chkOficinasFD" value="1" name="chkOficinasFD" checked>
+                            <label class="form-check-label" for="chkOficinasFD">Excluir Oficinas <i>"Firma Digital con Token - Obtención del Certificado"</i></label>
+                        </div>
+                    {% endif %}
                     <br><br>
                     <center><button class="btn btn-primary">{{ button_label|default('Generar Informe') }}</button></center>
                 </form>

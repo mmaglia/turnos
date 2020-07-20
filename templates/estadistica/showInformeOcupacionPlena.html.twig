@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Informe de Ocupación Plena{% endblock %}
+
+{% block body %}
+    <h1>Fecha Máxima de Ocupación Plena por Oficina</h1>
+    <h2>Circunscripción {{circunscripcion}}</h2>
+    <h2>Ordenado por {{ ordenadoPor }}</h2>
+    <h2>Emitido el {{ "now"|date("d/m/Y")}}</h2>
+    <br>
+    {% if ocupacionesPlenas | length > 0 %}
+        <div class="container-fluid"> 
+            <div class="row">
+                    <div class="col-12">
+                    <div class="card border-primary mb-3">
+                        <div class="card-header"><strong>Fecha Máxima con Ocupación del 100%</strong></div>
+                        <div class="card-body text-primary">
+                            <table class="table table-hover table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th rowspan="2">Oficina</th>
+                                        <th rowspan="2" class="text-center">Localidad</th>
+                                        <th colspan="2" class="text-center" colspan="2">Ocupación Plena</th>
+                                        <th colspan="2" class="text-center" colspan="2">Ultimo Turno</th>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-center">Ult. 100%</small></th>
+                                        <th class="text-right text-secondary"><small>Dentro de (días)</th>
+                                        <th class="text-center">Ultimo Turno</th>
+                                        <th class="text-right text-secondary"><small>Días con Disponibilidad</small></th>
+                                        
+                                    </tr>
+                                </thead>
+                                <tbody>
+                            {% for oficina in ocupacionesPlenas %}
+                                    <tr>
+                                        <td>{{ oficina['oficina']  }}</td>
+                                        <td class="text-center">{{ oficina['localidad'] }}</td>
+                                        <td class="text-center">{{ oficina['maxima_ocupacion'] }}</td>
+                                        <td class="text-right text-secondary"><small>{{ oficina['dias'] }}</small></td>
+                                        <td class="text-center">{{ oficina['ultimoturno'] | slice(8, 2) ~ '/' ~ oficina['ultimoturno'] | slice(5, 2) ~ '/' ~ oficina['ultimoturno'] | slice(0, 4) }}</td>
+                                        <td class="text-right text-secondary"><small>{{ oficina['diasultimoturno'] }}</small></td>
+                                    </tr>
+                            {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div> 
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <br>
+    <div class="container-fluid"> 
+        <div class="row">
+            <div class="col-12">
+                <a class="btn btn-secondary float-left volver" href="{{ path('estadistica_index') }}">Volver</a>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+    
