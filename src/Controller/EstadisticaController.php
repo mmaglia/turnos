@@ -152,7 +152,7 @@ class EstadisticaController extends AbstractController
 
         //Obtengo Estadística General
         if ($vistaGeneral) {
-            $estadisticaGeneral = $turnoRepository->findEstadistica($desde, $hasta, $oficinaId);
+            $estadisticaGeneral = !is_null($this->getUser()->getCircunscripcion()) ? $turnoRepository->findEstadisticaByCircunscripcion($desde, $hasta, $this->getUser()->getCircunscripcion()->getId()) : $turnoRepository->findEstadistica($desde, $hasta, $oficinaId);
         } else {
             $estadisticaGeneral = [];
         }
@@ -176,7 +176,8 @@ class EstadisticaController extends AbstractController
                 $semanaHasta = $semanaPrimerDia->modify('+6 days')->format('d/m/Y 23:59:59');
 
                 $i++;
-                $estadisticaSemanal[] = $turnoRepository->findEstadistica($semanaDesde, ($semanaPrimerDia < $DThasta ? $semanaHasta : $DThasta->format('d/m/Y 23:59:59')), $oficinaId);
+                
+                $estadisticaSemanal[] = !is_null($this->getUser()->getCircunscripcion()) ? $turnoRepository->findEstadisticaByCircunscripcion($semanaDesde, ($semanaPrimerDia < $DThasta ? $semanaHasta : $DThasta->format('d/m/Y 23:59:59')), $this->getUser()->getCircunscripcion()->getId()) : $turnoRepository->findEstadistica($semanaDesde, ($semanaPrimerDia < $DThasta ? $semanaHasta : $DThasta->format('d/m/Y 23:59:59')), $oficinaId);
 
                 if ($semanaPrimerDia > $DThasta) {
                     break;
@@ -206,7 +207,8 @@ class EstadisticaController extends AbstractController
                 $diaHasta = $diaPrimerDia->modify('+0 days')->format('d/m/Y 23:59:59');
 
                 $i++;
-                $estadistica = $turnoRepository->findEstadistica($diaDesde, ($diaPrimerDia < $DThasta ? $diaHasta : $DThasta->format('d/m/Y 23:59:59')), $oficinaId);
+                
+                $estadistica = !is_null($this->getUser()->getCircunscripcion()) ? $turnoRepository->findEstadisticaByCircunscripcion($diaDesde, ($diaPrimerDia < $DThasta ? $diaHasta : $DThasta->format('d/m/Y 23:59:59')), $this->getUser()->getCircunscripcion()->getId()) : $turnoRepository->findEstadistica($diaDesde, ($diaPrimerDia < $DThasta ? $diaHasta : $DThasta->format('d/m/Y 23:59:59')), $oficinaId);
                 if (($estadistica['total'] || $vistaSinTurno) && !$vistaSoloSinTurno) {
                     // Incorporo si existe al menos un turno generado (excluyo feriados y fines de semana) a menos que haya optado por ello
                     $estadisticaDiaria[] =  $estadistica;
@@ -302,7 +304,7 @@ class EstadisticaController extends AbstractController
         }
 
         //Obtengo Estadística Diaria
-        $estadistica = $turnosDiariosRepository->findEstadistica($desde, $hasta, $oficinaId);
+        $estadistica = !is_null($this->getUser()->getCircunscripcion()) ? $turnosDiariosRepository->findEstadisticaByCircunscripcion($desde, $hasta, $this->getUser()->getCircunscripcion()->getId()) : $turnosDiariosRepository->findEstadistica($desde, $hasta, $oficinaId);
 
 
         $datosGrafico = [['Fecha', 'Cantidad']];
@@ -398,8 +400,8 @@ class EstadisticaController extends AbstractController
             foreach ($oficinas as $ofi) {
                 if ($excluirOficinasFD && stristr($ofi['oficina'], 'firma digital con token'))
                     continue;
-
-                $estadistica = $turnoRepository->findEstadistica($diaDesde, $diaHasta, $ofi['id']);
+                
+                $estadistica = !is_null($this->getUser()->getCircunscripcion()) ? $turnoRepository->findEstadisticaByCircunscripcion($diaDesde, $diaHasta, $this->getUser()->getCircunscripcion()->getId()) : $turnoRepository->findEstadistica($diaDesde, $diaHasta, $ofi['id']);
                 $datosOcupacion[] = [
                     'id' => $ofi['id'], 'oficina' => $ofi['oficina'], 'localidad' => $ofi['localidad'], 'ultimoTurno' => $ofi['ultimoTurno'], 'habilitada' => $ofi['habilitada'],
                     'desde' => $estadistica['desde'], 'hasta' => $estadistica['hasta'], 'total' => $estadistica['total'], 'otorgados' => $estadistica['otorgados'], 'noatendidos' => $estadistica['noatendidos'], 'atendidos' => $estadistica['atendidos'], 'noasistidos' => $estadistica['noasistidos'], 'rechazados_ocupados' => $estadistica['rechazados_ocupados'], 'rechazados_libres' => $estadistica['rechazados_libres'],

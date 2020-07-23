@@ -355,6 +355,34 @@ class TurnoRepository extends ServiceEntityRepository
         return $result[0];
     }
 
+    public function findEstadisticaByCircunscripcion($desde, $hasta, $circunscripcion_id)
+    {        
+        //t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id
+        $sql = "SELECT '$desde' as Desde, '$hasta' as Hasta,
+                        (SELECT count(*) FROM turno t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id = :circunscripcion_id AND t.fecha_hora BETWEEN :desde AND :hasta) as Total,
+                        (SELECT count(*) FROM turno t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id = :circunscripcion_id AND t.fecha_hora BETWEEN :desde AND :hasta and t.persona_id IS NOT NULL) as Otorgados,
+                        (SELECT count(*) FROM turno t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id = :circunscripcion_id AND t.fecha_hora BETWEEN :desde AND :hasta and t.persona_id IS NOT NULL and t.estado = 1) as NoAtendidos,
+                        (SELECT count(*) FROM turno t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id = :circunscripcion_id AND t.fecha_hora BETWEEN :desde AND :hasta and t.persona_id IS NOT NULL and t.estado = 2) as Atendidos,
+                        (SELECT count(*) FROM turno t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id = :circunscripcion_id AND t.fecha_hora BETWEEN :desde AND :hasta and t.persona_id IS NOT NULL and t.estado = 3) as NoAsistidos,
+                        (SELECT count(*) FROM turno_rechazado tr INNER JOIN oficina o ON tr.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id = :circunscripcion_id AND fecha_hora_turno BETWEEN :desde AND :hasta AND EXISTS (
+                            SELECT 1 FROM turno t WHERE t.fecha_hora = tr.fecha_hora_turno and t.oficina_id = tr.oficina_id AND t.persona_id IS NOT NULL)
+                        ) as Rechazados_Ocupados,
+                        (SELECT count(*) FROM turno_rechazado tr INNER JOIN oficina o ON tr.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id = :circunscripcion_id AND fecha_hora_turno BETWEEN :desde AND :hasta AND EXISTS (
+                            SELECT 1 FROM turno t WHERE t.fecha_hora = tr.fecha_hora_turno and t.oficina_id = tr.oficina_id AND t.persona_id IS NULL)
+                        ) as Rechazados_Libres
+            ";
+
+        $em = $this->getEntityManager();
+        $statement = $em->getConnection()->prepare($sql);
+        $statement->bindValue('desde', $desde);
+        $statement->bindValue('hasta', $hasta);
+        $statement->bindValue('circunscripcion_id', $circunscripcion_id);
+        $statement->execute();
+        $result = $statement->fetchAll();
+
+        return $result[0];
+    }
+
     public function findById($turnoId): ?Turno
     {
         return $this->createQueryBuilder('t')
