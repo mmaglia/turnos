@@ -34,36 +34,46 @@ class TurnoRepository extends ServiceEntityRepository
      * @param $estado
      * @param $circunscripcionUsuario Circunscripción del usuario
      */
-    public function findByRoleAdmin($rango, $estado, $circunscripcionUsuario)
+    public function findByRoleAdmin($rango, $estado, $circunscripcionUsuario = null)
     {
-        if ($estado == 9) { // Todos
-            $consultaSQL = 'SELECT t FROM App\Entity\Turno t WHERE t.fechaHora BETWEEN :desde AND :hasta ORDER BY t.oficina, t.fechaHora';
-            if ($circunscripcionUsuario) {
+        if ($estado == 9) { // Todos            
+            if (!is_null($circunscripcionUsuario)) {
                 $consultaSQL = 'SELECT t FROM App\Entity\Turno t JOIN t.oficina o JOIN o.localidad l WHERE t.fechaHora BETWEEN :desde AND :hasta AND l.circunscripcion = :circunscripcion ORDER BY t.oficina, t.fechaHora';
+                $result = $this->getEntityManager()
+                    ->createQuery($consultaSQL)
+                    ->setParameter('desde', $rango['desde'])
+                    ->setParameter('hasta', $rango['hasta'])
+                    ->setParameter('hasta', $rango['hasta'])
+                    ->setParameter('circunscripcion', $circunscripcionUsuario)
+                    ->getResult();
+            } else {
+                $consultaSQL = 'SELECT t FROM App\Entity\Turno t WHERE t.fechaHora BETWEEN :desde AND :hasta ORDER BY t.oficina, t.fechaHora';
+                $result = $this->getEntityManager()
+                    ->createQuery($consultaSQL)
+                    ->setParameter('desde', $rango['desde'])
+                    ->setParameter('hasta', $rango['hasta'])
+                    ->setParameter('hasta', $rango['hasta'])
+                    ->getResult();
             }
-            $result = $this->getEntityManager()
-                ->createQuery($consultaSQL)
-                ->setParameter('desde', $rango['desde'])
-                ->setParameter('hasta', $rango['hasta'])
-                ->setParameter('hasta', $rango['hasta']);
-            if ($circunscripcionUsuario) {
-                $result->setParameter('circunscripcion', $circunscripcionUsuario);
-            }
-            $result->getResult();
         } else {
-            $consultaSQL = 'SELECT t FROM App\Entity\Turno t WHERE t.fechaHora BETWEEN :desde AND :hasta AND t.persona IS NOT NULL and t.estado = :estado ORDER BY t.oficina, t.fechaHora';
-            if ($circunscripcionUsuario) {
+            if (!is_null($circunscripcionUsuario)) {
                 $consultaSQL = 'SELECT t FROM App\Entity\Turno t JOIN t.oficina o JOIN o.localidad l WHERE t.fechaHora BETWEEN :desde AND :hasta AND l.circunscripcion = :circunscripcion AND t.persona IS NOT NULL and t.estado = :estado ORDER BY t.oficina, t.fechaHora';
+                $result = $this->getEntityManager()
+                    ->createQuery($consultaSQL)
+                    ->setParameter('desde', $rango['desde'])
+                    ->setParameter('hasta', $rango['hasta'])
+                    ->setParameter('estado', $estado)
+                    ->setParameter('circunscripcion', $circunscripcionUsuario)
+                    ->getResult();
+            } else {
+                $consultaSQL = 'SELECT t FROM App\Entity\Turno t WHERE t.fechaHora BETWEEN :desde AND :hasta AND t.persona IS NOT NULL and t.estado = :estado ORDER BY t.oficina, t.fechaHora';
+                $result = $this->getEntityManager()
+                    ->createQuery($consultaSQL)
+                    ->setParameter('desde', $rango['desde'])
+                    ->setParameter('hasta', $rango['hasta'])
+                    ->setParameter('estado', $estado)
+                    ->getResult();
             }
-            $result = $this->getEntityManager()
-                ->createQuery($consultaSQL)
-                ->setParameter('desde', $rango['desde'])
-                ->setParameter('hasta', $rango['hasta'])
-                ->setParameter('estado', $estado);
-            if ($circunscripcionUsuario) {
-                $result->setParameter('circunscripcion', $circunscripcionUsuario);
-            }
-            $result->getResult();
         }
         return $result;
     }
@@ -290,7 +300,7 @@ class TurnoRepository extends ServiceEntityRepository
         if (!is_null($circunscripcion_id)) {
             $filter .= ' AND l.circunscripcion_id = :circunscripcion_id';
             $sql = "SELECT count(*) as cantidad FROM turno t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE t.persona_id is not null $filter AND t.fecha_hora > now()";
-        }       
+        }
 
         $em = $this->getEntityManager();
         $statement = $em->getConnection()->prepare($sql);

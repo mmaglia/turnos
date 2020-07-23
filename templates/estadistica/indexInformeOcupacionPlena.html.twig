@@ -12,11 +12,24 @@
                     <div id="fechaHora" class="selectorFechaHora text-center" name="selectorFechaHora">
                         <label for="cboCircunscripcion" id="lblCircunscripcion">Seleccione una Circunscripción</label>
                         <select class="form-control" id="cboCircunscripcion" name="circunscripcion">
-                            <option value="1" selected>1. Santa Fe</option>
-                            <option value="2">2. Rosario</option>
-                            <option value="3">3. Venado Tuerto</option>
-                            <option value="4">4. Reconquista</option>
-                            <option value="5">5. Rafaela</option>
+                            {# Dependiendo si el usuario loguado tiene seteada la circunscripción o no decido que mostrar en este combo #}
+                            {% if app.user.getCircunscripcion() %}
+                                {% if app.user.getCircunscripcion().getId() == 1 %}
+                                    <option value="1" selected>1. Santa Fe</option>
+                                    <option value="4">4. Reconquista</option>
+                                    <option value="5">5. Rafaela</option>
+                                {% else %}
+                                    <option value="2">2. Rosario</option>
+                                    <option value="3">3. Venado Tuerto</option>
+                                {% endif %}
+                            {% else %}
+                                <option value="1" selected>1. Santa Fe</option>
+                                <option value="2">2. Rosario</option>
+                                <option value="3">3. Venado Tuerto</option>
+                                <option value="4">4. Reconquista</option>
+                                <option value="5">5. Rafaela</option>
+                            {% endif %}
+                            
                         </select>
                         <br>
                         <label for="cboOrden" id="lblOrden">Ordenar por</label>
