@@ -78,6 +78,11 @@ class Usuario implements UserInterface
      */
     private $oficina;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Circunscripcion")
+     */
+    private $circunscripcion;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -260,6 +265,18 @@ class Usuario implements UserInterface
     public function setOficina(?Oficina $oficina): self
     {
         $this->oficina = $oficina;
+
+        return $this;
+    }
+
+    public function getCircunscripcion(): ?Circunscripcion
+    {
+        return $this->circunscripcion;
+    }
+
+    public function setCircunscripcion(?Circunscripcion $circunscripcion): self
+    {
+        $this->circunscripcion = $circunscripcion;
 
         return $this;
     }

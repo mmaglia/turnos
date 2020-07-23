@@ -80,6 +80,18 @@ class OficinaRepository extends ServiceEntityRepository
         return $result;
     }    
 
+    public function findOficinasByCircunscripcion($circunscripcion_id)
+    {
+        $sql = "SELECT o.id, concat(o.oficina, ' (', l.localidad, ')') as Oficina FROM oficina o INNER JOIN localidad l ON l.id = o.localidad_id WHERE l.circunscripcion_id = $circunscripcion_id ORDER BY l.localidad, 2";
+                    
+        $em = $this->getEntityManager();
+        $statement = $em->getConnection()->prepare($sql);
+        $statement->execute();
+        $result = $statement->fetchAll();
+
+        return $result;
+    } 
+
     public function findById($oficinaId): ?Oficina
     {
         

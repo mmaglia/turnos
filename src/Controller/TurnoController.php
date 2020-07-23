@@ -100,7 +100,7 @@ class TurnoController extends AbstractController
             if ($filtroOficina) {
                 $turnosOtorgados = $pagination = $paginator->paginate($turnoRepository->findWithRoleUser($rango, $estado, $filtroOficina), $request->query->getInt('page', 1), 100);
             } else {
-                $turnosOtorgados = $pagination = $paginator->paginate($turnoRepository->findByRoleAdmin($rango, $estado), $request->query->getInt('page', 1), 100);
+                $turnosOtorgados = $pagination = $paginator->paginate($turnoRepository->findByRoleAdmin($rango, $estado, !is_null($this->getUser()->getCircunscripcion()) ? $this->getUser()->getCircunscripcion()->getId() : null), $request->query->getInt('page', 1), 100);
             }
         } else {
             if ($this->isGranted('ROLE_USER')) {
@@ -148,7 +148,7 @@ class TurnoController extends AbstractController
     public function new2(Request $request, SessionInterface $session): Response
     {
         $session->start();
-        
+
         $persona = new Persona();
         $form = $this->createForm(PersonaType::class, $persona);
         $form->handleRequest($request);
@@ -170,7 +170,7 @@ class TurnoController extends AbstractController
         // Si no existe la cookie o si el modo de operación es de TURNOS_WEB asigno 0
         return $this->render('persona/new.html.twig', [
             'persona' => $persona,
-            'organismo' => ( $_ENV['SISTEMA_ORALIDAD_CIVIL'] ? ($request->cookies->get('organismo') ? $request->cookies->get('organismo') : 0) : 0),
+            'organismo' => ($_ENV['SISTEMA_ORALIDAD_CIVIL'] ? ($request->cookies->get('organismo') ? $request->cookies->get('organismo') : 0) : 0),
             'form' => $form->createView(),
         ]);
     }
@@ -284,11 +284,11 @@ class TurnoController extends AbstractController
             $orgId = $persona->getDni();
 
             $entityManager = $this->getDoctrine()->getManager();
-            
+
             $organismo = $entityManager->getRepository(Organismo::class)->findOneBy(['codigo' => $orgId]);
-            $localidadOrganismo =$organismo->getLocalidad()->getLocalidad();
+            $localidadOrganismo = $organismo->getLocalidad()->getLocalidad();
         }
-        
+
         $form = $this->createForm(Turno5Type::class, $turno);
         $form->handleRequest($request);
 
@@ -312,7 +312,7 @@ class TurnoController extends AbstractController
                 if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
                     $persona->setOrganismo($organismo);
                     $turnoActualizar->setNotebook($turno->getNotebook());
-                    $turnoActualizar->setZoom($turno->getZoom());    
+                    $turnoActualizar->setZoom($turno->getZoom());
                 }
 
                 $turnoActualizar->setMotivo($turno->getMotivo());
@@ -371,7 +371,7 @@ class TurnoController extends AbstractController
 
         $form = $this->createForm(Turno5Type::class, $turno);
         $form->handleRequest($request);
-       
+
         if ($form->isSubmitted() && $form->isValid()) {
             return $this->redirectToRoute('turno_new4');
         }
@@ -400,7 +400,7 @@ class TurnoController extends AbstractController
     public function sendEmail(SessionInterface $session, MailerInterface $mailer, LoggerInterface $logger, UrlGeneratorInterface $urlGenerator)
     {
         $turno = $session->get('turno');
-        
+
         if (!is_null($turno) && !is_null($turno->getPersona())) {
 
             // Si la persona ingresó un correo, envía una notificación con los datos del turno
@@ -446,7 +446,7 @@ class TurnoController extends AbstractController
                 ]
             );
             throw new \Exception('El turno obtenido de la sessión se obtuvo nulo. Chequee en aplication.log si el turno fue confirmado.');
-        }        
+        }
     }
 
     /**
@@ -456,32 +456,32 @@ class TurnoController extends AbstractController
      */
     public function comprobanteTurno(Request $request, SessionInterface $session, UrlGeneratorInterface $urlGenerator)
     {
-        $turno = $session->get('turno');  
+        $turno = $session->get('turno');
 
         // Si viene sin instancia de turno o sin ID de Turno lo redirige a la página de portada
         if (!$turno || !$turno->getId()) {
             return $this->redirectToRoute('main');
         }
-        
+
         $form = $this->createForm(Turno5Type::class, $turno);
         $form->handleRequest($request);
-        
+
 
         // Encripto el ID del turno para el Código de Barras
-        
+
         // TODO Aparentemente el lector de códigos del PJ al levantar el código no reconoce los caracteres + e =
         //      ¿Probar con otro tipo de codificación? La utilizada es C128.
         $hash = $this->encrypt($turno->getId());
 
         // Datos del código QR
         if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
-            $solicitante = $form->getData()->getPersona()->getOrganismo()->getOrganismo() . '(' . $form->getData()->getPersona()->getOrganismo()->getLocalidad() .')';
+            $solicitante = $form->getData()->getPersona()->getOrganismo()->getOrganismo() . '(' . $form->getData()->getPersona()->getOrganismo()->getLocalidad() . ')';
         }
         if ($_ENV['SISTEMA_TURNOS_WEB'] || $_ENV['SISTEMA_TURNOS_MPE']) {
             $solicitante = $form->getData()->getPersona()->getApellido() . ',' . $form->getData()->getPersona()->getNombre();
         }
 
-        $fechaHora = 'Turno ' . $form->getData()->getFechaHora()->format('d/m/Y') . ' a las ' . $form->getData()->getFechaHora()->format('H:i') .'hs.';
+        $fechaHora = 'Turno ' . $form->getData()->getFechaHora()->format('d/m/Y') . ' a las ' . $form->getData()->getFechaHora()->format('H:i') . 'hs.';
         $datosAdicionales = $form->getData()->getMotivo();
         $qr = $fechaHora  . "\n \n" . $solicitante . "\n \n" . $datosAdicionales;
 
@@ -504,7 +504,7 @@ class TurnoController extends AbstractController
 
             $orgId = $turno->getPersona()->getOrganismo()->getId();
             $time = time() + (3600 * 24 * 365); // Un año
-            
+
             $response->headers->setCookie(new Cookie('organismo',  $orgId, $time));
         }
 
@@ -518,21 +518,24 @@ class TurnoController extends AbstractController
      */
     public function cancelacionTurno(Request $request, TurnoRepository $turnoRepository, SessionInterface $session, LoggerInterface $logger): Response
     {
-        $mensaje='';
-        $error='';
+        $mensaje = '';
+        $error = '';
 
         //Construyo el formulario al vuelo
         // Verifico si recibo parámetro por GET y lo traslado al formulario
         $code = (($request->query->get('code')) ? $request->query->get('code') : '');
 
         $form = $this->createFormBuilder()
-            ->add('dni', IntegerType::class, 
+            ->add(
+                'dni',
+                IntegerType::class,
                 [
-                    'label' => 'DNI', 
+                    'label' => 'DNI',
                     'help' => ' Ingrese el DNI del solicitante del turno',
-                    'required' => true,                     
+                    'required' => true,
                     'attr' => array('autofocus' => true, 'min' => '1000000', 'max' => '99999999')
-                ])
+                ]
+            )
             ->add('code', HiddenType::class, ['data' => $code])
             ->getForm();
         $form->handleRequest($request);
@@ -543,9 +546,9 @@ class TurnoController extends AbstractController
 
             $idTurno = $this->decrypt($codigo); // Obtengo el ID del turno desencriptado
 
-            if ( $idTurno) {
+            if ($idTurno) {
                 $turno = $turnoRepository->findById($idTurno);
-                if ($turno->getPersona() && $turno->getPersona()->getDni() && $turno->getPersona()->getDni() == $dni) {                    
+                if ($turno->getPersona() && $turno->getPersona()->getDni() && $turno->getPersona()->getDni() == $dni) {
                     $mensaje = 'El turno de fecha ha sido cancelado';
                     $logger->info(('Cancelación de turno efectuada por el solicitante'), ['Turno ID' => $idTurno, 'DNI' => $dni]);
 
@@ -575,13 +578,12 @@ class TurnoController extends AbstractController
                     // Grabo
                     $this->getDoctrine()->getManager()->persist($turnoRechazado);
                     $this->getDoctrine()->getManager()->flush();
-                }
-                else {
+                } else {
                     $error = 'No se ha encontrado el turno para su cancelación. Verifique que el DNI sea el mismo que oportunamente se ingresó al solicitar el turno.';
                 }
             }
         }
-                                                                                           
+
         return $this->render('turno/cancelacion_turno.html.twig', [
             'mensaje' => $mensaje,
             'error' => $error,
@@ -607,13 +609,13 @@ class TurnoController extends AbstractController
      * @IsGranted("ROLE_EDITOR")
      */
     public function edit(Request $request, Turno $turno, SessionInterface $session, LoggerInterface $logger, TranslatorInterface $translator): Response
-    {      
+    {
         $form = $this->createForm(TurnoType::class, $turno);
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            
+
             $estados = [
                 1 => $translator->trans('Sin Atender'),
                 2 => $translator->trans('Atendido'),
@@ -629,24 +631,24 @@ class TurnoController extends AbstractController
 
             // Armo salida para el Log
             $cambios = [];
-            if(isset($changeSet['fechaHora'])){
+            if (isset($changeSet['fechaHora'])) {
                 $cambios[] = ['Fecha Hora' => " '" . $changeSet['fechaHora'][0]->format('d/m/Y H:i:s') . "' a '" . $changeSet['fechaHora'][1]->format('d/m/Y H:i:s') . "' "];
             }
-            if(isset($changeSet['motivo'])){
+            if (isset($changeSet['motivo'])) {
                 $cambios[] = ['Motivo' => " '" . $changeSet['motivo'][0] . "' a '" . $changeSet['motivo'][1] . "' "];
             }
-            if(isset($changeSet['estado'])){
+            if (isset($changeSet['estado'])) {
                 $anterior = $estados[$changeSet['estado'][0]];
                 $nuevo = $estados[$changeSet['estado'][1]];
                 $cambios[] = ['Estado' => " '" . $anterior . "' a '" . $nuevo . "' "];
-            }          
-            
+            }
+
             $cambios[] = ['Turno' => $turno->getTurno()];
             $cambios[] = ['Usuario' => $this->getUser()->getUsuario()];
             $logger->info('Turno Editado', $cambios);
 
             // Grabo
-            $this->getDoctrine()->getManager()->flush();    
+            $this->getDoctrine()->getManager()->flush();
             $this->addFlash('success', 'Se han guardado los cambios');
 
             // Regreso al lugar desde que invoqué la edición
@@ -659,7 +661,7 @@ class TurnoController extends AbstractController
 
         return $this->render('turno/edit.html.twig', [
             'turno' => $turno,
-            'persona' =>$turno->getPersona(),
+            'persona' => $turno->getPersona(),
             'escanerCodigo' => $session->get('escanerCodigo'),
             'oficinaUsuario' => ($this->getUser()->getOficina() ? $this->getUser()->getOficina()->getId() : ''),
             'form' => $form->createView(),
@@ -674,7 +676,7 @@ class TurnoController extends AbstractController
      */
     public function barcode(Request $request, TurnoRepository $turnoRepository, SessionInterface $session, LoggerInterface $logger): Response
     {
-        $error='';
+        $error = '';
 
         //Construyo el formulario al vuelo
         // Verifico si recibo parámetro por GET y lo traslado al formulario
@@ -683,17 +685,20 @@ class TurnoController extends AbstractController
         ];
 
         $form = $this->createFormBuilder($data)
-            ->add('codigo', null,
+            ->add(
+                'codigo',
+                null,
                 [
                     'label' => 'Código',
                     'required' => true,
                     'attr' => array('autofocus' => null, 'maxlength' => '50'),
                     'help' => 'Ingrese Código del talón o escanee el Código de Barras o el Código QR',
-                ])
+                ]
+            )
             ->add('save', SubmitType::class, [
                 'label' => 'Confirmar',
                 'attr' => ['class' => 'btn btn-primary float-right']
-                ])        
+            ])
             ->getForm();
         $form->handleRequest($request);
 
@@ -705,7 +710,7 @@ class TurnoController extends AbstractController
                 $turno = $turnoRepository->findById($idTurno);
                 if ($turno) {
                     $session->set('escanerCodigo', 1);  // Marca que se encuentra activa la funcionalidad de escaneo de códigos 
-                                                        // de turno y no la lista de turnos para retornar aquí luego de la edición
+                    // de turno y no la lista de turnos para retornar aquí luego de la edición
 
                     $logger->info(('Lee código de barras'),
                         [
@@ -713,11 +718,11 @@ class TurnoController extends AbstractController
                             'Usuario' => $this->getUser()->getUsuario()
                         ]
                     );
-                                                                                            
+
                     return $this->redirectToRoute('turno_edit', ['id' => $idTurno]);
                 } else {
                     $error = 'No se localizó el turno';
-                }    
+                }
             } else {
                 $error = 'Código incorrecto';
             }
@@ -754,7 +759,6 @@ class TurnoController extends AbstractController
         }
 
         return $this->redirectToRoute('turno_index');
-
     }
 
     /**
@@ -794,7 +798,7 @@ class TurnoController extends AbstractController
      */
     public function no_asistido(Turno $turno, LoggerInterface $logger, TranslatorInterface $translator): Response
     {
-        if ($turno->getEstado() == 1) { 
+        if ($turno->getEstado() == 1) {
             $turno->setEstado(3);
             $this->getDoctrine()->getManager()->flush();
             $this->addFlash('success', $translator->trans('El turno') . ' se ha marcado como ' . $translator->trans('Ausente'));
@@ -809,7 +813,6 @@ class TurnoController extends AbstractController
         }
 
         return $this->redirectToRoute('turno_index');
-        
     }
 
     /**
@@ -837,7 +840,7 @@ class TurnoController extends AbstractController
                 $motivoRechazo = $request->request->get('turno_rechazar')['motivoRechazo'];
 
                 // Envia correo notificando el Rechazo
-                if (isset($request->request->get('turno_rechazar')['enviarMail']) && $turno->getPersona() && $turno->getPersona()->getEmail() ) {
+                if (isset($request->request->get('turno_rechazar')['enviarMail']) && $turno->getPersona() && $turno->getPersona()->getEmail()) {
 
                     // Establece que plantilla de correo se utilizará en función al tipo de Sistema
                     $mailTemplate = 'turno/email_rechazado_turno_web.html.twig';
@@ -939,7 +942,7 @@ class TurnoController extends AbstractController
     {
         $localidades = $oficinaRepository->findByLocalidadesHabilitadasByCircunscripcion($circunscripcion_id);
         return new JsonResponse($localidades);
-    }    
+    }
 
 
     /**
@@ -965,7 +968,13 @@ class TurnoController extends AbstractController
      */
     public function oficinas(OficinaRepository $oficinaRepository)
     {
-        $oficinas = $oficinaRepository->findAllOficinas();
+        $oficinas = array();
+        if (is_null($this->getUser()->getCircunscripcion())) {
+            $oficinas = $oficinaRepository->findAllOficinas();
+        } else {
+            $oficinas = $oficinaRepository->findOficinasByCircunscripcion($this->getUser()->getCircunscripcion()->getId());
+        }
+
         return new JsonResponse($oficinas);
     }
 
@@ -991,7 +1000,7 @@ class TurnoController extends AbstractController
      * 
      * @return string JSON con las Oficinas del MP Civil de una Localidad
      */
-    public function oficinasMPCivilByLocalidad($localidad_id, OficinaRepository $oficinaRepository)        
+    public function oficinasMPCivilByLocalidad($localidad_id, OficinaRepository $oficinaRepository)
     {
         $oficinas = $oficinaRepository->findOficinasHabilitadasByLocalidadWithTelefono($localidad_id);
         return new JsonResponse($oficinas);
@@ -1098,12 +1107,12 @@ class TurnoController extends AbstractController
         $nivelOcupacionAgenda = 0;
         if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_AUDITORIA_GESTION')) {
             $filtroOficina = $request->request->get('oficina_id');
-            $nivelOcupacionAgenda = $turnoRepository->findCantidadTurnosAsignados($filtroOficina) / $turnoRepository->findCantidadTurnosExistentes($filtroOficina);
+            $nivelOcupacionAgenda = $turnoRepository->findCantidadTurnosAsignados($filtroOficina, !is_null($this->getUser()->getCircunscripcion()) ? $this->getUser()->getCircunscripcion()->getId() : null) / $turnoRepository->findCantidadTurnosExistentes($filtroOficina, !is_null($this->getUser()->getCircunscripcion()) ? $this->getUser()->getCircunscripcion()->getId() : null);
         } else {
             if ($this->isGranted('ROLE_USER')) {
                 // Busca en la oficina a la que pertenece el usuario
                 $oficinaUsuario = $this->getUser()->getOficina()->getId();
-                $nivelOcupacionAgenda = $turnoRepository->findCantidadTurnosAsignados($oficinaUsuario) / $turnoRepository->findCantidadTurnosExistentes($oficinaUsuario);
+                $nivelOcupacionAgenda = $turnoRepository->findCantidadTurnosAsignados($oficinaUsuario, !is_null($this->getUser()->getCircunscripcion()) ? $this->getUser()->getCircunscripcion()->getId() : null) / $turnoRepository->findCantidadTurnosExistentes($oficinaUsuario, !is_null($this->getUser()->getCircunscripcion()) ? $this->getUser()->getCircunscripcion()->getId() : null);
             }
         }
 
@@ -1124,16 +1133,16 @@ class TurnoController extends AbstractController
     {
         $rango = [];
         switch ($momento) {
-            case 1: 
+            case 1:
                 $rango['desde'] = new \DateTime("1970-01-01 00:00:00");
                 $rango['hasta'] = (new \DateTime(date("Y-m-d") . " 23:59:59"))
                     ->sub(new DateInterval('P1D')); // Resta un día al día actual
                 break;
-            case 2: 
+            case 2:
                 $rango['desde'] = new \DateTime(date("Y-m-d") . " 00:00:00");
                 $rango['hasta'] = new \DateTime(date("Y-m-d") . " 23:59:59");
                 break;
-            case 3: 
+            case 3:
                 $rango['desde'] = (new \DateTime(date("Y-m-d") . " 00:00:00"))
                     ->add(new DateInterval('P1D')); // Suma un día al día actual
                 $rango['hasta'] = new \DateTime("2200-12-31 23:59:59");
@@ -1154,15 +1163,14 @@ class TurnoController extends AbstractController
             throw new Exception("ENV['APP_SECRET'] es demasiado corto para openssl_cipher_iv_length!");
         }
 
-        $iv = substr($_ENV['APP_SECRET'],0, $iv_length);
-        $pass = $_ENV['APP_SECRET']; 
+        $iv = substr($_ENV['APP_SECRET'], 0, $iv_length);
+        $pass = $_ENV['APP_SECRET'];
 
         /* Base64 Encoded Encryption */
         $enc_data = base64_encode(openssl_encrypt($data, $method, $pass, true, $iv));
         $enc_data = strtr(base64_encode($data), '+/=', '._-');
 
         return strtr($enc_data, '+/=', '._-');
-
     }
 
     /**
@@ -1176,15 +1184,14 @@ class TurnoController extends AbstractController
         if (strlen($iv_length) > strlen($_ENV['APP_SECRET'])) {
             throw new Exception("ENV['APP_SECRET'] es demasiado corto para openssl_cipher_iv_length!");
         }
-              
-        $iv = substr($_ENV['APP_SECRET'],0, $iv_length);
-        $pass = $_ENV['APP_SECRET']; 
-        
+
+        $iv = substr($_ENV['APP_SECRET'], 0, $iv_length);
+        $pass = $_ENV['APP_SECRET'];
+
         /* Decode and Decrypt */
         $dec_data = openssl_decrypt(base64_decode(strstr($enc_data, '._-', '+/=')), $method, $pass, true, $iv);
         $dec_data = base64_decode(strtr($enc_data, '._-', '+/='));
-        
+
         return $dec_data;
     }
-
 }
