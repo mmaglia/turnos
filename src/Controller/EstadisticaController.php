@@ -152,7 +152,7 @@ class EstadisticaController extends AbstractController
 
         //Obtengo Estadística General
         if ($vistaGeneral) {
-            $estadisticaGeneral = !is_null($this->getUser()->getCircunscripcion()) ? $turnoRepository->findEstadisticaByCircunscripcion($desde, $hasta, $this->getUser()->getCircunscripcion()->getId()) : $turnoRepository->findEstadistica($desde, $hasta, $oficinaId);
+            $estadisticaGeneral = !is_null($this->getUser()->getCircunscripcion()) && $oficinaId == 0 ? $turnoRepository->findEstadisticaByCircunscripcion($desde, $hasta, $this->getUser()->getCircunscripcion()->getId()) : $turnoRepository->findEstadistica($desde, $hasta, $oficinaId);
         } else {
             $estadisticaGeneral = [];
         }
@@ -304,7 +304,7 @@ class EstadisticaController extends AbstractController
         }
 
         //Obtengo Estadística Diaria
-        $estadistica = !is_null($this->getUser()->getCircunscripcion()) ? $turnosDiariosRepository->findEstadisticaByCircunscripcion($desde, $hasta, $this->getUser()->getCircunscripcion()->getId()) : $turnosDiariosRepository->findEstadistica($desde, $hasta, $oficinaId);
+        $estadistica = !is_null($this->getUser()->getCircunscripcion()) && $oficinaId == 0 ? $turnosDiariosRepository->findEstadisticaByCircunscripcion($desde, $hasta, $this->getUser()->getCircunscripcion()->getId()) : $turnosDiariosRepository->findEstadistica($desde, $hasta, $oficinaId);
 
 
         $datosGrafico = [['Fecha', 'Cantidad']];
