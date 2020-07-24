@@ -42,6 +42,23 @@ class TurnosDiariosRepository extends ServiceEntityRepository
         return $result;
     }
 
+    public function findEstadisticaByCircunscripcion($desde, $hasta, $circunscripcion_id)
+    {
+        
+        $sql = "SELECT to_char(t.fecha, 'DD/MM/YYYY') as fecha, sum(t.cantidad) as cantidad FROM turnos_diarios t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id = :circunscripcion_id AND t.fecha BETWEEN :desde AND :hasta GROUP BY t.fecha ORDER BY to_char(t.fecha, 'YYYY/MM/DD')";
+        
+        $em = $this->getEntityManager();
+        $statement = $em->getConnection()->prepare($sql);
+        $statement->bindValue('desde', $desde);
+        $statement->bindValue('hasta', $hasta);
+        $statement->bindValue('circunscripcion_id', $circunscripcion_id);
+
+        $statement->execute();
+        $result = $statement->fetchAll();
+
+        return $result;
+    }
+
     public function findByOficinaByFecha($oficina_id, $fecha)
     {
         $result = $this->getEntityManager()

@@ -25,9 +25,20 @@ class OficinaRepository extends ServiceEntityRepository
             ->createQuery('
                 SELECT o.id, o.oficina, l.localidad as localidad, o.horaInicioAtencion, o.horaFinAtencion, o.frecuenciaAtencion, o.telefono, o.habilitada, o.autoExtend, o.autoGestion, 
                         (select max(t.fechaHora) from App\Entity\Turno t where t.oficina = o) as ultimoTurno 
-                FROM App\Entity\Oficina o left join o.localidad l
-                ORDER BY l.localidad, o.horaInicioAtencion, o.oficina'
-            )
+                FROM App\Entity\Oficina o LEFT JOIN o.localidad l
+                ORDER BY l.localidad, o.horaInicioAtencion, o.oficina')
+            ->getResult();
+    }
+
+    public function findOficinasByCircunscripcionWithUltimoTurno($circunscripcion_id)
+    {
+        return $this->getEntityManager()
+            ->createQuery('
+                SELECT o.id, o.oficina, l.localidad as localidad, o.horaInicioAtencion, o.horaFinAtencion, o.frecuenciaAtencion, o.telefono, o.habilitada, o.autoExtend, o.autoGestion, 
+                        (select max(t.fechaHora) from App\Entity\Turno t where t.oficina = o) as ultimoTurno 
+                FROM App\Entity\Oficina o LEFT JOIN o.localidad l
+                WHERE l.circunscripcion = ' . $circunscripcion_id .
+                ' ORDER BY l.localidad, o.horaInicioAtencion, o.oficina')
             ->getResult();
     }
 
@@ -39,8 +50,7 @@ class OficinaRepository extends ServiceEntityRepository
             ->setParameter('val', $localidad_id)
             ->orderBy('oficina')
             ->getQuery()
-            ->getArrayResult();
-        ;
+            ->getArrayResult();;
     }
 
     public function findOficinasHabilitadasByLocalidad($localidad_id)
@@ -51,8 +61,7 @@ class OficinaRepository extends ServiceEntityRepository
             ->setParameter('val', $localidad_id)
             ->orderBy('oficina')
             ->getQuery()
-            ->getArrayResult();
-        ;
+            ->getArrayResult();;
     }
 
     public function findOficinasHabilitadasByLocalidadWithTelefono($localidad_id)
@@ -63,32 +72,42 @@ class OficinaRepository extends ServiceEntityRepository
             ->setParameter('val', $localidad_id)
             ->orderBy('o.id')
             ->getQuery()
-            ->getArrayResult();
-        ;
+            ->getArrayResult();;
     }
 
 
     public function findAllOficinas()
     {
         $sql = "SELECT o.id, concat(o.oficina, ' (', l.localidad, ')') as Oficina FROM oficina o INNER JOIN localidad l ON l.id = o.localidad_id ORDER BY l.localidad, 2";
-                    
+
         $em = $this->getEntityManager();
         $statement = $em->getConnection()->prepare($sql);
         $statement->execute();
         $result = $statement->fetchAll();
 
         return $result;
-    }    
+    }
+
+    public function findOficinasByCircunscripcion($circunscripcion_id)
+    {
+        $sql = "SELECT o.id, concat(o.oficina, ' (', l.localidad, ')') as Oficina FROM oficina o INNER JOIN localidad l ON l.id = o.localidad_id WHERE l.circunscripcion_id = $circunscripcion_id ORDER BY l.localidad, 2";
+
+        $em = $this->getEntityManager();
+        $statement = $em->getConnection()->prepare($sql);
+        $statement->execute();
+        $result = $statement->fetchAll();
+
+        return $result;
+    }
 
     public function findById($oficinaId): ?Oficina
     {
-        
+
         return $this->createQueryBuilder('o')
             ->andWhere('o.id = :val')
             ->setParameter('val', $oficinaId)
             ->getQuery()
-            ->getOneOrNullResult()
-        ;
+            ->getOneOrNullResult();
     }
 
     public function findUltimoTurnoById($oficinaId)
@@ -113,8 +132,7 @@ class OficinaRepository extends ServiceEntityRepository
             ->distinct()
             ->orderBy('localidad')
             ->getQuery()
-            ->getArrayResult();
-        ;
+            ->getArrayResult();;
     }
 
 
@@ -130,8 +148,7 @@ class OficinaRepository extends ServiceEntityRepository
             ->setParameter('hasta', $oficinaIdHasta)
             ->orderBy('oficina')
             ->getQuery()
-            ->getArrayResult();
-        ;
+            ->getArrayResult();;
     }
 
     public function findOficinasAgendasLlenas($umbralOcupacion = 80)
@@ -147,7 +164,7 @@ class OficinaRepository extends ServiceEntityRepository
                 ORDER BY   ((select count(*) from turno where fecha_hora > now() and persona_id is not null and turno.oficina_id = o.id)::decimal / 
                             (select count(*) from turno where fecha_hora > now() and turno.oficina_id = o.id)::decimal * 100) DESC
             ";
-        
+
         $em = $this->getEntityManager();
         $statement = $em->getConnection()->prepare($sql);
         $statement->bindValue('umbral', $umbralOcupacion);
@@ -155,7 +172,6 @@ class OficinaRepository extends ServiceEntityRepository
         $result = $statement->fetchAll();
 
         return $result;
-
     }
 
 
@@ -182,13 +198,12 @@ class OficinaRepository extends ServiceEntityRepository
             WHERE  l.circunscripcion_id = $circunscripcionID and a.max is not null and a.max >= now()::date
             ORDER BY $orderBy
         ";
-                    
+
         $em = $this->getEntityManager();
         $statement = $em->getConnection()->prepare($sql);
         $statement->execute();
         $result = $statement->fetchAll();
-        
-        return $result;
-    }    
 
+        return $result;
+    }
 }
