@@ -2,6 +2,7 @@
 
 namespace App\Form;
 
+use App\Entity\Circunscripcion;
 use App\Entity\Oficina;
 use App\Entity\Usuario;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -49,6 +50,14 @@ class UsuarioType extends AbstractType
             ->add('apellido', null, ['label' => 'Apellido Usuario', 'attr' => array('maxlength' => '120')])
             ->add('nombre', null, ['label' => 'Nombre Usuario', 'attr' => array('maxlength' => '50')])
             ->add('email', EmailType::class, ['label' => 'Correo', 'required' => false, 'attr' => array('maxlength' => '50')])
+            ->add('circunscripcion', EntityType::class, [
+                'required' => false,
+                'class' => Circunscripcion::class,
+                'placeholder' => 'Seleccione una Circunscripción',
+                'choice_label' => 'circunscripcion',
+                'label'    => 'Circunscripción',
+                'help' => 'Tenga en cuenta que seleccionar una circunscripción afectara toda la gestión de turnos'
+            ])
             ->add('roles', ChoiceType::class, [
                 'multiple' => true,
                 'expanded' => true, // render check-boxes

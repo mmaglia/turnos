@@ -31,8 +31,8 @@ class EstadisticaController extends AbstractController
         if ($this->isGranted('ROLE_USER')) {
             $oficinaUsuario = $this->getUser()->getOficina();
         }
-        
-        $oficinas = $oficinaRepository->findAllOficinas();
+
+        $oficinas = !is_null($this->getUser()->getCircunscripcion()) ? $oficinaRepository->findOficinasByCircunscripcion($this->getUser()->getCircunscripcion()->getId()) : $oficinaRepository->findAllOficinas();
 
         return $this->render('estadistica/index.html.twig', [
             'desde' => $desde->format('d/m/Y'),
@@ -57,8 +57,8 @@ class EstadisticaController extends AbstractController
         if ($this->isGranted('ROLE_USER')) {
             $oficinaUsuario = $this->getUser()->getOficina();
         }
-        
-        $oficinas = $oficinaRepository->findAllOficinas();
+
+        $oficinas = !is_null($this->getUser()->getCircunscripcion()) ? $oficinaRepository->findOficinasByCircunscripcion($this->getUser()->getCircunscripcion()->getId()) : $oficinaRepository->findAllOficinas();
 
         return $this->render('estadistica/indexEvolucionDiaria.html.twig', [
             'desde' => $desde->format('d/m/Y'),
@@ -67,8 +67,8 @@ class EstadisticaController extends AbstractController
             'oficinaUsuario' => $oficinaUsuario
         ]);
     }
- 
-    
+
+
     /**
      * @Route("/estadistica/informeOcupacionAgenda", name="informe_ocupacion_agenda", methods={"GET", "POST"})
      */
@@ -77,7 +77,7 @@ class EstadisticaController extends AbstractController
 
         // Propone fecha (día actual)
         $desde = new \DateTime(date("Y-m-d") . " 00:00:00");
-       
+
         return $this->render('estadistica/indexInformeOcupacionDiaria.html.twig', [
             'desde' => $desde->format('d/m/Y'),
         ]);
@@ -92,13 +92,13 @@ class EstadisticaController extends AbstractController
 
         // Propone fecha (día actual)
         $desde = new \DateTime(date("Y-m-d") . " 00:00:00");
-       
+
         return $this->render('estadistica/indexInformeOcupacionPlena.html.twig', [
             'desde' => $desde->format('d/m/Y'),
         ]);
     }
-    
-     
+
+
 
     /**
      * @Route("/estadistica/show", name="estadistica_show", methods={"GET", "POST"})
@@ -146,14 +146,13 @@ class EstadisticaController extends AbstractController
         //Busco Oficina si es necesario para mostrar
         if ($oficinaId) {
             $oficina = $oficinaRepository->findById($oficinaId);
-        }
-        else {
+        } else {
             $oficina = 'de Todas las Oficinas';
         }
 
         //Obtengo Estadística General
         if ($vistaGeneral) {
-            $estadisticaGeneral = $turnoRepository->findEstadistica($desde, $hasta, $oficinaId);
+            $estadisticaGeneral = !is_null($this->getUser()->getCircunscripcion()) && $oficinaId == 0 ? $turnoRepository->findEstadisticaByCircunscripcion($desde, $hasta, $this->getUser()->getCircunscripcion()->getId()) : $turnoRepository->findEstadistica($desde, $hasta, $oficinaId);
         } else {
             $estadisticaGeneral = [];
         }
@@ -161,8 +160,8 @@ class EstadisticaController extends AbstractController
         //Obtengo Estadística Semanal
         if ($vistaSemanal) {
             //Transforma fecha a objetos DateTime
-            $DTdesde = new \DateTime(substr($desde, 6, 4) . '-' . substr($desde,3,2) . '-' . substr($desde, 0,2) . " 00:00:00");
-            $DThasta = new \DateTime(substr($hasta,6, 4) . '-' . substr($hasta,3,2) . '-' . substr($hasta, 0,2) . " 23:59:59");
+            $DTdesde = new \DateTime(substr($desde, 6, 4) . '-' . substr($desde, 3, 2) . '-' . substr($desde, 0, 2) . " 00:00:00");
+            $DThasta = new \DateTime(substr($hasta, 6, 4) . '-' . substr($hasta, 3, 2) . '-' . substr($hasta, 0, 2) . " 23:59:59");
 
             $semanaPrimerDia = $DTdesde;
             $i = 0;
@@ -177,12 +176,12 @@ class EstadisticaController extends AbstractController
                 $semanaHasta = $semanaPrimerDia->modify('+6 days')->format('d/m/Y 23:59:59');
 
                 $i++;
-                $estadisticaSemanal[] = $turnoRepository->findEstadistica($semanaDesde, ($semanaPrimerDia < $DThasta ? $semanaHasta : $DThasta->format('d/m/Y 23:59:59')), $oficinaId);
+                
+                $estadisticaSemanal[] = !is_null($this->getUser()->getCircunscripcion()) ? $turnoRepository->findEstadisticaByCircunscripcion($semanaDesde, ($semanaPrimerDia < $DThasta ? $semanaHasta : $DThasta->format('d/m/Y 23:59:59')), $this->getUser()->getCircunscripcion()->getId()) : $turnoRepository->findEstadistica($semanaDesde, ($semanaPrimerDia < $DThasta ? $semanaHasta : $DThasta->format('d/m/Y 23:59:59')), $oficinaId);
 
                 if ($semanaPrimerDia > $DThasta) {
                     break;
                 }
-
             }
         } else {
             $estadisticaSemanal = [];
@@ -192,8 +191,8 @@ class EstadisticaController extends AbstractController
         //Obtengo Estadística Diaria
         if ($vistaDetallada) {
             //Transforma fecha a objetos DateTime
-            $DTdesde = new \DateTime(substr($desde, 6, 4) . '-' . substr($desde,3,2) . '-' . substr($desde, 0,2) . " 00:00:00");
-            $DThasta = new \DateTime(substr($hasta,6, 4) . '-' . substr($hasta,3,2) . '-' . substr($hasta, 0,2) . " 23:59:59");
+            $DTdesde = new \DateTime(substr($desde, 6, 4) . '-' . substr($desde, 3, 2) . '-' . substr($desde, 0, 2) . " 00:00:00");
+            $DThasta = new \DateTime(substr($hasta, 6, 4) . '-' . substr($hasta, 3, 2) . '-' . substr($hasta, 0, 2) . " 23:59:59");
 
             $diaPrimerDia = $DTdesde;
             $i = 0;
@@ -208,7 +207,8 @@ class EstadisticaController extends AbstractController
                 $diaHasta = $diaPrimerDia->modify('+0 days')->format('d/m/Y 23:59:59');
 
                 $i++;
-                $estadistica = $turnoRepository->findEstadistica($diaDesde, ($diaPrimerDia < $DThasta ? $diaHasta : $DThasta->format('d/m/Y 23:59:59')), $oficinaId);
+                
+                $estadistica = !is_null($this->getUser()->getCircunscripcion()) ? $turnoRepository->findEstadisticaByCircunscripcion($diaDesde, ($diaPrimerDia < $DThasta ? $diaHasta : $DThasta->format('d/m/Y 23:59:59')), $this->getUser()->getCircunscripcion()->getId()) : $turnoRepository->findEstadistica($diaDesde, ($diaPrimerDia < $DThasta ? $diaHasta : $DThasta->format('d/m/Y 23:59:59')), $oficinaId);
                 if (($estadistica['total'] || $vistaSinTurno) && !$vistaSoloSinTurno) {
                     // Incorporo si existe al menos un turno generado (excluyo feriados y fines de semana) a menos que haya optado por ello
                     $estadisticaDiaria[] =  $estadistica;
@@ -230,15 +230,16 @@ class EstadisticaController extends AbstractController
 
             $pieChart = new PieChart();
             $pieChart->getData()->setArrayToDataTable(
-                [['Estado', 'Cantidad'],
-                ['No Atendidos', $estadisticaGeneral['noatendidos']],
-                ['Atendidos',  $estadisticaGeneral['atendidos']],
-                ['Ausentes', $estadisticaGeneral['noasistidos']],
-                ['Rechazados', $estadisticaGeneral['rechazados_libres']],
+                [
+                    ['Estado', 'Cantidad'],
+                    ['No Atendidos', $estadisticaGeneral['noatendidos']],
+                    ['Atendidos',  $estadisticaGeneral['atendidos']],
+                    ['Ausentes', $estadisticaGeneral['noasistidos']],
+                    ['Rechazados', $estadisticaGeneral['rechazados_libres']],
                 ]
             );
             $pieChart->getOptions()->setTitle('Turnos Ocupados');
-            $pieChart->getOptions()->setColors(['#33A3A3', '#006600', '#660000', '#BB0000']); 
+            $pieChart->getOptions()->setColors(['#33A3A3', '#006600', '#660000', '#BB0000']);
             $pieChart->getOptions()->setWidth(400);
             $pieChart->getOptions()->setHeight('auto');
             $pieChart->getOptions()->getLegend()->setAlignment('center');
@@ -248,23 +249,21 @@ class EstadisticaController extends AbstractController
             $pieChart->getOptions()->getTitleTextStyle()->setFontName('Helvetica');
             $pieChart->getOptions()->getTitleTextStyle()->setFontSize(20);
             $pieChart->getOptions()->setIs3D('false');
-        }
-        else {
+        } else {
             $pieChart = new PieChart();
-            $pieChart->getData()->setArrayToDataTable([['Estado', 'Cantidad']]);                
+            $pieChart->getData()->setArrayToDataTable([['Estado', 'Cantidad']]);
         }
 
         // Audito la acción
         $logger->info('Se emite informe de estadísticas', [
-            'Desde' => substr($desde, 0, 10), 
-            'Hasta' => substr($hasta, 0, 10), 
+            'Desde' => substr($desde, 0, 10),
+            'Hasta' => substr($hasta, 0, 10),
             'Oficina' => $oficina,
             'General' => (count($estadisticaGeneral) ? 'Si' : 'No'),
             'Semanal' => (count($estadisticaSemanal) ? 'Si' : 'No'),
             'Detallada' => (count($estadisticaDiaria) ? 'Si' : 'No'),
             'Usuario' => $this->getUser()->getUsuario()
-            ]
-        );
+        ]);
 
 
         return $this->render('estadistica/show.html.twig', [
@@ -276,7 +275,6 @@ class EstadisticaController extends AbstractController
             'estadisticaDiaria' => $estadisticaDiaria,
             'piechart' => $pieChart
         ]);
-        
     }
 
     /**
@@ -301,18 +299,17 @@ class EstadisticaController extends AbstractController
         //Busco Oficina si es necesario para mostrar
         if ($oficinaId) {
             $oficina = $oficinaRepository->findById($oficinaId);
-        }
-        else {
+        } else {
             $oficina = 'de Todas las Oficinas';
         }
 
         //Obtengo Estadística Diaria
-        $estadistica = $turnosDiariosRepository->findEstadistica($desde, $hasta, $oficinaId);
+        $estadistica = !is_null($this->getUser()->getCircunscripcion()) && $oficinaId == 0 ? $turnosDiariosRepository->findEstadisticaByCircunscripcion($desde, $hasta, $this->getUser()->getCircunscripcion()->getId()) : $turnosDiariosRepository->findEstadistica($desde, $hasta, $oficinaId);
 
 
         $datosGrafico = [['Fecha', 'Cantidad']];
-        foreach($estadistica as $dia) {
-            $datosGrafico[] = [substr($dia['fecha'],0,5), $dia['cantidad']];
+        foreach ($estadistica as $dia) {
+            $datosGrafico[] = [substr($dia['fecha'], 0, 5), $dia['cantidad']];
         }
 
         // Gráfico General
@@ -336,12 +333,11 @@ class EstadisticaController extends AbstractController
 
         // Audito la acción
         $logger->info('Se emite informe de estadísticas', [
-            'Desde' => substr($desde, 0, 10), 
-            'Hasta' => substr($hasta, 0, 10), 
+            'Desde' => substr($desde, 0, 10),
+            'Hasta' => substr($hasta, 0, 10),
             'Oficina' => $oficina,
             'Usuario' => $this->getUser()->getUsuario()
-            ]
-        );
+        ]);
 
         return $this->render('estadistica/showEvolucionDiaria.html.twig', [
             'desde' => substr($desde, 0, 10),
@@ -362,7 +358,7 @@ class EstadisticaController extends AbstractController
         $desde = $request->request->get('start');
         $tipoInforme = $request->request->get('inlineRadioOptions');
         $orden = $request->request->get('orden');
-        $excluirOficinasFD = $request->request->get('chkOficinasFD');       
+        $excluirOficinasFD = $request->request->get('chkOficinasFD');
 
         if (!$desde) {
             $diaActual = new \DateTime();
@@ -370,7 +366,7 @@ class EstadisticaController extends AbstractController
         }
 
         // Obtengo oficinas
-        $oficinas = $oficinaRepository->findAllWithUltimoTurno();
+        $oficinas = !is_null($this->getUser()->getCircunscripcion()) ? $oficinaRepository->findOficinasByCircunscripcionWithUltimoTurno($this->getUser()->getCircunscripcion()->getId()) : $oficinaRepository->findAllWithUltimoTurno();
 
         // Obtengo nivel ocupación global de la agenda
         $nivelOcupacionAgendaGlobal = $turnoRepository->findCantidadTurnosAsignados() / $turnoRepository->findCantidadTurnosExistentes();
@@ -382,10 +378,10 @@ class EstadisticaController extends AbstractController
             // Agenda Completa
             $subtitulo = 'Agenda Completa';
             foreach ($oficinas as $ofi) {
-                if ( $excluirOficinasFD && stristr($ofi['oficina'], 'firma digital con token')  )
+                if ($excluirOficinasFD && stristr($ofi['oficina'], 'firma digital con token'))
                     continue;
 
-                $cantTurnosOficina = $turnoRepository->findCantidadTurnosExistentes($ofi['id']); 
+                $cantTurnosOficina = $turnoRepository->findCantidadTurnosExistentes($ofi['id']);
                 $nivelOcupacionAgenda = ($cantTurnosOficina ? $turnoRepository->findCantidadTurnosAsignados($ofi['id']) / $cantTurnosOficina : 0);
                 $datosOcupacion[] = ['id' => $ofi['id'], 'oficina' => $ofi['oficina'], 'localidad' => $ofi['localidad'], 'ultimoTurno' => $ofi['ultimoTurno'], 'habilitada' => $ofi['habilitada'], 'ocupacion' => $nivelOcupacionAgenda * 100];
             }
@@ -393,37 +389,39 @@ class EstadisticaController extends AbstractController
 
         if ($tipoInforme == 2) {
             // Agenda de un día específico
-            $subtitulo = 'Día Consultado: ' . $desde; 
+            $subtitulo = 'Día Consultado: ' . $desde;
 
             //Transforma fecha a objetos DateTime
-            $DTdesde = new \DateTime(substr($desde, 6, 4) . '-' . substr($desde,3,2) . '-' . substr($desde, 0,2) . " 00:00:00");
+            $DTdesde = new \DateTime(substr($desde, 6, 4) . '-' . substr($desde, 3, 2) . '-' . substr($desde, 0, 2) . " 00:00:00");
 
             $diaPrimerDia = $DTdesde;
             $diaDesde = $diaPrimerDia->format('d/m/Y H:i:s');
             $diaHasta = $diaPrimerDia->modify('+0 days')->format('d/m/Y 23:59:59');
             foreach ($oficinas as $ofi) {
-                if ( $excluirOficinasFD && stristr($ofi['oficina'], 'firma digital con token')  )
-                continue;
-
-                $estadistica = $turnoRepository->findEstadistica($diaDesde,$diaHasta, $ofi['id']);
-                $datosOcupacion[] = ['id' => $ofi['id'], 'oficina' => $ofi['oficina'], 'localidad' => $ofi['localidad'], 'ultimoTurno' => $ofi['ultimoTurno'], 'habilitada' => $ofi['habilitada'], 
-                'desde' => $estadistica['desde'], 'hasta' => $estadistica['hasta'], 'total' => $estadistica['total'], 'otorgados' => $estadistica['otorgados'], 'noatendidos' => $estadistica['noatendidos'], 'atendidos' => $estadistica['atendidos'], 'noasistidos' => $estadistica['noasistidos'], 'rechazados_ocupados' => $estadistica['rechazados_ocupados'], 'rechazados_libres' => $estadistica['rechazados_libres'],                
-                'ocupacion' => ($estadistica['total'] > 0 ? $estadistica['otorgados'] / $estadistica['total'] * 100 : 0)];
+                if ($excluirOficinasFD && stristr($ofi['oficina'], 'firma digital con token'))
+                    continue;
+                
+                $estadistica = !is_null($this->getUser()->getCircunscripcion()) ? $turnoRepository->findEstadisticaByCircunscripcion($diaDesde, $diaHasta, $this->getUser()->getCircunscripcion()->getId()) : $turnoRepository->findEstadistica($diaDesde, $diaHasta, $ofi['id']);
+                $datosOcupacion[] = [
+                    'id' => $ofi['id'], 'oficina' => $ofi['oficina'], 'localidad' => $ofi['localidad'], 'ultimoTurno' => $ofi['ultimoTurno'], 'habilitada' => $ofi['habilitada'],
+                    'desde' => $estadistica['desde'], 'hasta' => $estadistica['hasta'], 'total' => $estadistica['total'], 'otorgados' => $estadistica['otorgados'], 'noatendidos' => $estadistica['noatendidos'], 'atendidos' => $estadistica['atendidos'], 'noasistidos' => $estadistica['noasistidos'], 'rechazados_ocupados' => $estadistica['rechazados_ocupados'], 'rechazados_libres' => $estadistica['rechazados_libres'],
+                    'ocupacion' => ($estadistica['total'] > 0 ? $estadistica['otorgados'] / $estadistica['total'] * 100 : 0)
+                ];
             }
         }
 
-         // Ordeno los Datos
+        // Ordeno los Datos
         if (count($datosOcupacion)) {
             // Obtengo una lista de columnas de los elementos sobre los que quiero ordenar los resultados
             foreach ($datosOcupacion as $clave => $fila) {
                 $oficina[$clave] = $fila['oficina'];
                 $localidad[$clave] = $fila['localidad'];
                 $ocupacion[$clave] = $fila['ocupacion'];
-                if ($tipoInforme == 1)  {
+                if ($tipoInforme == 1) {
                     $ultimoTurno[$clave] = strtotime($fila['ultimoTurno']);
                 }
-                if ($tipoInforme == 2)  {
-                    $total[$clave] =$fila['total'];
+                if ($tipoInforme == 2) {
+                    $total[$clave] = $fila['total'];
                 }
             }
 
@@ -458,12 +456,12 @@ class EstadisticaController extends AbstractController
         if ($excluirOficinasFD) {
             $subTituloExclusion = 'Excluyendo Oficinas de nombre "Firma Digital con Token - Obtención del Certificado"';
         }
-    
+
         // Gráfico General
         //https://www.gstatic.com/charts/47/css/core/tooltip.css
         $datosGrafico = [['Oficina', 'Cantidad']];
-        
-        foreach($datosOcupacion as $ocupacion) {
+
+        foreach ($datosOcupacion as $ocupacion) {
             if ($tipoInforme == 1) {
                 if ($orden == 1) {
                     $datosGrafico[] = [$ocupacion['oficina'] . '(' . $ocupacion['localidad'] . ')', $ocupacion['ocupacion']];
@@ -497,7 +495,7 @@ class EstadisticaController extends AbstractController
         $grafico->getOptions()->setOrientation('horizontal');
         $grafico->getOptions()->getChartArea()->setWidth('75%');
         $grafico->getOptions()->setHeight(350);
-//        $grafico->getOptions()->setWidth('30%');
+        //        $grafico->getOptions()->setWidth('30%');
         $grafico->getOptions()->setColors(['#060']);
         $grafico->getOptions()->getVAxis()->setMaxValue(100);
         $grafico->getOptions()->getVAxis()->setTitle('Nivel de Ocupación (%)');
@@ -505,10 +503,9 @@ class EstadisticaController extends AbstractController
         // Audito la acción
         $logger->info('Se emite informe de estadísticas', [
             'Tipo de Informe' => $subtitulo,
-            'Fecha' => substr($desde, 0, 10), 
+            'Fecha' => substr($desde, 0, 10),
             'Usuario' => $this->getUser()->getUsuario()
-            ]
-        );
+        ]);
 
         return $this->render('estadistica/showInformeOcupacionDiaria.html.twig', [
             'desde' => $desde,
@@ -548,8 +545,7 @@ class EstadisticaController extends AbstractController
         $logger->info('Se emite informe de ocupación plena', [
             'Circunscripción' => $circunscripcion,
             'Usuario' => $this->getUser()->getUsuario()
-            ]
-        );
+        ]);
 
 
         return $this->render('estadistica/showInformeOcupacionPlena.html.twig', [
@@ -557,9 +553,5 @@ class EstadisticaController extends AbstractController
             'ordenadoPor' => $ordenadoPor,
             'ocupacionesPlenas' => $ocupacionesPlenas
         ]);
-        
     }
-
-
 }
-
