@@ -166,6 +166,7 @@
                             dataType: "json",
                             success: function(data) {                                
                                 defensoriasCiviles = data;
+                                // Relleno con Ministerio Pupilar y "Defensorías Civiles". Oculto las subsiguientes defensorías del combo, pero las dejo para usar luego
                                 if (Array.isArray(data) && data.length) {
                                     $('#turno3_oficina').html('');
                                     $('#turno3_oficina').append(textoListaOficinaVacia);
