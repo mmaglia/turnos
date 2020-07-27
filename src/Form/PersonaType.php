@@ -35,8 +35,9 @@ class PersonaType extends AbstractType
                     'required'   => true,
                     'class' => Organismo::class,
                     'query_builder' => function (OrganismoRepository $er) {
-                        return $er->createQueryBuilder('o')
+                        return $er->createQueryBuilder('o')                                    
                                     ->innerJoin('o.localidad', 'l')
+                                    ->where('o.habilitado = true')
                                     ->orderBy('l.localidad, o.organismo', 'ASC');
                     },
                 ])    
