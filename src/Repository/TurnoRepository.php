@@ -377,7 +377,7 @@ class TurnoRepository extends ServiceEntityRepository
                             SELECT 1 FROM turno t WHERE t.fecha_hora = tr.fecha_hora_turno and t.oficina_id = tr.oficina_id AND t.persona_id IS NULL)
                         ) as Rechazados_Libres
             ";
-dump($sql);
+
         $em = $this->getEntityManager();
         $statement = $em->getConnection()->prepare($sql);
         $statement->bindValue('desde', $desde);
