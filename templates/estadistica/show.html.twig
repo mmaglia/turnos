@@ -33,7 +33,7 @@
                                     <div class="col-sm text-right">
                                         {{ estadisticaGeneral['total'] | number_format(0, ',', '.') }}
                                         <br>
-                                        {{ (estadisticaGeneral['otorgados'] + estadisticaGeneral['rechazados_libres']) | number_format(0, ',', '.') }}
+                                        {{ (estadisticaGeneral['otorgados']) | number_format(0, ',', '.') }}
                                         <br>
                                         {{ estadisticaGeneral['noatendidos'] | number_format(0, ',', '.') }}
                                         <br>
@@ -41,21 +41,21 @@
                                         <br>
                                         {{ estadisticaGeneral['noasistidos'] | number_format(0, ',', '.') }}
                                         <br>
-                                        {{ estadisticaGeneral['rechazados_libres'] | number_format(0, ',', '.') }}
+                                        {{ (estadisticaGeneral['rechazados_ocupados'] + estadisticaGeneral['rechazados_libres']) | number_format(0, ',', '.') }}
                                         <br>
                                     </div>
                                     <div class="col-sm-4 text-right" style="color:gray">
                                         &nbsp;
                                         <br>
-                                        {{ ((estadisticaGeneral['otorgados'] + estadisticaGeneral['rechazados_libres']) / estadisticaGeneral['total'] * 100) | number_format(2, ',', '.') }}%
+                                        {{ ((estadisticaGeneral['otorgados'] ) / estadisticaGeneral['total'] * 100) | number_format(2, ',', '.') }}%
                                         <br>
                                         {{ estadisticaGeneral['noatendidos'] > 0 ? (estadisticaGeneral['noatendidos'] / estadisticaGeneral['otorgados'] * 100) | number_format(2, ',', '.') }}%
                                         <br>
-                                        {{ estadisticaGeneral['atendidos'] > 0 ? (estadisticaGeneral['atendidos'] / (estadisticaGeneral['otorgados'] + estadisticaGeneral['rechazados_libres']) * 100)| number_format(2, ',', '.') }}%
+                                        {{ estadisticaGeneral['atendidos'] > 0 ? (estadisticaGeneral['atendidos'] / (estadisticaGeneral['otorgados']) * 100)| number_format(2, ',', '.') }}%
                                         <br>
-                                        {{ estadisticaGeneral['noasistidos'] > 0 ? (estadisticaGeneral['noasistidos'] / (estadisticaGeneral['otorgados'] + estadisticaGeneral['rechazados_libres']) * 100)| number_format(2, ',', '.') }}%
+                                        {{ estadisticaGeneral['noasistidos'] > 0 ? (estadisticaGeneral['noasistidos'] / (estadisticaGeneral['otorgados']) * 100)| number_format(2, ',', '.') }}%
                                         <br>
-                                        {{ estadisticaGeneral['rechazados_libres'] > 0 ? ((estadisticaGeneral['rechazados_libres']) / (estadisticaGeneral['otorgados'] + estadisticaGeneral['rechazados_libres']) * 100)| number_format(2, ',', '.') }}% 
+                                        {{ estadisticaGeneral['rechazados_libres'] + estadisticaGeneral['rechazados_ocupados'] > 0 ? ((estadisticaGeneral['rechazados_libres'] + estadisticaGeneral['rechazados_ocupados']) / (estadisticaGeneral['otorgados'] ) * 100)| number_format(2, ',', '.') }}% 
                                     </div>
                                 </div>
                             </div>
@@ -83,7 +83,6 @@
                                         </div>
                                 </div>
                             </div>  
-                            <div class="card-footer text-muted">Los turnos rechazados vueltos a ocupar no son considerados como turnos rechazados en las restantes vistas.</div>                                  
                             </center>
                         </div>
                     </div> 
@@ -111,51 +110,82 @@
                     <div class="card-body text-primary">
                         <table class="table table-hover table-bordered">
                             <thead>
-                                <tr>
-                                    <th class="text-center">Desde</th>
-                                    <th class="text-center">Hasta</th>
-                                    <th class="text-right">Disponibles</th>
-                                    <th class="text-right" colspan="2">Otorgados</th>
-                                    <th class="text-right" colspan="2">No Atendidos</th>
-                                    <th class="text-right" colspan="2">Atendidos</th>
-                                    <th class="text-right" colspan="2">Ausentes</th>
-                                    <th class="text-right" colspan="2">Rechazados</th>
-                                </tr>
+                                {% if SistemaOralidadCivil %}
+                                    <tr>
+                                        <th class="text-center" rowspan="2">Desde</th>
+                                        <th class="text-center" rowspan="2">Hasta</th>
+                                        <th class="text-right"  rowspan="2">Disp.</th>
+                                        <th class="text-center" colspan="3">Otorgados</th>
+                                        <th class="text-center"  rowspan="2" colspan="2">No Atendidos</th>
+                                        <th class="text-center"  rowspan="2"colspan="2">Atendidos</th>
+                                        <th class="text-center"  rowspan="2"colspan="2">Ausentes</th>
+                                        <th class="text-center"  rowspan="2"colspan="2">Rechazados</th>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-center" colspan="2">Total</th>
+                                        <th class="text-right text-secondary"><small>Con Tecno.</small></th>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <th class="text-center">Desde</th>
+                                        <th class="text-center">Hasta</th>
+                                        <th class="text-right">Disponibles</th>
+                                        <th class="text-right" colspan="2">Otorgados</th>
+                                        <th class="text-right" colspan="2">No Atendidos</th>
+                                        <th class="text-right" colspan="2">Atendidos</th>
+                                        <th class="text-right" colspan="2">Ausentes</th>
+                                        <th class="text-right" colspan="2">Rechazados</th>
+                                    </tr>
+                                {% endif %}
                             </thead>
                             <tbody>
-                        {% set semanas, turnos, otorgados, noatendidos, atendidos, noasistidos, rechazados = 0, 0, 0, 0, 0, 0, 0 %}
+                        {% set semanas, turnos, otorgados, otorgados_tecno, noatendidos, atendidos, noasistidos, rechazados = 0, 0, 0, 0, 0, 0, 0, 0 %}
                         {% for semana in estadisticaSemanal %}
-                                {% set semanas, turnos, otorgados, noatendidos, atendidos, noasistidos, rechazados = semanas + 1, turnos + semana['total']
-                                , otorgados + semana['otorgados'] + semana['rechazados_libres'], noatendidos + semana['noatendidos'], atendidos + semana['atendidos'], noasistidos + semana['noasistidos'], rechazados + semana['rechazados_libres']
+                            {% if SistemaOralidadCivil %}
+                                {% set semanas, turnos, otorgados, otorgados_tecno, noatendidos, atendidos, noasistidos, rechazados = semanas + 1, turnos + semana['total']
+                                , otorgados + semana['otorgados'], otorgados_tecno + semana['otorgados_tecno'], noatendidos + semana['noatendidos'], atendidos + semana['atendidos'], noasistidos + semana['noasistidos'], rechazados + semana['rechazados_ocupados'] + semana['rechazados_libres']
                                 %}
+                            {% else %}
+                                {% set semanas, turnos, otorgados, noatendidos, atendidos, noasistidos, rechazados = semanas + 1, turnos + semana['total']
+                                , otorgados + semana['otorgados'], noatendidos + semana['noatendidos'], atendidos + semana['atendidos'], noasistidos + semana['noasistidos'], rechazados + semana['rechazados_ocupados'] + semana['rechazados_libres']
+                                %}
+                            {% endif %}                     
                                 <tr>
                                     <td class="text-center">{{ semana['desde'] | slice(0, 10)}}</td>
                                     <td class="text-center">{{ semana['hasta'] | slice(0, 10)}}</td>
                                     <td class="text-right">{{ semana['total'] }}</td>
-                                    <td class="text-right">{{ semana['otorgados'] +  semana['rechazados_libres'] }}</td>
-                                    <td class="text-right text-secondary">{{ semana['otorgados'] > 0 ? '(' ~ (((semana['otorgados'] + semana['rechazados_libres']) / semana['total']) * 100) | round(2) ~ '%)'}}</td>
+                                    <td class="text-right">{{ semana['otorgados'] }}</td>
+                                    <td class="text-right text-secondary">{{ semana['otorgados'] > 0 ? '(' ~ (((semana['otorgados']) / semana['total']) * 100) | round(2) ~ '%)'}}</td>
+                                    {% if SistemaOralidadCivil %}
+                                            <td class="text-right text-secondary"><small>{{ semana['otorgados_tecno']}}</small></td>
+                                    {% endif %}
                                     <td class="text-right">{{ semana['noatendidos'] }}</td>
-                                    <td class="text-right text-secondary">{{ semana['otorgados'] > 0 ? '(' ~ ((semana['noatendidos'] / (semana['otorgados'] + semana['rechazados_libres']) * 100) | round(2)) ~ '%)'}}</td>
+                                    <td class="text-right text-secondary">{{ semana['otorgados'] > 0 ? '(' ~ ((semana['noatendidos'] / (semana['otorgados']) * 100) | round(2)) ~ '%)'}}</td>
                                     <td class="text-right">{{ semana['atendidos'] }}</td>
-                                    <td class="text-right text-secondary">{{ semana['otorgados'] > 0 ? '(' ~ ((semana['atendidos'] / (semana['otorgados'] + semana['rechazados_libres']) * 100) | round(2)) ~ '%)'}}</td>
+                                    <td class="text-right text-secondary">{{ semana['otorgados'] > 0 ? '(' ~ ((semana['atendidos'] / (semana['otorgados']) * 100) | round(2)) ~ '%)'}}</td>
                                     <td class="text-right">{{ semana['noasistidos'] }}</td>
-                                    <td class="text-right text-secondary">{{ semana['otorgados'] > 0 ? '(' ~ ((semana['noasistidos'] / (semana['otorgados'] + semana['rechazados_libres']) * 100) | round(2)) ~ '%)'}}</td>
-                                    <td class="text-right">{{ semana['rechazados_libres'] }}</td>
-                                    <td class="text-right text-secondary">{{ semana['otorgados'] > 0 ? '(' ~ ((semana['rechazados_libres'] / (semana['otorgados'] + semana['rechazados_libres']) * 100) | round(2)) ~ '%)'}}</td>
+                                    <td class="text-right text-secondary">{{ semana['otorgados'] > 0 ? '(' ~ ((semana['noasistidos'] / (semana['otorgados']) * 100) | round(2)) ~ '%)'}}</td>
+                                    <td class="text-right">{{ semana['rechazados_ocupados'] + semana['rechazados_libres'] }}</td>
+                                    <td class="text-right text-secondary">{{ semana['otorgados'] > 0 ? '(' ~ (((semana['rechazados_ocupados'] + semana['rechazados_libres']) / (semana['otorgados']) * 100) | round(2)) ~ '%)'}}</td>
                                 </tr>
                         {% endfor %}
                         </tbody>
                         <tfoot>
                             <td class="text-center" colspan="2"><b>Cant. de Semanas: {{semanas}}</b></td>
                             <td class="text-right"><b>{{turnos}}</b></td>
-                            <td class="text-right" colspan="2"><b>{{otorgados}}</b></td>
-                            <td class="text-right" colspan="2"><b>{{noatendidos}}</b></td>
-                            <td class="text-right" colspan="2"><b>{{atendidos}}</b></td>
-                            <td class="text-right" colspan="2"><b>{{noasistidos}}</b></td>
-                            <td class="text-right" colspan="2"><b>{{rechazados}}</b></td>
+                            {% if SistemaOralidadCivil %}
+                            <td class="text-right"><b>{{otorgados}}</td>
+                                <td></td>
+                                <td class="text-right"><b>{{otorgados_tecno}}</td>
+                            {% else %}
+                                <td class="text-right"><b>{{otorgados}}</td><td></td>
+                            {% endif %}
+                            <td class="text-right"><b>{{noatendidos}}</b></td><td></td>
+                            <td class="text-right"><b>{{atendidos}}</b></td><td></td>
+                            <td class="text-right"><b>{{noasistidos}}</b></td><td></td>
+                            <td class="text-right"><b>{{rechazados}}</b></td><td></td>
                         </tfoot>
-                        </table>
-            
+                        </table>                 
                     </div>
                 </div> 
             </div>
@@ -173,47 +203,79 @@
                         <div class="card-body text-primary">
                             <table class="table table-hover table-bordered">
                                 <thead>
-                                    <tr>
-                                        <th class="text-center">Desde</th>
-                                        <th class="text-center">Hasta</th>
-                                        <th class="text-right">Disponibles</th>
-                                        <th class="text-right" colspan="2">Otorgados</th>
-                                        <th class="text-right" colspan="2">No Atendidos</th>
-                                        <th class="text-right" colspan="2">Atendidos</th>
-                                        <th class="text-right" colspan="2">Ausentes</th>
-                                        <th class="text-right" colspan="2">Rechazados</th>
-                                    </tr>
+                                    {% if SistemaOralidadCivil %}
+                                        <tr>
+                                            <th class="text-center" rowspan="2">Desde</th>
+                                            <th class="text-center" rowspan="2">Hasta</th>
+                                            <th class="text-right"  rowspan="2">Disp.</th>
+                                            <th class="text-center" colspan="3">Otorgados</th>
+                                            <th class="text-center"  rowspan="2" colspan="2">No Atendidos</th>
+                                            <th class="text-center"  rowspan="2"colspan="2">Atendidos</th>
+                                            <th class="text-center"  rowspan="2"colspan="2">Ausentes</th>
+                                            <th class="text-center"  rowspan="2"colspan="2">Rechazados</th>
+                                        </tr>
+                                        <tr>
+                                            <th class="text-center" colspan="2">Total</th>
+                                            <th class="text-right text-secondary"><small>Con Tecno.</small></th>
+                                        </tr>
+                                    {% else %}
+                                        <tr>
+                                            <th class="text-center">Desde</th>
+                                            <th class="text-center">Hasta</th>
+                                            <th class="text-right">Disponibles</th>
+                                            <th class="text-right" colspan="2">Otorgados</th>
+                                            <th class="text-right" colspan="2">No Atendidos</th>
+                                            <th class="text-right" colspan="2">Atendidos</th>
+                                            <th class="text-right" colspan="2">Ausentes</th>
+                                            <th class="text-right" colspan="2">Rechazados</th>
+                                        </tr>
+                                    {% endif %}
                                 </thead>
                                 <tbody>
-                            {% set dias, turnos, otorgados, noatendidos, atendidos, noasistidos, rechazados = 0, 0, 0, 0, 0, 0, 0 %}
+                            {% set dias, turnos, otorgados, otorgados_tecno, noatendidos, atendidos, noasistidos, rechazados = 0, 0, 0, 0, 0, 0, 0, 0 %}
                             {% for dia in estadisticaDiaria %}
-                                    {% set dias, turnos, otorgados, noatendidos, atendidos, noasistidos, rechazados = dias + 1, turnos + dia['total']
-                                    , otorgados + dia['otorgados'] + dia['rechazados_libres'], noatendidos + dia['noatendidos'], atendidos + dia['atendidos'], noasistidos + dia['noasistidos'], rechazados + dia['rechazados_libres']
+                                {% if SistemaOralidadCivil %}
+                                    {% set dias, turnos, otorgados, otorgados_tecno, noatendidos, atendidos, noasistidos, rechazados = dias + 1, turnos + dia['total']
+                                    , otorgados + dia['otorgados'], otorgados_tecno + dia['otorgados_tecno'], noatendidos + dia['noatendidos'], atendidos + dia['atendidos'], noasistidos + dia['noasistidos'], rechazados + dia['rechazados_ocupados'] + dia['rechazados_libres']
                                     %}
+                                {% else %}
+                                    {% set dias, turnos, otorgados, noatendidos, atendidos, noasistidos, rechazados = dias + 1, turnos + dia['total']
+                                    , otorgados + dia['otorgados'], noatendidos + dia['noatendidos'], atendidos + dia['atendidos'], noasistidos + dia['noasistidos'], rechazados + dia['rechazados_ocupados'] + dia['rechazados_libres']
+                                    %}
+                                {% endif %}
                                     <tr>
                                         <td class="text-center">{{ dia['desde'] | slice(0, 10)}}</td>
                                         <td class="text-center">{{ dia['hasta'] | slice(0, 10)}}</td>
                                         <td class="text-right">{{ dia['total'] }}</td>
-                                        <td class="text-right">{{ dia['otorgados'] + dia['rechazados_libres']}}</td>
-                                        <td class="text-right text-secondary">{{ dia['otorgados'] > 0 ? '(' ~ (((dia['otorgados'] + dia['rechazados_libres']) / dia['total'] * 100) | round(2)) ~ '%)'}}</td>
+                                        <td class="text-right">{{ dia['otorgados'] }}</td>
+                                        <td class="text-right text-secondary">{{ dia['otorgados'] > 0 ? '(' ~ (((dia['otorgados']) / dia['total'] * 100) | round(2)) ~ '%)'}}</td>
+                                        {% if SistemaOralidadCivil %}
+                                            <td class="text-right text-secondary"><small>{{ dia['otorgados_tecno']}}</small></td>
+                                        {% endif %}
                                         <td class="text-right">{{ dia['noatendidos'] }}</td>
-                                        <td class="text-right text-secondary">{{ dia['otorgados'] > 0 ? '(' ~ ((dia['noatendidos'] / (dia['otorgados'] + dia['rechazados_libres']) * 100) | round(2)) ~ '%)'}}</td>
+                                        <td class="text-right text-secondary">{{ dia['otorgados'] > 0 ? '(' ~ ((dia['noatendidos'] / (dia['otorgados'] ) * 100) | round(2)) ~ '%)'}}</td>
                                         <td class="text-right">{{ dia['atendidos'] }}</td>
-                                        <td class="text-right text-secondary">{{ dia['otorgados'] > 0 ? '(' ~ ((dia['atendidos'] / (dia['otorgados'] + dia['rechazados_libres']) * 100) | round(2)) ~ '%)'}}</td>
+                                        <td class="text-right text-secondary">{{ dia['otorgados'] > 0 ? '(' ~ ((dia['atendidos'] / (dia['otorgados'] ) * 100) | round(2)) ~ '%)'}}</td>
                                         <td class="text-right">{{ dia['noasistidos'] }}</td>
-                                        <td class="text-right text-secondary">{{ dia['otorgados'] > 0 ? '(' ~ ((dia['noasistidos'] / (dia['otorgados'] + dia['rechazados_libres']) * 100) | round(2)) ~ '%)'}}</td>
-                                        <td class="text-right">{{ dia['rechazados_libres'] }}</td>
-                                        <td class="text-right text-secondary">{{ dia['otorgados'] > 0 ? '(' ~ ((dia['rechazados_libres'] / (dia['otorgados'] + dia['rechazados_libres']) * 100) | round(2)) ~ '%)'}}</td>
+                                        <td class="text-right text-secondary">{{ dia['otorgados'] > 0 ? '(' ~ ((dia['noasistidos'] / (dia['otorgados'] ) * 100) | round(2)) ~ '%)'}}</td>
+                                        <td class="text-right">{{ dia['rechazados_ocupados'] + dia['rechazados_libres'] }}</td>
+                                        <td class="text-right text-secondary">{{ dia['otorgados'] > 0 ? '(' ~ (((dia['rechazados_ocupados'] + dia['rechazados_libres']) / (dia['total'] ) * 100) | round(2)) ~ '%)'}}</td>
                                     </tr>
                             {% endfor %}
                                     <tr>
                                         <td class="text-center" colspan="2"><b>Cant. de Dias: {{dias}}</b></td>
                                         <td class="text-right"><b>{{turnos}}</b></td>
-                                        <td class="text-right" colspan="2"><b>{{otorgados}}</td>
-                                        <td class="text-right" colspan="2"><b>{{noatendidos}}</td>
-                                        <td class="text-right" colspan="2"><b>{{atendidos}}</td>
-                                        <td class="text-right" colspan="2"><b>{{noasistidos}}</td>
-                                        <td class="text-right" colspan="2"><b>{{rechazados}}</td>
+                                        {% if SistemaOralidadCivil %}
+                                            <td class="text-right"><b>{{otorgados}}</td>
+                                            <td></td>
+                                            <td class="text-right"><b>{{otorgados_tecno}}</td>
+                                        {% else %}
+                                            <td class="text-right"><b>{{otorgados}}</td><td></td>
+                                        {% endif %}
+                                        <td class="text-right"><b>{{noatendidos}}</td><td></td>
+                                        <td class="text-right"><b>{{atendidos}}</td><td></td>
+                                        <td class="text-right"><b>{{noasistidos}}</td><td></td>
+                                        <td class="text-right"><b>{{rechazados}}</td><td></td>
                                     </tr>
                                 </tbody>
                             </table>
