@@ -178,6 +178,12 @@ class OficinaRepository extends ServiceEntityRepository
     public function findMaximasOcupaciones($circunscripcionID, $orderBy)
     {
 
+        // Evalúa si filtrar por Circunscripción
+        $filtroCircunscripcion = '';
+        if ($circunscripcionID) {
+            $filtroCircunscripcion = 'and l.circunscripcion_id = ' . $circunscripcionID;
+        }
+
         $em = $this->getEntityManager()->getConnection();
         $sql = "
             SELECT o.oficina, l.localidad, to_char(a.max, 'dd/mm/YYYY') as Maxima_Ocupacion, (a.max - now()::date) as dias,
@@ -195,7 +201,7 @@ class OficinaRepository extends ServiceEntityRepository
                         group by 1,2) as aux3
                  where aux3.tot = 0
                  group by 1) a ON o.id = a.ofi
-            WHERE  l.circunscripcion_id = $circunscripcionID and a.max is not null and a.max >= now()::date
+            WHERE  a.max is not null and a.max >= now()::date $filtroCircunscripcion
             ORDER BY $orderBy
         ";
 
