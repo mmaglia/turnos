@@ -20,10 +20,13 @@
                                     <tr>
                                         <th rowspan="2">Oficina</th>
                                         <th rowspan="2" class="text-center">Localidad</th>
+                                        <th colspan="2" class="text-center" colspan="2">Turnos Disponibles</th>
                                         <th colspan="2" class="text-center" colspan="2">Ocupación Plena</th>
                                         <th colspan="2" class="text-center" colspan="2">Ultimo Turno</th>
                                     </tr>
                                     <tr>
+                                        <th class="text-center">Primer Turno</small></th>
+                                        <th class="text-right text-secondary"><small>Dentro de (días)</th>
                                         <th class="text-center">Ult. 100%</small></th>
                                         <th class="text-right text-secondary"><small>Dentro de (días)</th>
                                         <th class="text-center">Ultimo Turno</th>
@@ -36,6 +39,8 @@
                                     <tr>
                                         <td>{{ oficina['oficina']  }}</td>
                                         <td class="text-center">{{ oficina['localidad'] }}</td>
+                                        <td class="text-center">{{ oficina['primer_turno_disponible'] }}</td>
+                                        <td class="text-right text-secondary"><small>{{ oficina['diasprimerturno'] }}</small></td>
                                         <td class="text-center">{{ oficina['maxima_ocupacion'] }}</td>
                                         <td class="text-right text-secondary"><small>{{ oficina['dias'] }}</small></td>
                                         <td class="text-center">{{ oficina['ultimoturno'] | slice(8, 2) ~ '/' ~ oficina['ultimoturno'] | slice(5, 2) ~ '/' ~ oficina['ultimoturno'] | slice(0, 4) }}</td>
@@ -55,7 +60,7 @@
     <div class="container-fluid"> 
         <div class="row">
             <div class="col-12">
-                <a class="btn btn-secondary float-left volver" href="{{ path('estadistica_index') }}">Volver</a>
+                <a class="btn btn-secondary float-left volver" href="{{ path('informe_ocupacion_plena') }}">Volver</a>
             </div>
         </div>
     </div>

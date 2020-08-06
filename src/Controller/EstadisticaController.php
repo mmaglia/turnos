@@ -548,7 +548,11 @@ class EstadisticaController extends AbstractController
             $ordenadoPor = 'Localidad y Organismo';
         }
 
-        $circunscripcion = $circunscripcionRepository->find($circunscripcionID);
+        if ($circunscripcionID) {
+            $circunscripcion = $circunscripcionRepository->find($circunscripcionID);
+        } else {
+            $circunscripcion = 'TODAS';
+        }
 
         //Obtengo Datos para el Informe
         $ocupacionesPlenas = $oficinaRepository->findMaximasOcupaciones($circunscripcionID, $orderBy);

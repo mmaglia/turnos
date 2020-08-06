@@ -178,26 +178,47 @@ class OficinaRepository extends ServiceEntityRepository
     public function findMaximasOcupaciones($circunscripcionID, $orderBy)
     {
 
+        // Evalúa si filtrar por Circunscripción
+        $filtroCircunscripcion = '';
+        if ($circunscripcionID) {
+            $filtroCircunscripcion = 'and l.circunscripcion_id = ' . $circunscripcionID;
+        }
+
         $em = $this->getEntityManager()->getConnection();
-        $sql = "
-            SELECT o.oficina, l.localidad, to_char(a.max, 'dd/mm/YYYY') as Maxima_Ocupacion, (a.max - now()::date) as dias,
-                (select max(fecha_hora::date) from turno t where t.oficina_id = o.id) as ultimoTurno,
-                ((select max(fecha_hora::date) from turno t where t.oficina_id = o.id) - a.max) as diasUltimoTurno
-            FROM oficina o inner join localidad l on l.id = o.localidad_id left join 
-                (select aux3.ofi,max(aux3.fec)
-                 from (select aux2.t01 as ofi, aux2.t02 as fec, sum(t03) as tot
-                        from (select t0.oficina_id as t01,t0.fecha_hora::date as t02,(case when t0.persona_id is null then 1 else 0 end) as t03
-                            from turno t0, (select t1.oficina_id as t11, t1.fecha_hora::date as t12
-                                                from turno t1
-                                                group by 1,2) aux
-                        where 	t0.oficina_id = aux.t11			       
-                                and t0.fecha_hora::date = aux.t12) as aux2
-                        group by 1,2) as aux3
-                 where aux3.tot = 0
-                 group by 1) a ON o.id = a.ofi
-            WHERE  l.circunscripcion_id = $circunscripcionID and a.max is not null and a.max >= now()::date
-            ORDER BY $orderBy
-        ";
+        /*$sql = "SELECT o.oficina, l.localidad, to_char(a.max, 'dd/mm/YYYY') as Maxima_Ocupacion, (a.max - now()::date) as dias, (SELECT max(fecha_hora::date) FROM turno t WHERE t.oficina_id = o.id) as ultimoTurno, ((SELECT max(fecha_hora::date) FROM turno t WHERE t.oficina_id = o.id) - a.max) as diasUltimoTurno
+                FROM oficina o 
+                INNER JOIN localidad l ON l.id = o.localidad_id 
+                LEFT JOIN (SELECT aux3.ofi,max(aux3.fec)
+                    FROM (SELECT aux2.t01 as ofi, aux2.t02 as fec, sum(t03) as tot
+                        FROM (SELECT t0.oficina_id as t01,t0.fecha_hora::date as t02,(case when t0.persona_id is null then 1 else 0 end) as t03
+                            FROM turno t0, (SELECT t1.oficina_id as t11, t1.fecha_hora::date as t12
+                                                FROM turno t1
+                                                GROUP BY 1,2) aux
+                            WHERE t0.oficina_id = aux.t11 AND t0.fecha_hora::date = aux.t12) as aux2
+                            GROUP BY 1,2) as aux3
+                    WHERE aux3.tot = 0
+                    GROUP BY 1) a ON o.id = a.ofi
+                WHERE  a.max is not null and a.max >= now()::date $filtroCircunscripcion
+                ORDER BY $orderBy";*/
+        $sql = "SELECT o.oficina, l.localidad,
+                    (SELECT to_char(date(min(fecha_hora)), 'dd/mm/yyyy') FROM turno WHERE persona_id is null AND oficina_id = o.id AND fecha_hora > now()) as primer_turno_disponible, ((SELECT date(min(fecha_hora)) FROM turno WHERE persona_id is null AND oficina_id = o.id AND fecha_hora > now()) - now()::date) as diasprimerturno,
+                    to_char(a.max, 'dd/mm/YYYY') AS Maxima_Ocupacion, (a.max - now()::date) AS dias, 
+                    (SELECT MAX(fecha_hora::date) FROM turno t WHERE t.oficina_id = o.id) AS ultimoTurno, ((SELECT MAX(fecha_hora::date) FROM turno t WHERE t.oficina_id = o.id) - a.max) AS diasUltimoTurno
+                FROM oficina o 
+                INNER JOIN localidad l ON l.id = o.localidad_id 
+                LEFT JOIN 
+                    (SELECT aux3.ofi,MAX(aux3.fec)
+                    FROM (SELECT aux2.t01 AS ofi, aux2.t02 AS fec, SUM(t03) AS tot
+                            FROM (SELECT t0.oficina_id AS t01,t0.fecha_hora::date AS t02,(CASE WHEN t0.persona_id IS NULL THEN 1 ELSE 0 END) AS t03
+                                FROM turno t0, (SELECT t1.oficina_id AS t11, t1.fecha_hora::date AS t12
+                                                    FROM turno t1
+                                                    GROUP BY 1,2) aux
+                            WHERE t0.oficina_id = aux.t11 AND t0.fecha_hora::date = aux.t12) AS aux2
+                            GROUP BY 1,2) AS aux3
+                    WHERE aux3.tot = 0
+                    GROUP BY 1) a ON o.id = a.ofi
+                WHERE  a.max IS NOT NULL AND a.max >= now()::date AND l.circunscripcion_id = 1
+                ORDER BY a.max DESC, 2, 1;";
 
         $em = $this->getEntityManager();
         $statement = $em->getConnection()->prepare($sql);

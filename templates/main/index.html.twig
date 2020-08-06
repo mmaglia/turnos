@@ -20,9 +20,21 @@
                 </div>
             {% endif %}
             <br><br>
-            <div class="text-right">
-                <a class="btn btn-primary btn-lg float-center" href="{{ path('turno_new2') }}" role="button">Solicitar Turno</a>
-            </div>
+            {% if SistemaTurnosWeb or SistemaTurnosMPE %}
+                <div class="row">
+                    <div class="col-6 text-left">
+                        <a class="btn btn-outline-secondary btn-lg float-center" href={% trans %}main.urlAnexa{% endtrans %} role="button">{% trans %}main.labelBtnAnexo{% endtrans %}</a>
+                    </div>
+                    <div class="col-6 text-right">
+                        <a class="btn btn-primary btn-lg float-center" href="{{ path('turno_new2') }}" role="button">Solicitar Turno</a>
+                    </div>
+                </div>
+            {% else %}
+                <div class="text-right">
+                    <a class="btn btn-primary btn-lg float-center" href="{{ path('turno_new2') }}" role="button">Solicitar Turno</a>
+                </div>
+            {% endif %}
+            
         </div>
     </div>
 </div>
