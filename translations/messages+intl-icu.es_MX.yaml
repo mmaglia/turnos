@@ -5,7 +5,7 @@
 Solicitud de Turnos: Turnos Defensorías Civiles
 main.parrafo1: En el marco de las medidas adoptadas por la Corte Suprema de Justicia se pone a disposición un sistema de TURNOS para realizar trámites de carácter presencial. Se recuerda que tenemos a su disposición diferentes vías de comunicación que no implican necesariamente asistir al Tribunal, pudiendo contactarnos tanto por correo electrónico como teléfono.
 #main.urlAnexa: http://turnos.justiciasantafe.gov.ar/index.php/TurnosWeb/solicitante
-#main.labelBtnAnexo: Solicitar Turno General
+main.labelBtnAnexo: Solicitar Turno Defensorías Generales Civiles
 
 ## Paso 1
 DNI: DNI
