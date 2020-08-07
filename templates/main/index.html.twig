@@ -20,10 +20,10 @@
                 </div>
             {% endif %}
             <br><br>
-            {% if SistemaTurnosWeb or SistemaTurnosMPE %}
+            {% if SistemaTurnosWeb %}
                 <div class="row">
                     <div class="col-6 text-left">
-                        <a class="btn btn-outline-secondary btn-lg float-center" href={% trans %}main.urlAnexa{% endtrans %} role="button">{% trans %}main.labelBtnAnexo{% endtrans %}</a>
+                        <a class="btn btn-primary btn-lg float-center" href="http://turnosmpcivil.justiciasantafe.gov.ar/index.php/TurnosWeb/solicitante" role="button">Solicitar Turno Defensoría Civil</a>
                     </div>
                     <div class="col-6 text-right">
                         <a class="btn btn-primary btn-lg float-center" href="{{ path('turno_new2') }}" role="button">Solicitar Turno</a>
