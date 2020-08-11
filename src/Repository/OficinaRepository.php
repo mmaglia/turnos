@@ -181,7 +181,7 @@ class OficinaRepository extends ServiceEntityRepository
         // Evalúa si filtrar por Circunscripción
         $filtroCircunscripcion = '';
         if ($circunscripcionID) {
-            $filtroCircunscripcion = 'and l.circunscripcion_id = ' . $circunscripcionID;
+            $filtroCircunscripcion = ' AND l.circunscripcion_id = ' . $circunscripcionID;
         }
 
         $em = $this->getEntityManager()->getConnection();
@@ -217,8 +217,8 @@ class OficinaRepository extends ServiceEntityRepository
                             GROUP BY 1,2) AS aux3
                     WHERE aux3.tot = 0
                     GROUP BY 1) a ON o.id = a.ofi
-                WHERE  a.max IS NOT NULL AND a.max >= now()::date AND l.circunscripcion_id = 1
-                ORDER BY a.max DESC, 2, 1;";
+                WHERE  a.max IS NOT NULL AND a.max >= now()::date $filtroCircunscripcion
+                ORDER BY $orderBy";
 
         $em = $this->getEntityManager();
         $statement = $em->getConnection()->prepare($sql);
