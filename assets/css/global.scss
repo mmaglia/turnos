@@ -201,3 +201,9 @@ table.dataTable tbody>tr.selected, table.dataTable tbody>tr>.selected {
 #turno3_oficina_help, #turno3_tipo_causa_help, #turno3_defensorias_help {
   font-weight: 800 !important;
 }
+
+// Color y tamaño de fuente para Label de Vista Detallada de informe duplicado
+#labelDetalleDupli {
+  font-size: small;
+  color: red;
+}

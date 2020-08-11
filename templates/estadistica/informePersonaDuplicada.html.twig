@@ -1,0 +1,83 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Informe de Turnos por Personas{% endblock %}
+
+{% block body %}
+    <h1>Turnos por Personas</h1>
+    {% for label, messages in app.flashes %}
+		{% for message in messages %}
+			<div class="row">
+				<div class="col-8"></div>
+				<div class="col-4 text-right">
+					<div class="flashes-messages alert alert-{{ label }}">{{ message }}</div>
+				</div>
+			</div>
+		{% endfor %}
+	{% endfor %}
+    <br>
+    <div class="row">
+        <div class="col-3"></div>
+        <div class="col-6 text-center form-group input-group">
+            <form method="post" action="{{ path('informe_show_persona_duplicada') }}">
+                <div id="fechaHora" class="selectorFechaHora" name="selectorFechaHora">
+                    <label for="txtFechaDesde" id="lblDesde" class="required">Desde</label>
+                    <input type="text" id="txtFechaDesde" name="start" required="required" class="js-datepicker form-control text-center" value="{{desde}}"/>
+                    <br>
+                    <label for="txtFechaHasta" id="lblHasta" class="required">Hasta</label>
+                    <input type="text" id="txtFechaHasta" name="end" required="required" class="js-datepicker form-control text-center" value="{{hasta}}"/>
+                </div>   
+                <br>
+                <label for="cboOficina" class="required">Oficina</label>
+                <select class="form-control" id="oficinas" name="oficinas">
+                    <option value="0">TODAS LAS OFICINAS</option>
+                    <option disabled>────────────────────────────</option>
+                    {% for oficina in oficinas %}
+                        <option value="{{oficina.id}}">{{oficina.oficina}}</option>
+                    {% endfor %}
+                </select>                 
+                <br>  
+                <div id="opciones">  
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input opciones" type="checkbox" id="vistaGral" value="general" name="opcion" checked>
+                        <label class="form-check-label" for="vistaGral">Vista General</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input opciones" type="checkbox" id="vistaDetalle" value="detallado" name="opcion">
+                        <label class="form-check-label" for="vistaDetalle">Vista Detallada</label>
+                    </div> 
+                    <div id="labelDetalleDupli"></div>
+                </div> 
+                <br>
+                <center><button class="btn btn-primary">{{ button_label|default('Generar Informe') }}</button></center>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function() {            
+            $('#fechaHora input').datepicker({
+                format: "dd/mm/yyyy",
+                language: "es",
+                todayBtn: true,
+                orientation: "bottom right",
+                daysOfWeekDisabled: "0,6",
+                daysOfWeekHighlighted: "0",
+                autoclose: true,
+                multidate: false
+            });   
+
+            $('.opciones').click(function(e) {                
+                // Solo un chekbox seleccionado
+                $('.opciones').not(this).prop('checked', false);
+                if($(this).attr('id') == 'vistaDetalle') {
+                    $("#labelDetalleDupli").html('Debe selecionar una oficina.');
+                } else {
+                    $("#labelDetalleDupli").html('');
+                }
+            });
+            
+        });
+    </script>      
+{% endblock %}    

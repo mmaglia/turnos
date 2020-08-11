@@ -1,0 +1,16 @@
+<table class="table table-hover table-bordered">
+    <thead>
+        <tr>
+            <th width="40%" class="text-center">Fecha</th>
+            <th width="60%"class="text-center">Motivo</th>                                                                        
+        </tr>
+    </thead>   
+    <tbody>  
+    {% for dato in datos %}         
+        <tr>
+            <td>{{ dato|split('~')[0] }}</td>
+            <td>{{ dato|split('~')[1] }}</td>
+        </tr>        
+    {% endfor %}
+    </tbody>
+</table>

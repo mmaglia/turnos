@@ -98,8 +98,6 @@ class EstadisticaController extends AbstractController
         ]);
     }
 
-
-
     /**
      * @Route("/estadistica/show", name="estadistica_show", methods={"GET", "POST"})
      */
@@ -180,7 +178,7 @@ class EstadisticaController extends AbstractController
                 $semanaHasta = $semanaPrimerDia->modify('+6 days')->format('d/m/Y 23:59:59');
 
                 $i++;
-                
+
                 if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
                     $estadisticaSemanal[] = !is_null($this->getUser()->getCircunscripcion()) ? $turnoRepository->findEstadisticaByCircunscripcionOralidad($semanaDesde, ($semanaPrimerDia < $DThasta ? $semanaHasta : $DThasta->format('d/m/Y 23:59:59')), $this->getUser()->getCircunscripcion()->getId()) : $turnoRepository->findEstadisticaOralidad($semanaDesde, ($semanaPrimerDia < $DThasta ? $semanaHasta : $DThasta->format('d/m/Y 23:59:59')), $oficinaId);
                 } else {
@@ -214,13 +212,13 @@ class EstadisticaController extends AbstractController
                 $diaHasta = $diaPrimerDia->modify('+0 days')->format('d/m/Y 23:59:59');
 
                 $i++;
-                
+
                 if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
                     $estadistica = !is_null($this->getUser()->getCircunscripcion()) ? $turnoRepository->findEstadisticaByCircunscripcionOralidad($diaDesde, ($diaPrimerDia < $DThasta ? $diaHasta : $DThasta->format('d/m/Y 23:59:59')), $this->getUser()->getCircunscripcion()->getId()) : $turnoRepository->findEstadisticaOralidad($diaDesde, ($diaPrimerDia < $DThasta ? $diaHasta : $DThasta->format('d/m/Y 23:59:59')), $oficinaId);
                 } else {
                     $estadistica = !is_null($this->getUser()->getCircunscripcion()) ? $turnoRepository->findEstadisticaByCircunscripcion($diaDesde, ($diaPrimerDia < $DThasta ? $diaHasta : $DThasta->format('d/m/Y 23:59:59')), $this->getUser()->getCircunscripcion()->getId()) : $turnoRepository->findEstadistica($diaDesde, ($diaPrimerDia < $DThasta ? $diaHasta : $DThasta->format('d/m/Y 23:59:59')), $oficinaId);
                 }
-                
+
                 if (($estadistica['total'] || $vistaSinTurno) && !$vistaSoloSinTurno) {
                     // Incorporo si existe al menos un turno generado (excluyo feriados y fines de semana) a menos que haya optado por ello
                     $estadisticaDiaria[] =  $estadistica;
@@ -412,7 +410,7 @@ class EstadisticaController extends AbstractController
             foreach ($oficinas as $ofi) {
                 if ($excluirOficinasFD && stristr($ofi['oficina'], 'firma digital con token'))
                     continue;
-                
+
                 $estadistica = !is_null($this->getUser()->getCircunscripcion()) ? $turnoRepository->findEstadisticaByCircunscripcion($diaDesde, $diaHasta, $this->getUser()->getCircunscripcion()->getId()) : $turnoRepository->findEstadistica($diaDesde, $diaHasta, $ofi['id']);
                 $datosOcupacion[] = [
                     'id' => $ofi['id'], 'oficina' => $ofi['oficina'], 'localidad' => $ofi['localidad'], 'ultimoTurno' => $ofi['ultimoTurno'], 'habilitada' => $ofi['habilitada'],
@@ -568,6 +566,81 @@ class EstadisticaController extends AbstractController
             'circunscripcion' => $circunscripcion,
             'ordenadoPor' => $ordenadoPor,
             'ocupacionesPlenas' => $ocupacionesPlenas
+        ]);
+    }
+
+        /**
+     * @Route("estadistica/informePersonaDuplicada", name="informe_persona_duplicada", methods={"GET", "POST"})
+     */
+    public function informePersonaDuplicada(OficinaRepository $oficinaRepository): Response
+    {
+        // Propone fecha (día actual)
+        $desde = new \DateTime(date("Y-m-d") . " 00:00:00");
+        $hasta = new \DateTime("+1 months");
+
+        $oficinas = !is_null($this->getUser()->getCircunscripcion()) ? $oficinaRepository->findOficinasByCircunscripcion($this->getUser()->getCircunscripcion()->getId()) : $oficinaRepository->findAllOficinas();
+
+        return $this->render('estadistica/informePersonaDuplicada.html.twig', [
+            'desde' => $desde->format('d/m/Y'),
+            'hasta' => $hasta->format('d/m/Y'),
+            'oficinas' => $oficinas
+        ]);
+    }
+
+    /**
+     * @Route("/estadistica/showPersonaDuplicada", name="informe_show_persona_duplicada", methods={"GET", "POST"})
+     */
+    public function showPersonaDuplicada(Request $request, TurnoRepository $turnoRepository, OficinaRepository $oficinaRepository, LoggerInterface $logger): Response
+    {
+        // Recibe variables del Formulario
+        $desde = $request->request->get('start');
+        $hasta = $request->request->get('end');
+        $oficinaId = $request->request->get('oficinas');
+        $opcion = $request->request->get('opcion');
+        $tipoInforme = 1;
+
+        if ($opcion == 'detallado') {
+            if ($oficinaId == '0') {
+                $this->addFlash('warning', 'Para el informe con Vista Detallada se debe especificar una oficina');
+                return $this->redirectToRoute('informe_persona_duplicada');
+            }
+            $tipoInforme = 2;
+        }
+
+        if (!isset($oficinaId)) {
+            // Busca la oficina a la que pertenece el Usuario
+            $oficinaId = $this->getUser()->getOficina()->getId();
+            if (!$oficinaId) {
+                // Por seguridad, si el usuario no tiene vinculada oficina pre establece "TODAS"
+                $oficinaId = 0;
+            }
+        }
+
+        //Busco Oficina si es necesario para mostrar
+        if ($oficinaId) {
+            $oficina = 'de ' . $oficinaRepository->findById($oficinaId);
+        } else {
+            $oficina = 'de Todas las Oficinas';
+        }       
+
+        // Utilizo el repository para recuperar los datos
+        $duplicados = $turnoRepository->obtenerPersonasDuplicadas($tipoInforme, $desde, $hasta, $oficinaId, is_null($this->getUser()->getCircunscripcion()) ? null : $this->getUser()->getCircunscripcion()->getId());
+        //$duplicados = array();
+        // Audito la acción
+        $logger->info('Se emite informe de persona duplicada', [
+            'Desde' => $desde,
+            'Hasta' => $hasta,
+            'Oficina' => $oficinaId,
+            'Usuario' => $this->getUser()->getUsuario()
+        ]);
+
+
+        return $this->render('estadistica/showInformePersonaDuplicada.html.twig', [
+            'desde' => $desde,
+            'hasta' => $hasta,
+            'oficina' => $oficina, 
+            'tipoInforme' => $tipoInforme, 
+            'duplicados' => $duplicados
         ]);
     }
 }

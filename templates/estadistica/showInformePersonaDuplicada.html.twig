@@ -1,0 +1,112 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Informe de Turnos por Personas{% endblock %}
+
+{% block body %}
+    <h1>Informe de Turnos por Personas {{ oficina }} </h1>
+    <h2>Período del {{desde}} al {{hasta}}</h2>
+    <br>    
+    <br>
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-primary mb-3">
+            {% if tipoInforme == 1 %}
+                <div class="card-header"><strong>Vista General</strong></div>
+                <div class="card-body text-primary">
+                {% if duplicados|length > 0 %}
+                    <table class="table table-hover table-bordered">
+                        <thead>
+                            <tr>
+                                <th class="text-center">Persona</th>
+                                <th class="text-center">DNI</th>                                
+                                <th class="text-center">Correo</th>
+                                <th class="text-center">Telefono</th>
+                                <th class="text-center">Oficina</th>
+                                <th class="text-center">Localidad</th>
+                                <th class="text-center">Cantidad de Turnos</th>
+                            </tr>
+                        </thead>    
+                        <tbody>
+                        {% set cambioPersona = 0 %}
+                        {% set dniAnterior = 1 %}
+                        {% for duplicado in duplicados %}
+                            {% if dniAnterior != duplicado['dni2'] %}
+                                {% set cambioPersona = 1 %}    
+                            {% else %}             
+                                {% set cambioPersona = 0 %}                         
+                            {% endif %}
+                            {% if cambioPersona == 1 %}
+                                <tr>
+                                    <td class="text-center">{{ duplicado['nom3'] }}</td>
+                                    <td class="text-center">{{ duplicado['dni2'] }}</td>                                
+                                    <td class="text-center">{{ duplicado['ema3'] }}</td>
+                                    <td class="text-center">{{ duplicado['tel3'] }}</td>
+                                    <td class="text-center">{{ duplicado['ofi2'] }}</td>
+                                    <td class="text-center">{{ duplicado['loc2'] }}</td>
+                                    <td class="text-center">{{ duplicado['cantidad'] }}</td>
+                                </tr>                                                              
+                            {% else %}
+                                <tr>
+                                    <td class="text-center"><i class="fas fa-check"></i></td>
+                                    <td class="text-center"><i class="fas fa-check"></i></td>                                
+                                    <td class="text-center"><i class="fas fa-check"></i></td>
+                                    <td class="text-center"><i class="fas fa-check"></i></td>
+                                    <td class="text-center">{{ duplicado['ofi2'] }}</td>
+                                    <td class="text-center">{{ duplicado['loc2'] }}</td>
+                                    <td class="text-center">{{ duplicado['cantidad'] }}</td>
+                                </tr>  
+                            {% endif %}  
+                            {% set dniAnterior = duplicado['dni2'] %}                              
+                        {% endfor %}                        
+                        </tbody>                    
+                    </table>
+                {% else %}
+                    <center>Sin datos para el informe</center>
+                {% endif %}
+                </div>
+            {% else %}
+                <div class="card-header"><strong>Vista Detallada del Informe</strong></div>
+                <div class="card-body text-primary">
+                {% if duplicados|length > 0 %}                    
+                    {% set cambioPersona = 0 %}
+                    {% set dniAnterior = duplicados[0]['dni2'] %}
+                    {% set personaAnterior = duplicados[0]['nom3'] %}
+                    {% set datosSubReporte = [] %}
+                    {% for duplicado in duplicados %}
+                        {% set linea = duplicado['fecha_hora'] ~ '~' ~ duplicado['motivo'] %}
+                        {% set datosSubReporte = datosSubReporte|merge([linea]) %}   
+                        {% if dniAnterior != duplicado['dni2'] %}
+                            {# Ante un cambio de persona dibujo el sub informe #}
+                            <div class="row">
+                                <div class="col-5 text-left">Turnos de: <strong>{{ personaAnterior }}</strong>  DNI:({{ dniAnterior }})</div>
+                                <div class="col-7"></div>
+                            </div>
+                            {{ include('estadistica/subShowInformePersonaDuplicada.html.twig', {'datos': datosSubReporte|slice(0,-1)}) }}
+                            {# Inicializo los datos del subreporte con el item actual para no perderlo y reinicio los anteriores #}
+                            {% set datosSubReporte = [linea] %}
+                            {% set dniAnterior = duplicado['dni2'] %}
+                            {% set personaAnterior = duplicado['nom3'] %}
+                        {% endif %}
+                    {% endfor %}
+                    {# Luego de recorrer todo el bucle debo imprimir los datos de la última personas #}
+                    <div class="row">
+                        <div class="col-5 text-left">Turnos de: <strong>{{ personaAnterior }}</strong>  DNI:({{ dniAnterior }})</div>
+                        <div class="col-7"></div>
+                    </div>
+                    {{ include('estadistica/subShowInformePersonaDuplicada.html.twig', {'datos': datosSubReporte}) }}
+                {% else %}
+                    <center>Sin datos para el informe</center>
+                {% endif %}
+                </div>
+            {% endif %}
+            </div> 
+        </div>
+    </div>
+    <div class="container-fluid"> 
+        <div class="row">
+            <div class="col-12">
+                <a class="btn btn-secondary float-left volver" href="{{ path('informe_persona_duplicada') }}">Volver</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

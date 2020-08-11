@@ -57,6 +57,7 @@
                                 {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') %}
                                     <a class="dropdown-item" href="{{ path('informe_ocupacion_agenda') }}">Ocupación de las Agendas</a>
                                     <a class="dropdown-item" href="{{ path('informe_ocupacion_plena') }}">Fecha Máxima de Ocupación Plena por Oficina</a>
+                                    <a class="dropdown-item" href="{{ path('informe_persona_duplicada') }}">Turnos por Personas</a>
                                 {% endif %}
                             </div>
                         </li>

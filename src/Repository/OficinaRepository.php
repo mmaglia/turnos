@@ -185,21 +185,6 @@ class OficinaRepository extends ServiceEntityRepository
         }
 
         $em = $this->getEntityManager()->getConnection();
-        /*$sql = "SELECT o.oficina, l.localidad, to_char(a.max, 'dd/mm/YYYY') as Maxima_Ocupacion, (a.max - now()::date) as dias, (SELECT max(fecha_hora::date) FROM turno t WHERE t.oficina_id = o.id) as ultimoTurno, ((SELECT max(fecha_hora::date) FROM turno t WHERE t.oficina_id = o.id) - a.max) as diasUltimoTurno
-                FROM oficina o 
-                INNER JOIN localidad l ON l.id = o.localidad_id 
-                LEFT JOIN (SELECT aux3.ofi,max(aux3.fec)
-                    FROM (SELECT aux2.t01 as ofi, aux2.t02 as fec, sum(t03) as tot
-                        FROM (SELECT t0.oficina_id as t01,t0.fecha_hora::date as t02,(case when t0.persona_id is null then 1 else 0 end) as t03
-                            FROM turno t0, (SELECT t1.oficina_id as t11, t1.fecha_hora::date as t12
-                                                FROM turno t1
-                                                GROUP BY 1,2) aux
-                            WHERE t0.oficina_id = aux.t11 AND t0.fecha_hora::date = aux.t12) as aux2
-                            GROUP BY 1,2) as aux3
-                    WHERE aux3.tot = 0
-                    GROUP BY 1) a ON o.id = a.ofi
-                WHERE  a.max is not null and a.max >= now()::date $filtroCircunscripcion
-                ORDER BY $orderBy";*/
         $sql = "SELECT o.oficina, l.localidad,
                     (SELECT to_char(date(min(fecha_hora)), 'dd/mm/yyyy') FROM turno WHERE persona_id is null AND oficina_id = o.id AND fecha_hora > now()) as primer_turno_disponible, ((SELECT date(min(fecha_hora)) FROM turno WHERE persona_id is null AND oficina_id = o.id AND fecha_hora > now()) - now()::date) as diasprimerturno,
                     to_char(a.max, 'dd/mm/YYYY') AS Maxima_Ocupacion, (a.max - now()::date) AS dias, 

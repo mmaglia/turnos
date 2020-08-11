@@ -393,7 +393,7 @@ class TurnoRepository extends ServiceEntityRepository
 
 
     public function findEstadisticaByCircunscripcion($desde, $hasta, $circunscripcion_id)
-    {        
+    {
         //t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id
         $sql = "SELECT '$desde' as Desde, '$hasta' as Hasta,
                         (SELECT count(*) FROM turno t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id = :circunscripcion_id AND t.fecha_hora BETWEEN :desde AND :hasta) as Total,
@@ -422,7 +422,7 @@ class TurnoRepository extends ServiceEntityRepository
 
 
     public function findEstadisticaByCircunscripcionOralidad($desde, $hasta, $circunscripcion_id)
-    {        
+    {
         //t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id
         $sql = "SELECT '$desde' as Desde, '$hasta' as Hasta,
                         (SELECT count(*) FROM turno t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id = :circunscripcion_id AND t.fecha_hora BETWEEN :desde AND :hasta) as Total,
@@ -494,6 +494,90 @@ class TurnoRepository extends ServiceEntityRepository
             ->setParameter(':desde',  $fecha_hora->format('Y-m-d  00:00:00'))
             ->setParameter(':hasta', $fecha_hora->format('Y-m-d  23:59:59'))
             ->getResult();
+
+        return $result;
+    }
+
+    /**
+     * Obtiene datos para el informe de Personas con turnos Duplicados
+     */
+    public function obtenerPersonasDuplicadas($tipoInforme, $desde, $hasta, $oficinaId, $circunscripcionId)
+    {
+
+        // Preparo los parámetros
+        $fechaDesde = substr($desde, 6, 4) . '-' . substr($desde, 3, 2) . '-' . substr($desde, 0, 2) . ' 00:00:00';
+        $fechaHasta = substr($hasta, 6, 4) . '-' . substr($hasta, 3, 2) . '-' . substr($hasta, 0, 2) . ' 23:59:59';
+
+        $filtroFecha = "";
+        $filtroCircuns = "";
+        $filtroOficina = "";
+        $filtroOficina1 = "";
+
+        $em = $this->getEntityManager()->getConnection();
+
+        // Informe general
+        if ($tipoInforme == 1) {
+            $filtroFecha = "AND t.fecha_hora BETWEEN '" . $fechaDesde . "' AND '" . $fechaHasta . "'";
+            if (!is_null($circunscripcionId)) {
+                $filtroCircuns .= "AND l.circunscripcion_id = " . $circunscripcionId;
+            }
+            if (!is_null($oficinaId) && $oficinaId != 0) {
+                $filtroOficina .= "AND o.id = " . $oficinaId;
+            }
+            $sql = "SELECT aux1.*,aux2.nom3,aux2.ema3,aux2.tel3
+                FROM (SELECT COUNT(p.dni) as Cantidad, p.dni dni2, o.oficina ofi2, l.localidad loc2
+                FROM turno t
+                LEFT JOIN persona p ON p.id = t.persona_id
+                LEFT JOIN oficina o ON o.id = t.oficina_id
+                LEFT JOIN localidad l ON l.id = o.localidad_id
+                WHERE t.persona_id IS NOT NULL                
+                $filtroFecha
+                $filtroCircuns
+                $filtroOficina
+                GROUP BY p.dni, o.oficina, l.localidad
+                HAVING COUNT (p.dni) > 2
+                ORDER BY l.localidad, o.oficina, Cantidad DESC) as aux1,
+                (SELECT p.apellido||' '||p.nombre as nom3,p.email ema3,p.telefono tel3,
+                p.dni as dni3 FROM persona p WHERE p.id = (SELECT MAX(pp.id) FROM persona pp WHERE pp.dni = p.dni)
+                GROUP BY nom3, dni3,ema3,tel3) as aux2
+                WHERE aux1.dni2 = aux2.dni3
+                ORDER BY aux2.nom3 ASC, Cantidad DESC, loc2 ASC, ofi2 ASC;";
+        } else {
+            $filtroFecha = "AND t.fecha_hora BETWEEN '" . $fechaDesde . "' AND '" . $fechaHasta . "'";
+            $filtroFecha1 = "AND t4.fecha_hora BETWEEN '" . $fechaDesde . "' AND '" . $fechaHasta . "'";
+            if (!is_null($oficinaId) && $oficinaId != 0) {
+                $filtroOficina .= "AND o.id = " . $oficinaId;
+                $filtroOficina1 .= "AND t4.oficina_id = " . $oficinaId;
+            }
+            // Informe Detallado
+            $sql = "SELECT aux4.*,t4.fecha_hora,t4.motivo
+                FROM turno t4,
+                (SELECT aux1.*,aux2.nom3,aux2.ema3,aux2.tel3
+                FROM (SELECT COUNT(p.dni) as Cantidad, p.dni dni2, o.oficina ofi2, l.localidad loc2
+                FROM turno t
+                LEFT JOIN persona p ON p.id = t.persona_id
+                LEFT JOIN oficina o ON o.id = t.oficina_id
+                LEFT JOIN localidad l ON l.id = o.localidad_id
+                WHERE t.persona_id IS NOT NULL 
+                $filtroOficina
+                $filtroFecha
+                GROUP BY p.dni, o.oficina, l.localidad
+                HAVING COUNT (p.dni) > 2
+                ORDER BY l.localidad, o.oficina, Cantidad DESC) as aux1,
+                (SELECT p.apellido||' '||p.nombre as nom3,p.email ema3,p.telefono tel3,
+                p.dni as dni3 FROM persona p WHERE p.id = (SELECT MAX(pp.id) FROM persona pp WHERE pp.dni = p.dni)
+                GROUP BY nom3, dni3,ema3,tel3) as aux2
+                WHERE aux1.dni2 = aux2.dni3
+                ORDER BY aux2.nom3 ASC, Cantidad DESC, loc2 ASC, ofi2 ASC) aux4,persona p4
+                WHERE aux4.dni2 = p4.dni AND p4.id = t4.persona_id
+                $filtroOficina1
+                $filtroFecha1";
+        }
+
+        $em = $this->getEntityManager();
+        $statement = $em->getConnection()->prepare($sql);
+        $statement->execute();
+        $result = $statement->fetchAll();
 
         return $result;
     }
