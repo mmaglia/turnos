@@ -3,6 +3,13 @@
 {% block title %}Solicitud de Turnos Poder Judicial{% endblock %}
 
 {% block body %}
+{% if app.environment == 'dev' %}
+   {% set urlIndexMPCivil = "http://turnosmpcivil-testing.justiciasantafe.gov.ar/index.php" %}
+   {% set urlMPCivil = "http://turnosmpcivil-testing.justiciasantafe.gov.ar/index.php/TurnosWeb/solicitante" %}
+{% else %}
+    {% set urlIndexMPCivil = "http://turnosmpcivil.justiciasantafe.gov.ar/index.php" %}
+    {% set urlMPCivil = "http://turnosmpcivil.justiciasantafe.gov.ar/index.php/TurnosWeb/solicitante" %}
+{% endif %}
 <br>
 <div class="jumbotron mt-1 rounded-lg border border-secondary">
     <div class="row">
@@ -18,22 +25,20 @@
                 <div class="text-center mt-5 mb-4">
                     <a href="{{asset('docs/informacionAdicional.pdf')}}" target="_blank">Más información sobre el sistema de turnos web para atención de profesionales y público en general</a>
                 </div>
-            {% endif %}
-            <br><br>
-            {% if SistemaTurnosWeb %}
+                <br><br>            
                 <div class="row">
                     <div class="col-6 text-left">
-                        <a class="btn btn-primary btn-lg float-center" href="http://turnosmpcivil.justiciasantafe.gov.ar/index.php" role="button">Turno Defensorías Generales Civiles</a>
+                        <a class="btn btn-primary btn-lg float-center" href={{ urlIndexMPCivil }} role="button">Turno Defensorías Generales Civiles</a>
                     </div>
                     <div class="col-6 text-right">
-                        <a class="btn btn-primary btn-lg float-center" href="http://turnos.justiciasantafe.gov.ar/index.php/TurnosWeb/solicitante" role="button">Solicitar Turno</a>
+                        <a class="btn btn-primary btn-lg float-center" href="{{ path('turno_new2') }}" role="button">Solicitar Turno</a>
                     </div>
                 </div>
             {% else %}
                 {% if SistemaTurnosMPE %}
                     <div class="row">
                         <div class="col-12 text-right">
-                            <a class="btn btn-primary btn-lg " href="http://turnosmpcivil.justiciasantafe.gov.ar/index.php/TurnosWeb/solicitante" role="button">Solicitar Turno Defensorías Generales Civiles</a>
+                            <a class="btn btn-primary btn-lg " href={{ urlMPCivil }} role="button">Solicitar Turno Defensorías Generales Civiles</a>
                         </div>
                     </div>
                 {% else %}
