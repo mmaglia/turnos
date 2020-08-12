@@ -17,11 +17,11 @@
                     <table class="table table-hover table-bordered">
                         <thead>
                             <tr>
-                                <th class="text-center">Persona</th>
+                                <th>Persona</th>
                                 <th class="text-center">DNI</th>                                
-                                <th class="text-center">Correo</th>
-                                <th class="text-center">Telefono</th>
-                                <th class="text-center">Oficina</th>
+                                <th>Correo</th>
+                                <th>Telefono</th>
+                                <th>Oficina</th>
                                 <th class="text-center">Localidad</th>
                                 <th class="text-center">Cantidad de Turnos</th>
                             </tr>
@@ -37,11 +37,11 @@
                             {% endif %}
                             {% if cambioPersona == 1 %}
                                 <tr>
-                                    <td class="text-center">{{ duplicado['nom3'] }}</td>
+                                    <td>{{ duplicado['nom3'] }}</td>
                                     <td class="text-center">{{ duplicado['dni2'] }}</td>                                
-                                    <td class="text-center">{{ duplicado['ema3'] }}</td>
-                                    <td class="text-center">{{ duplicado['tel3'] }}</td>
-                                    <td class="text-center">{{ duplicado['ofi2'] }}</td>
+                                    <td>{{ duplicado['ema3'] }}</td>
+                                    <td>{{ duplicado['tel3'] }}</td>
+                                    <td>{{ duplicado['ofi2'] }}</td>
                                     <td class="text-center">{{ duplicado['loc2'] }}</td>
                                     <td class="text-center">{{ duplicado['cantidad'] }}</td>
                                 </tr>                                                              
@@ -51,7 +51,7 @@
                                     <td class="text-center"><i class="fas fa-check"></i></td>                                
                                     <td class="text-center"><i class="fas fa-check"></i></td>
                                     <td class="text-center"><i class="fas fa-check"></i></td>
-                                    <td class="text-center">{{ duplicado['ofi2'] }}</td>
+                                    <td>{{ duplicado['ofi2'] }}</td>
                                     <td class="text-center">{{ duplicado['loc2'] }}</td>
                                     <td class="text-center">{{ duplicado['cantidad'] }}</td>
                                 </tr>  
