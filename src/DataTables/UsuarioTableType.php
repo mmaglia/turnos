@@ -41,7 +41,9 @@ class UsuarioTableType extends AbstractController implements DataTableTypeInterf
                 return '%' . strtoupper($value) . '%';
             }
         ]);
-        $dataTable->add('oficina', TextColumn::class, ['label' => 'Oficina', 'searchable' => false, 'field' => 'u.oficina']);
+        $dataTable->add('oficina', TextColumn::class, ['label' => 'Oficina', 'searchable' => false, 'field' => 'o.oficina', 'leftExpr' => "toUpper(o.oficina)", 'rightExpr' => function ($value) {
+            return '%' . strtoupper($value) . '%';
+        }]);
         $dataTable->add('fecha_alta', DateTimeColumn::class, ['label' => 'Alta', 'format' => 'd-m-Y', 'className' => 'text-center', 'searchable' => true, 'operator' => 'LIKE', 'leftExpr' => "toChar(u.fecha_alta, 'DD-MM-YYYY HH24:MI:SS')", 'rightExpr' => function ($value) {
             return '%' . $value . '%';
         }]);
@@ -72,7 +74,8 @@ class UsuarioTableType extends AbstractController implements DataTableTypeInterf
             'query' => function (QueryBuilder $builder) {
                 $builder
                     ->select('u')
-                    ->from(Usuario::class, 'u');
+                    ->from(Usuario::class, 'u')
+                    ->join('u.oficina', 'o');
             }
         ]);
     }
