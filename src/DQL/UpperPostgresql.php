@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DataTables;
+namespace App\DQL;
 
 use Doctrine\ORM\Query\AST\Functions\FunctionNode;
 use Doctrine\ORM\Query\Lexer;

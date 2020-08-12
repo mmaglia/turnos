@@ -42,7 +42,8 @@ class TurnoRechazadoTableType extends AbstractController implements DataTableTyp
         $dataTable->add('fechaHoraTurno', DateTimeColumn::class, ['label' => 'Turno', 'format' => 'd-m-Y H:i:s', 'className' => 'text-center', 'searchable' => true, 'operator' => 'LIKE', 'leftExpr' => "toChar(t.fechaHoraTurno, 'DD-MM-YYYY HH24:MI:SS')", 'rightExpr' => function ($value) {
             return '%' . $value . '%';
         }]);
-        $dataTable->add('persona', TextColumn::class, ['label' => $this->_translator->trans('Persona'), 'field' => 'p.apellido', 'searchable' => true, 
+        $dataTable->add('persona', TextColumn::class, [
+            'label' => $this->_translator->trans('Persona'), 'field' => 'p.apellido', 'searchable' => true, 'leftExpr' => "toUpper(p.apellido)",
             'render' => function ($value, $context) {
                 if (is_null($context->getPersona())) {
                     return '';
@@ -59,26 +60,36 @@ class TurnoRechazadoTableType extends AbstractController implements DataTableTyp
                 if ($telefono) {
                     return sprintf('<span title="%s">%s</span>', 'Tel. Contacto: ' . $telefono, $context->getPersona()->getPersona());
                 }
-            }]);
+            },
+            'rightExpr' => function ($value) {
+                return '%' . strtoupper($value) . '%';
+            }
+        ]);
         $dataTable->add('dni', TextColumn::class, ['label' => $this->_translator->trans('DNI'), 'orderable' => true, 'field' => 'p.dni', 'searchable' => false, 'render' => function ($value, $context) {
             if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
                 return !is_null($context->getPersona())  ? $context->getPersona()->getOrganismo() . ' (' . $context->getPersona()->getDni() . ')' : '';
             }
             return !is_null($context->getPersona()) && !is_null($context->getPersona()->getDni()) ? $context->getPersona()->getDni() : '';
         }]);
-        $dataTable->add('motivo', TextColumn::class, ['label' => $this->_translator->trans('Motivo'), 'searchable' => true]);
+        $dataTable->add('motivo', TextColumn::class, ['label' => $this->_translator->trans('Motivo'), 'searchable' => true, 'leftExpr' => "toUpper(t.motivo)", 'rightExpr' => function ($value) {
+            return '%' . strtoupper($value) . '%';
+        }]);
         if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
             $dataTable->add('notebook', BoolColumn::class, ['label' => $this->_translator->trans('Notebook'), 'searchable' => false, 'className' => 'text-center', 'trueValue' => '<i class="fas fa-check"></i>', 'falseValue' => '<i class="fa fa-times"></i>', 'nullValue' => '']);
             $dataTable->add('zoom', BoolColumn::class, ['label' => $this->_translator->trans('Zoom'), 'searchable' => false, 'className' => 'text-center', 'trueValue' => '<i class="fas fa-check"></i>', 'falseValue' => '<i class="fa fa-times"></i>', 'nullValue' => '']);
         }
-        $dataTable->add('motivoRechazo', TextColumn::class, ['label' => 'Motivo Rechazo', 'searchable' => true, 'render' => '<span title="Juani">%s</span>', 'raw' => true]);
+        $dataTable->add('motivoRechazo', TextColumn::class, ['label' => 'Motivo Rechazo', 'searchable' => true, 'leftExpr' => "toUpper(t.motivoRechazo)", 'raw' => true, 'rightExpr' => function ($value) {
+            return '%' . strtoupper($value) . '%';
+        }]);
         $dataTable->add('emailEnviado', BoolColumn::class, ['label' => 'Correo Enviado', 'searchable' => false, 'className' => 'text-center', 'trueValue' => '<i class="fas fa-check"></i>', 'falseValue' => '<i class="fa fa-times"></i>', 'nullValue' => '']);
 
         // Columnas duplicadas ocultas, para poder realizar busquedas individuales sobre campos puntuales
         $dataTable->add('dniSearch', NumberColumn::class, ['field' => 'p.dni', 'searchable' => true, 'visible' => false, 'operator' => 'LIKE', 'leftExpr' => "toChar(p.dni, '99999999')", 'rightExpr' => function ($value) {
             return '%' . $value . '%';
         }]);
-        $dataTable->add('nombre', TextColumn::class, ['field' => 'p.nombre', 'searchable' => true, 'visible' => false]);
+        $dataTable->add('nombre', TextColumn::class, ['field' => 'p.nombre', 'searchable' => true, 'visible' => false, 'leftExpr' => "toUpper(p.nombre)", 'rightExpr' => function ($value) {
+            return '%' . strtoupper($value) . '%';
+        }]);
 
         // Orden de la grilla
         $dataTable->addOrderBy('fechaHoraTurno', DataTable::SORT_ASCENDING);

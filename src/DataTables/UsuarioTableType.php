@@ -26,13 +26,21 @@ class UsuarioTableType extends AbstractController implements DataTableTypeInterf
     public function configure(DataTable $dataTable, array $options)
     {
         $dataTable->add('id', TextColumn::class, ['label' => '#', 'searchable' => false]);
-        $dataTable->add('username', TextColumn::class, ['label' => 'Usuario', 'searchable' => true]);
+        $dataTable->add('username', TextColumn::class, ['label' => 'Usuario', 'searchable' => true, 'leftExpr' => "toUpper(u.username)", 'rightExpr' => function ($value) {
+            return '%' . strtoupper($value) . '%';
+        }]);
         $dataTable->add('rolesUsuario', TextColumn::class, ['label' => 'Roles', 'searchable' => false, 'render' => function ($value, $context) {
             return str_replace('ROLE_', '', implode(', ', $context->getRoles()));
         }]);
-        $dataTable->add('apenom', TextColumn::class, ['label' => 'Apellido y Nombres', 'orderable' => true, 'searchable' => true, 'field' => 'u.apellido', 'render' => function ($value, $context) {
-            return $context->getApeNom();
-        }]);
+        $dataTable->add('apenom', TextColumn::class, [
+            'label' => 'Apellido y Nombres', 'orderable' => true, 'searchable' => true, 'leftExpr' => "toUpper(u.apellido)", 'field' => 'u.apellido',
+            'render' => function ($value, $context) {
+                return $context->getApeNom();
+            },
+            'rightExpr' => function ($value) {
+                return '%' . strtoupper($value) . '%';
+            }
+        ]);
         $dataTable->add('oficina', TextColumn::class, ['label' => 'Oficina', 'searchable' => false, 'field' => 'u.oficina']);
         $dataTable->add('fecha_alta', DateTimeColumn::class, ['label' => 'Alta', 'format' => 'd-m-Y', 'className' => 'text-center', 'searchable' => true, 'operator' => 'LIKE', 'leftExpr' => "toChar(u.fecha_alta, 'DD-MM-YYYY HH24:MI:SS')", 'rightExpr' => function ($value) {
             return '%' . $value . '%';
@@ -52,7 +60,9 @@ class UsuarioTableType extends AbstractController implements DataTableTypeInterf
         }
 
         // Columnas duplicadas ocultas, para poder realizar busquedas individuales sobre campos puntuales
-        $dataTable->add('nombre', TextColumn::class, ['searchable' => true, 'visible' => false]);
+        $dataTable->add('nombre', TextColumn::class, ['searchable' => true, 'visible' => false, 'leftExpr' => "toUpper(u.nombre)", 'rightExpr' => function ($value) {
+            return '%' . strtoupper($value) . '%';
+        }]);
 
         // Orden de la grilla
         $dataTable->addOrderBy('username', DataTable::SORT_ASCENDING);

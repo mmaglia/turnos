@@ -30,6 +30,5 @@ doctrine:
         dql:
             datetime_functions:
                 toChar: DoctrineExtensions\Query\Postgresql\DateFormat
-
             string_functions:
-                upper: App\DataTables\UpperPostgresql
+                toUpper: App\DQL\UpperPostgresql

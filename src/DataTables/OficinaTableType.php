@@ -26,9 +26,12 @@ class OficinaTableType extends AbstractController implements DataTableTypeInterf
      */
     public function configure(DataTable $dataTable, array $options)
     {
+        // Se agrega la primera columna en blanco para poner el checkbox
         $dataTable->add('', TextColumn::class, ['label' => '']);
         $dataTable->add('id', TextColumn::class, ['label' => '#', 'searchable' => false]);
-        $dataTable->add('oficina', TextColumn::class, ['label' => 'Oficina', 'searchable' => true]);
+        $dataTable->add('oficina', TextColumn::class, ['label' => 'Oficina', 'searchable' => true, 'leftExpr' => "toUpper(o.oficina)", 'rightExpr' => function ($value) {
+            return '%' . strtoupper($value) . '%';
+        }]);
         $dataTable->add('localidad', TextColumn::class, ['label' => 'Localidad', 'searchable' => false,  'field' => 'o.localidad']);
         $dataTable->add('horaInicioAtencion', DateTimeColumn::class, ['label' => 'Inicio', 'searchable' => false, 'orderable' => false, 'className' => 'text-center', 'format' => 'H:i']);
         $dataTable->add('horaFinAtencion', DateTimeColumn::class, ['label' => 'Fin', 'searchable' => false, 'orderable' => false, 'className' => 'text-center', 'format' => 'H:i']);
