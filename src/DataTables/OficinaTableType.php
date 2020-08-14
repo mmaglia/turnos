@@ -32,7 +32,7 @@ class OficinaTableType extends AbstractController implements DataTableTypeInterf
         $dataTable->add('oficina', TextColumn::class, ['label' => 'Oficina', 'searchable' => true, 'leftExpr' => "toUpper(o.oficina)", 'rightExpr' => function ($value) {
             return '%' . strtoupper($value) . '%';
         }]);
-        $dataTable->add('localidad', TextColumn::class, ['label' => 'Localidad', 'searchable' => false,  'field' => 'o.localidad']);
+        $dataTable->add('localidad', TextColumn::class, ['label' => 'Localidad', 'searchable' => false,  'field' => 'o.localidad', 'orderField' => 'l.localidad']);
         $dataTable->add('horaInicioAtencion', DateTimeColumn::class, ['label' => 'Inicio', 'searchable' => false, 'orderable' => false, 'className' => 'text-center', 'format' => 'H:i']);
         $dataTable->add('horaFinAtencion', DateTimeColumn::class, ['label' => 'Fin', 'searchable' => false, 'orderable' => false, 'className' => 'text-center', 'format' => 'H:i']);
         $dataTable->add('frecuenciaAtencion', TextColumn::class, ['label' => 'Frecuencia', 'searchable' => false, 'orderable' => false, 'className' => 'text-center']);
@@ -48,9 +48,12 @@ class OficinaTableType extends AbstractController implements DataTableTypeInterf
                     '&nbsp;&nbsp;<a href="' . $this->generateUrl('borraDiaAgendaTurnosbyOficina', ['id' => $context->getId()]) . '" title="Elimina un día de la Agenda de ' . $context . '"><i class="far fa-calendar-minus"></i></a>';
             }]);
         }
+
+        // Ordenes de la grilla
         $dataTable->addOrderBy('localidad', DataTable::SORT_ASCENDING);
         $dataTable->addOrderBy('horaInicioAtencion', DataTable::SORT_ASCENDING);
         $dataTable->addOrderBy('oficina', DataTable::SORT_ASCENDING);
+        
         $dataTable->createAdapter(ORMAdapter::class, [
             'entity' => Oficina::class,
             'query' => function (QueryBuilder $builder) use ($options) {
@@ -59,9 +62,16 @@ class OficinaTableType extends AbstractController implements DataTableTypeInterf
                 $subQuery = $builder2->select('MAX(t.fechaHora) as ultimoTurno')->from(Turno::class, 't')->where('t.oficina = o.id');
                 $builder->select(array('partial o.{id, oficina, localidad, horaInicioAtencion, horaFinAtencion, frecuenciaAtencion, habilitada}'))->addSelect('(' . $subQuery->getDQL() . ')')->from(Oficina::class, 'o');*/
                 if (count($options) > 0) {
-                    $builder->select('o')->from(Oficina::class, 'o')->where('o.id = ' . $options[0]);
+                    $builder
+                        ->select('o')
+                        ->from(Oficina::class, 'o')
+                        ->join('o.localidad', 'l')
+                        ->where('o.id = ' . $options[0]);
                 } else {
-                    $builder->select('o')->from(Oficina::class, 'o');
+                    $builder
+                        ->select('o')
+                        ->from(Oficina::class, 'o')
+                        ->join('o.localidad', 'l');
                 }
             }
         ]);
