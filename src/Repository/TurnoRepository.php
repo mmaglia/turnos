@@ -571,7 +571,8 @@ class TurnoRepository extends ServiceEntityRepository
                 ORDER BY aux2.nom3 ASC, Cantidad DESC, loc2 ASC, ofi2 ASC) aux4,persona p4
                 WHERE aux4.dni2 = p4.dni AND p4.id = t4.persona_id
                 $filtroOficina1
-                $filtroFecha1";
+                $filtroFecha1
+                ORDER BY aux4.nom3, t4.fecha_hora";
         }
 
         $em = $this->getEntityManager();
