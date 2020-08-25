@@ -21,11 +21,8 @@
             <p class="lead text-center">PODER JUDICIAL DE LA PROVINCIA DE SANTA FE</p>
             <hr class="my-4">
             <p>{% trans %}main.parrafo1{% endtrans %}</p>            
-            {% if SistemaTurnosWeb %}
-                <div class="text-center mt-5 mb-4">
-                    <a href="{{asset('docs/informacionAdicional.pdf')}}" target="_blank">Más información sobre el sistema de turnos web para atención de profesionales y público en general</a>
-                </div>
-                <br><br>            
+            {% if SistemaTurnosWeb %}                
+                <br>            
                 <div class="row">
                     <div class="col-6 text-left">
                         <a class="btn btn-primary btn-lg float-center" href={{ urlIndexMPCivil }} role="button">Turno Defensorías Generales Civiles</a>
