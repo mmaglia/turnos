@@ -768,24 +768,31 @@ class TurnoController extends AbstractController
      * 
      * @IsGranted("ROLE_EDITOR")
      */
-    public function delete(Request $request, Turno $turno, LoggerInterface $logger, TranslatorInterface $translator): Response
+    public function delete(Request $request, Turno $turno, LoggerInterface $logger, TurnoRepository $turnoRepository): Response
     {
         if ($this->isCsrfTokenValid('delete' . $turno->getId(), $request->request->get('_token'))) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->remove($turno);
-            $this->addFlash('danger', 'Se ha borrado el turno');
-            $logger->info(
-                'Turno Borrado',
-                [
-                    'Oficina' => $turno->getOficina()->getOficinayLocalidad(),
-                    'Turno' => $turno->getTurno(),
-                    'Usuario' => $this->getUser()->getUsuario()
-                ]
-            );
-            $entityManager->flush();
-        }
+            // Chequeo que no se este borrando turnos del último día de turnos disponibles
+            $ultimoDia = $turnoRepository->findUltimoDiaDisponibleByOficina($turno->getOficina()->getId());
 
-        return $this->redirectToRoute('turno_index');
+            if (strcmp($ultimoDia, $turno->getFechaHora()->format('d/m/Y')) !== 0) {
+                $entityManager = $this->getDoctrine()->getManager();
+                $entityManager->remove($turno);
+                $this->addFlash('danger', 'Se ha borrado el turno');
+                $logger->info(
+                    'Turno Borrado',
+                    [
+                        'Oficina' => $turno->getOficina()->getOficinayLocalidad(),
+                        'Turno' => $turno->getTurno(),
+                        'Usuario' => $this->getUser()->getUsuario()
+                    ]
+                );
+                $entityManager->flush();                 
+            } else {
+                // Mando aviso informando la situación
+                $this->addFlash('warning', 'No se pueden borrar turnos del último día disponible.');
+            }  
+            return $this->redirectToRoute('turno_index');          
+        }        
     }
 
     /**
