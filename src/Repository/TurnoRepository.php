@@ -339,7 +339,8 @@ class TurnoRepository extends ServiceEntityRepository
                         ) as Rechazados_Ocupados,
                         (SELECT count(*) FROM turno_rechazado tr WHERE $filtroOficina fecha_hora_turno BETWEEN :desde AND :hasta AND EXISTS (
                             SELECT 1 FROM turno t WHERE t.fecha_hora = tr.fecha_hora_turno and t.oficina_id = tr.oficina_id AND t.persona_id IS NULL)
-                        ) as Rechazados_Libres
+                        ) as Rechazados_Libres,
+                        (SELECT count(*) FROM turno_rechazado WHERE $filtroOficina fecha_hora_turno BETWEEN :desde AND :hasta and motivo_rechazo like '%Cancelación de turno efectuada por el solicitante%') as Cancelados_Solicitante
             ";
 
         $em = $this->getEntityManager();
@@ -375,7 +376,8 @@ class TurnoRepository extends ServiceEntityRepository
                         ) as Rechazados_Ocupados,
                         (SELECT count(*) FROM turno_rechazado tr WHERE $filtroOficina fecha_hora_turno BETWEEN :desde AND :hasta AND EXISTS (
                             SELECT 1 FROM turno t WHERE t.fecha_hora = tr.fecha_hora_turno and t.oficina_id = tr.oficina_id AND t.persona_id IS NULL)
-                        ) as Rechazados_Libres
+                        ) as Rechazados_Libres,
+                        (SELECT count(*) FROM turno_rechazado WHERE $filtroOficina fecha_hora_turno BETWEEN :desde AND :hasta and motivo_rechazo like '%Cancelación de turno efectuada por el solicitante%') as Cancelados_Solicitante
             ";
 
         $em = $this->getEntityManager();
@@ -406,7 +408,8 @@ class TurnoRepository extends ServiceEntityRepository
                         ) as Rechazados_Ocupados,
                         (SELECT count(*) FROM turno_rechazado tr INNER JOIN oficina o ON tr.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id = :circunscripcion_id AND fecha_hora_turno BETWEEN :desde AND :hasta AND EXISTS (
                             SELECT 1 FROM turno t WHERE t.fecha_hora = tr.fecha_hora_turno and t.oficina_id = tr.oficina_id AND t.persona_id IS NULL)
-                        ) as Rechazados_Libres
+                        ) as Rechazados_Libres,
+                        (SELECT count(*) FROM turno_rechazado tr INNER JOIN oficina o ON tr.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id = :circunscripcion_id AND fecha_hora_turno BETWEEN :desde AND :hasta and motivo_rechazo like '%Cancelación de turno efectuada por el solicitante%') as Cancelados_Solicitante
             ";
 
         $em = $this->getEntityManager();
@@ -436,7 +439,8 @@ class TurnoRepository extends ServiceEntityRepository
                         ) as Rechazados_Ocupados,
                         (SELECT count(*) FROM turno_rechazado tr INNER JOIN oficina o ON tr.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id = :circunscripcion_id AND fecha_hora_turno BETWEEN :desde AND :hasta AND EXISTS (
                             SELECT 1 FROM turno t WHERE t.fecha_hora = tr.fecha_hora_turno and t.oficina_id = tr.oficina_id AND t.persona_id IS NULL)
-                        ) as Rechazados_Libres
+                        ) as Rechazados_Libres,
+                        (SELECT count(*) FROM turno_rechazado tr INNER JOIN oficina o ON tr.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id = :circunscripcion_id AND fecha_hora_turno BETWEEN :desde AND :hasta and motivo_rechazo like '%Cancelación de turno efectuada por el solicitante%') as Cancelados_Solicitante
             ";
 
         $em = $this->getEntityManager();

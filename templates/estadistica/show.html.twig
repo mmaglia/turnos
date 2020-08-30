@@ -69,11 +69,19 @@
                                             Vueltos a Ocupar:
                                             <br>
                                             Libres:
+                                            <br><br>
+                                            Cancelados por la Oficina:
+                                            <br>
+                                            Cancelados por el Solicitante:
                                         </div>
                                         <div class="col-sm text-right">
                                             {{ estadisticaGeneral['rechazados_ocupados'] | number_format(0, ',', '.')  }}
                                             <br>
                                             {{ estadisticaGeneral['rechazados_libres'] | number_format(0, ',', '.')  }}
+                                            <br><br>
+                                            {{ (estadisticaGeneral['rechazados_ocupados'] + estadisticaGeneral['rechazados_libres'] - estadisticaGeneral['cancelados_solicitante']) | number_format(0, ',', '.')  }}
+                                            <br>
+                                            {{ estadisticaGeneral['cancelados_solicitante'] | number_format(0, ',', '.')  }}
                                         </div>
         
                                             <div class="col-sm-4 text-right" style="color:gray">
