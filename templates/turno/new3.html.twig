@@ -100,7 +100,6 @@
 
             $('#turno3_circunscripcion').change(function() {
                 let circunscripcion_id = $(this).val();
-                let localidad_id = $(this).val();
                 if (circunscripcion_id) {
                     $.ajax({
                         url:"/TurnosWeb/localidades_habilitadas_circunscripcion/" + circunscripcion_id,
@@ -355,12 +354,8 @@
                                 $('#turno3_oficina option').eq(3).prop('selected', true);
                             } else {
                                 if($("#defensorias").is(":visible")) {
-                                    // Seteo como oficina a la defensoría que corresponda                             
-                                    if(localidad_id == 1) {
-                                        $('#turno3_oficina option').eq(parseInt($('#turno3_defensorias option:selected').val())-11).prop('selected', true);
-                                    } else {
-                                        $('#turno3_oficina option').eq(parseInt($('#turno3_defensorias option:selected').val())+1).prop('selected', true);
-                                    }                                    
+                                    // Seteo como oficina a la defensoría que corresponda
+                                    $('select[name="turno3[oficina]"]').val($('#turno3_defensorias option:selected').val());                                    
                                 } else {
                                     // Seteo como null la oficina
                                     $('#turno3_oficina option').eq(0).prop('selected', true);
