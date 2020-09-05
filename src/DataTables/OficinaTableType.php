@@ -45,7 +45,9 @@ class OficinaTableType extends AbstractController implements DataTableTypeInterf
                 return '&nbsp;&nbsp;<a href="' . $this->generateUrl('oficina_show', ['id' => $context->getId()]) . '" title="Ver"><i class="fas fa-eye"></i></a>' .
                     '&nbsp;&nbsp;<a href="' . $this->generateUrl('oficina_edit', ['id' => $context->getId()]) . '" title="Editar"><i class="fas fa-pen"></i></a>' .
                     '&nbsp;&nbsp;<a href="' . $this->generateUrl('oficina_addTurnos', ['id' => $context->getId()]) . '" title="Crear Nuevos Turnos para ' . $context . '"><i class="far fa-calendar-plus"></i></a>' .
-                    '&nbsp;&nbsp;<a href="' . $this->generateUrl('borraDiaAgendaTurnosbyOficina', ['id' => $context->getId()]) . '" title="Elimina un día de la Agenda de ' . $context . '"><i class="far fa-calendar-minus"></i></a>';
+                    '&nbsp;&nbsp;<a href="' . $this->generateUrl('borraDiaAgendaTurnosbyOficina', ['id' => $context->getId()]) . '" title="Elimina un día de la Agenda de ' . $context . '"><i class="far fa-calendar-minus"></i></a>' .
+                    '&nbsp;&nbsp;<a href="' . $this->generateUrl('oficina_addTurnosFromDate', ['id' => $context->getId()]) . '" title="Crear Nuevos Turnos a partir de un día como plantilla de la Agenda de ' . $context . '"><i class="far fa-calendar-check"></i></a>'
+                    ;
             }]);
         }
 

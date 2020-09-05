@@ -8,6 +8,7 @@ use App\Entity\Config;
 use App\Entity\Localidad;
 use App\Form\OficinaType;
 use App\Form\AddTurnosType;
+use App\Form\AddTurnosFromDateType;
 use App\Repository\OficinaRepository;
 use App\Repository\ConfigRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -124,7 +125,7 @@ class OficinaController extends AbstractController
 
         // Establece valores por defecto y arma el Formulario
         $frecuencia = $oficina->getFrecuenciaAtencion();
-        $cantidadDias = 90;
+        $cantidadDias = 1;
         $minutosDesplazamiento = 0;
         $form = $this->createForm(AddTurnosType::class, [
             'fechaInicio' => $aPartirde,
@@ -291,6 +292,115 @@ class OficinaController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+
+
+    /**
+     * @Route("/{id}/addTurnosFromDate", name="oficina_addTurnosFromDate", methods={"GET","POST"}, options={"expose"=true})
+     * 
+     * @IsGranted("ROLE_EDITOR")
+     */
+    public function addTurnosFromDate(Request $request, Oficina $oficina, TurnoRepository $turnoRepository, LoggerInterface $logger, OficinaRepository $oficinaRepository, SessionInterface $session, int $id = 1): Response
+    {
+
+        $feriados = $this->diasFeriados($oficina->getLocalidad()->getId()); // Obtiene lista de Feriados Nacionales y Locales
+
+        // Obtiene el último turno de la Oficina para mostrarlo por pantalla
+        $ultimoTurno = $turnoRepository->findUltimoTurnoByOficina($oficina);
+        $fechaHoraUltimoTurno = '';
+        if ($ultimoTurno) {
+            $fechaHoraUltimoTurno = $ultimoTurno[0]->getFechaHora();
+        }
+
+        // Arma el Formulario
+        $form = $this->createForm(AddTurnosFromDateType::class);
+        $form->handleRequest($request);
+
+        // Procesa Datos del Formulario
+        if ($form->isSubmitted() && $form->isValid()) {
+            $idTurnosGenerados = [];
+            $fechaReplica = $request->request->get('add_turnos_from_date')['fechaReplica'];
+            $fechasDestino = $request->request->get('add_turnos_from_date')['fechasDestino'];
+            $aFechasDestino = explode(',', str_replace(' ', '', $fechasDestino)); // Convierto Fechas Destino a un arreglo de Fechas
+            $cantidadDias = count($aFechasDestino);
+   
+            // Gestiona Feriados Nacionales, Locales y Fechas Exceptuadas
+            $feriados = $this->diasFeriados($oficina->getLocalidad()->getId()); // Obtiene lista de Feriados Nacionales y Locales
+            $aFeriados = explode(',', str_replace(' ', '', $feriados));
+
+            // Verifica que la Oficina tenga generado al menos un turno
+            // Sino, no procesa porque la generación se basa en la copia de turnos del último día
+            $ultimoTurno = $turnoRepository->findUltimoTurnoByOficina($oficina);
+
+            // Obtiene todos los turnos del día a replicar
+            $turnosAReplicar = $turnoRepository->findTurnosByFecha($oficina, date_create_from_format('d/m/Y', $fechaReplica));
+           
+            // Recorre cada día indicado para réplica
+            $totalTurnosGenerados = 0;
+            foreach($aFechasDestino as $fechaDestino) {
+                $fechaProceso = date_create_from_format('d/m/Y', $fechaDestino);
+
+                // Verifico que no sea sábado (6) o domingo (7)
+                if ($fechaProceso->format('N') >= 6) {
+                    continue; // Salteo el día
+                }
+
+                // Verifico que no esté en la lista de feriados
+                if (in_array($fechaProceso->format('d/m/Y'), $aFeriados)) {
+                    continue; // Salteo el día
+                }
+
+                // Replico Turnos
+                $turnosFechaProceso = $turnoRepository->findTurnosByFecha($oficina, $fechaProceso); // Busco si la fecha destino tiene turnos creados
+
+                if ($turnosFechaProceso) {
+                    // Agrego turnos en caso de que existan más en el día que se replica
+
+                } else {
+                    // La fecha en proceso no tiene turnos. Replico los turnos sin mayores consideraciones.
+                    foreach ($turnosAReplicar as $turno) {
+                        $nuevoTurno = new Turno();
+                        $nuevoTurno->setFechaHora(new DateTime($fechaProceso->format('Y-m-d ') . $turno->getFechaHora()->format('H:i:s')));
+                        $nuevoTurno->setOficina($oficina);
+                        $nuevoTurno->setEstado(1);
+    
+                        $totalTurnosGenerados++;
+    
+                        $this->getDoctrine()->getManager()->persist($nuevoTurno);
+                        $this->getDoctrine()->getManager()->flush();
+
+                        $idTurnosGenerados[] = $nuevoTurno->getId(); // Guarda información para Deshacer
+                    }    
+                }
+
+            }
+
+            $this->addFlash('info', $oficina . ': ' . $totalTurnosGenerados . ' turnos nuevos.');
+
+            $logger->info('Creación de Nuevos Turnos por Réplica', [
+                'Oficina' => $oficina->getOficinayLocalidad(),
+                'Réplica Desde' => $fechaReplica,
+                'Destinos de Replicas' => $fechasDestino,
+                'Feriados' => $feriados,
+                'Turnos Generados' => $totalTurnosGenerados,
+                'Usuario' => $this->getUser()->getUsuario()
+            ]);
+
+
+            //Guarda ID de Turnos Generados en Session por si se desea deshacer
+            $session->set('idTurnosGenerados', $idTurnosGenerados);
+            $session->remove('oficinasSeleccionadas'); // En caso de existir, libero la selección de session
+
+            return $this->redirectToRoute('oficina_index');
+        }
+
+        return $this->render('oficina/add_turnos_from_date.html.twig', [
+            'oficina' => $oficina,
+            'feriados' => $feriados,
+            'fechaHoraUltimoTurno' => $fechaHoraUltimoTurno,
+            'form' => $form->createView(),
+        ]);
+    }
+
 
     /**
      * @Route("/{id}/borraDiaAgendaTurnosbyOficina", name="borraDiaAgendaTurnosbyOficina", methods={"GET", "POST"})

@@ -1,0 +1,120 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Agregar Turnos{% endblock %}
+
+{% block body %}
+
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                Generación de Turnos a partir de un Día como Modelo
+            </div>
+            <div class="card-body">
+                <h5 class="card-title text-center">{{ oficina.oficina ~ ' (' ~ oficina.localidad ~ ')' }}</h5>
+                <div class="row">
+                    <div class="col-1"></div>
+                    <div class="col-10">
+                        <div class="card bg-light mb-2" style="font-size: .8rem;">
+                            <div class="card-header"><strong>Datos de la Oficina</strong></div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-6 text-right">
+                                            Hora Inicio Atención <br>
+                                            Hora Fin Atención <br>
+                                            Frecuencia Atención <br>
+                                            Ultimo Turno <br>
+                                    </div>
+                                    <div class="col-6">
+                                        <strong>{{ oficina.horaInicioAtencion ? oficina.horaInicioAtencion|date('H:i') : '' }} <br>
+                                                {{ oficina.horaFinAtencion ? oficina.horaFinAtencion|date('H:i') : '' }} <br>
+                                                {{ oficina.frecuenciaAtencion }} <br>
+                                                {{ fechaHoraUltimoTurno ? fechaHoraUltimoTurno|date('d/m/Y H:i') : '<small></strong><i>No existen turnos generados</i><strong></strong><small>' }} </strong><br>
+                                    </div>
+                                </div>
+
+                                <br>
+                                <p class="text-center mb-2 mt-0"><a class="btn btn-secondary" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample" style="font-size: .8rem;"><strong>Descripción del Proceso de Generación</strong></a></p>
+                                <div class="collapse" id="collapseExample">
+                                    <div class="card card-body">
+                                        <p class="card-text text-justify">Se crea una estructura idéntica de turnos a partir de un día en particular. Con esta funcionalidad puede replicar un día cualquiera a un nuevo día o múltiples nuevos días.</p>
+                                        <p class="card-text text-justify">Si los días que se indican como destino ya existen el proceso generará sólo los turnos que en el mismo no se encuentran creados manteniendo los actuales intactos.</p>
+                                        <p class="card-text text-justify">Los turnos se crean para todos los días de lunes a viernes con excepción de los días feriados indicados. Puede eliminar un día en particular para toda una localidad desde la gestión de localidades o desde este mismo módulo para una Oficina en particular.</p>
+                                        <p class="card-text text-justify">Este proceso ha sido diseñado especialmente para aquellas oficinas que poseen esquemas de turnos variados haciendo imposible su auto extensión o su generación masiva a lo largo de un período de tiempo. Igualmente funciona con cualquiera que usted haya seleccionado.</p>
+                                        <p class="card-text text-center"><strong>Esta generación de turnos puede deshacerse en caso de ser necesario. Tenga en cuenta que sólo la última generación de turnos se puede deshacer siempre que no cierre la sesión a nivel de aplicación.</strong></p>
+                                    </div>
+                                </div>                
+                            </div>
+                        </div>       
+                    </div>
+                </div> 
+                <br>
+      
+                {{ form_start(form) }}
+                <div class="my-custom-class-for-errors">
+                    {{ form_errors(form) }}
+                </div>
+    
+                    <div class="row">
+                        <div class="col-4">
+                            {{ form_row(form.fechaReplica) }}
+                        </div>
+                        <div class="col-8">
+                            {{ form_row(form.fechasDestino) }}
+                        </div>
+                    </div>
+                <fieldset class="border p-2">
+                    <legend class="w-auto text-primary">Feriados Nacionales y Locales para los que no se generarán turnos</legend>
+                    <div class="row">
+                        <div class="col-12">
+                            <small class="form-text text-muted ml-3 mb-3">{{ feriados }}</small>
+                        </div>
+                    </div>
+                </fieldset>
+                <div class="row mt-4">
+                    <div class="col-4 float-left"><a  class="btn btn-secondary volver" href="{{ path('oficina_index') }}">Volver a la  lista</a></div>
+                    <div class="col-4"></div>
+                    <div class="col-4 float-right">{{ form_end(form) }}</div>
+                </div>    
+            </div>
+        </div>  
+        
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(function () {
+            $(document).ready(function () {
+                    $('#add_turnos_from_date_fechaReplica').datepicker({
+                        format: "dd/mm/yyyy",
+                        language: "es",
+                        daysOfWeekDisabled: "0,6",
+                        daysOfWeekHighlighted: "0",
+                        todayHighlight: true,
+                        autoclose: true,
+                        todayBtn: true,
+                    });
+
+                    $('#add_turnos_from_date_fechasDestino').datepicker({
+                        format: "dd/mm/yyyy",
+                        language: "es",
+                        daysOfWeekDisabled: "0,6",
+                        daysOfWeekHighlighted: "0",
+                        todayHighlight: true,
+                        autoclose: false,
+                        clearBtn: true,
+                        todayBtn: true,
+                        multidate: true
+                    });
+
+                    $('#add_turnos_from_date_fechasDestino').on('paste', function(e) {
+                        this.value = new String(e.originalEvent.clipboardData.getData('text') || '')
+                    })
+        
+            })
+            
+        });
+    </script>
+{% endblock %}
