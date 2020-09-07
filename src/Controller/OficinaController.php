@@ -317,7 +317,7 @@ class OficinaController extends AbstractController
 
         // Procesa Datos del Formulario
         if ($form->isSubmitted() && $form->isValid()) {
-            $idTurnosGenerados = [];
+            $idTurnosGenerados = []; // Array de ID's generados para facilitar la funcionalidad de Deshacer
             $fechaReplica = $request->request->get('add_turnos_from_date')['fechaReplica'];
             $fechasDestino = $request->request->get('add_turnos_from_date')['fechasDestino'];
             $aFechasDestino = explode(',', str_replace(' ', '', $fechasDestino)); // Convierto Fechas Destino a un arreglo de Fechas
@@ -326,10 +326,6 @@ class OficinaController extends AbstractController
             // Gestiona Feriados Nacionales, Locales y Fechas Exceptuadas
             $feriados = $this->diasFeriados($oficina->getLocalidad()->getId()); // Obtiene lista de Feriados Nacionales y Locales
             $aFeriados = explode(',', str_replace(' ', '', $feriados));
-
-            // Verifica que la Oficina tenga generado al menos un turno
-            // Sino, no procesa porque la generación se basa en la copia de turnos del último día
-            $ultimoTurno = $turnoRepository->findUltimoTurnoByOficina($oficina);
 
             // Obtiene todos los turnos del día a replicar
             $turnosAReplicar = $turnoRepository->findTurnosByFecha($oficina, date_create_from_format('d/m/Y', $fechaReplica));
@@ -353,8 +349,7 @@ class OficinaController extends AbstractController
                 $turnosFechaProceso = $turnoRepository->findTurnosByFecha($oficina, $fechaProceso); // Busco si la fecha destino tiene turnos creados
 
                 if ($turnosFechaProceso) {
-                    // Agrego turnos en caso de que existan más en el día que se replica
-
+                    // TODO ver como sincronizar lo que existe con lo que se desea replicar
                 } else {
                     // La fecha en proceso no tiene turnos. Replico los turnos sin mayores consideraciones.
                     foreach ($turnosAReplicar as $turno) {

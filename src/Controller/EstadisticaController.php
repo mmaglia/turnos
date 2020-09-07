@@ -643,4 +643,64 @@ class EstadisticaController extends AbstractController
             'duplicados' => $duplicados
         ]);
     }
+
+
+    /**
+     * @Route("/estadistica/informeOficinasEstadoHabilitacion", name="informe_oficinas_estado_habilitacion", methods={"GET", "POST"})
+     */
+    public function informeOficinasEstadoHabilitacion(OficinaRepository $oficinaRepository): Response
+    {
+        return $this->render('estadistica/indexInformeOficinasEstadoHabilitacion.html.twig');
+    }
+
+
+    /**
+     * @Route("/estadistica/showOficinasEstadoHabilitacion", name="informe_show_oficinas_estado_habilitacion", methods={"GET", "POST"})
+     */
+    public function showOficinasEstadoHabilitacion(Request $request, OficinaRepository $oficinaRepository, CircunscripcionRepository $circunscripcionRepository, LoggerInterface $logger): Response
+    {
+        $circunscripcionID = $request->request->get('circunscripcion');
+        $vistaGeneral = $request->request->get('general');
+        $vistaHabilitadas = $request->request->get('verHabilitadas');
+        $vistaDeshabilitadas = $request->request->get('verDeshabilitadas');
+        $excluirOficinasFD = $request->request->get('chkOficinasFD');
+
+        if ($circunscripcionID) {
+            $circunscripcion = $circunscripcionRepository->find($circunscripcionID);
+        } else {
+            $circunscripcion = 'TODAS';
+        }
+
+        $subTituloExclusion = '';
+        $filtroFD = '';
+        if ($excluirOficinasFD) {
+            $subTituloExclusion = 'Excluyendo Oficinas de nombre "Firma Digital con Token - Obtención del Certificado"';
+            $filtroFD = 'Firma Digital con Token';
+        }
+
+
+        // Obtengo Oficinas Habilitadas
+        $oficinasHabilitadas = $oficinaRepository->findOficinasPorEstado('true', $circunscripcionID, $filtroFD);
+
+        // Obtengo Oficinas Deshabilitadas
+        $oficinasDeshabilitadas = $oficinaRepository->findOficinasPorEstado('false', $circunscripcionID, $filtroFD);
+
+        // Audito la acción
+        $logger->info('Se emite informe de estado de habilitación de las Oficinas', [
+            'Circunscripción' => $circunscripcion,
+            'Usuario' => $this->getUser()->getUsuario()
+        ]);
+
+
+        return $this->render('estadistica/showInformeOficinasEstadoHabilitacion.html.twig', [
+            'circunscripcion' => $circunscripcion,
+            'subTituloExclusion' => $subTituloExclusion,
+            'vistaGeneral' => $vistaGeneral,
+            'vistaHabilitadas' => $vistaHabilitadas,
+            'vistaDeshabilitadas' => $vistaDeshabilitadas,
+            'excluirOficinasFD' => $excluirOficinasFD,
+            'habilitadas' => $oficinasHabilitadas,
+            'deshabilitadas' => $oficinasDeshabilitadas,
+        ]);
+    }
 }

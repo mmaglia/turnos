@@ -212,4 +212,35 @@ class OficinaRepository extends ServiceEntityRepository
 
         return $result;
     }
+
+    public function findOficinasPorEstado($habilitada, $circunscripcionID, $descripcion = '')
+    {
+
+        // Evalúa si filtrar por Circunscripción
+        $filtroCircunscripcion = '';
+        if ($circunscripcionID) {
+            $filtroCircunscripcion = 'and l.circunscripcion_id = ' . $circunscripcionID;
+        }
+
+        // Evalúa si filtrar por Descripción de la Oficina
+        $filtroDescripcion = '';
+        if ($descripcion) {
+            $filtroDescripcion = "and o.oficina not ilike '%" . $descripcion . "%'";
+        }
+
+        $em = $this->getEntityManager()->getConnection();
+        $sql = "SELECT o.oficina, l.localidad
+                FROM oficina o 
+                INNER JOIN localidad l ON l.id = o.localidad_id 
+                WHERE  habilitada = $habilitada $filtroCircunscripcion $filtroDescripcion
+                ORDER BY l.localidad, o.oficina";
+
+        $em = $this->getEntityManager();
+        $statement = $em->getConnection()->prepare($sql);
+        $statement->execute();
+        $result = $statement->fetchAll();
+
+        return $result;
+    }
+
 }
