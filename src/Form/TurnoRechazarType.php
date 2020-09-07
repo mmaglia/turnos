@@ -25,7 +25,6 @@ class TurnoRechazarType extends AbstractType
                 'mapped' => false,
                 'disabled' => true
                 ])
-            ->add('persona', null, ['disabled' => true])
         ;
 
         $builder->addEventListener(
