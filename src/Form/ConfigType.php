@@ -18,7 +18,9 @@ class ConfigType extends AbstractType
             ->add('clave', null, [
                 'attr' => ['autofocus' => true, 'maxlength' => '150']
             ])
-            ->add('valor')
+            ->add('valor', null, [
+                'attr' => ['maxlength' => '2048']
+            ])
             ->add('html', CKEditorType::class, [
                 'config' => [
                     'uiColor' => '#ffffff'

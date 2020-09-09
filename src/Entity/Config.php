@@ -22,7 +22,7 @@ class Config
     private $clave;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=2048)
      */
     private $valor;
 
