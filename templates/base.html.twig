@@ -2,6 +2,18 @@
 <html lang="es">
     <head>
         <meta charset="UTF-8">
+        {% if app.environment == 'prod' %}
+            <!-- Global site tag (gtag.js) - Google Analytics -->
+            <script async src="https://www.googletagmanager.com/gtag/js?{{GoogleAnalyticsID}}"></script>
+            <script>
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+
+                gtag('config', '{{GoogleAnalyticsID}}');
+            </script>
+        {% endif %}
+
         <title>{% block title %}Turnos Web{% endblock %}</title>
         {% block stylesheets %}
             {{ encore_entry_link_tags('css/app') }}
