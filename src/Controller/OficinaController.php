@@ -585,6 +585,12 @@ class OficinaController extends AbstractController
                             continue; // Salteo el día
                         }
 
+                        // Verifico que la fecha del turno sea mayor a la del día de hoy
+                        if($fechaTurno < new \DateTime()) {
+                            echo "Fecha turno: " . $fechaTurno->format('d/m/Y') . "<br>";
+                            continue; // Salteo el día
+                        }
+
                         // Encontrado el dia válido, se generan nuevos turnos para ese día a partir de los turnos del último día generado
                         // El turno se establece para la fecha encontrada y para la hora correspondiente al día anterior
                         // Se obtiene así un esquema idéntico de turnos, tanto en cantidad como en frecuencia a partir del último día de la Oficina
