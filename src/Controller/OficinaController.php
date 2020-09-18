@@ -587,7 +587,6 @@ class OficinaController extends AbstractController
 
                         // Verifico que la fecha del turno sea mayor a la del día de hoy
                         if($fechaTurno < new \DateTime()) {
-                            echo "Fecha turno: " . $fechaTurno->format('d/m/Y') . "<br>";
                             continue; // Salteo el día
                         }
 

@@ -35,7 +35,9 @@ class LocalidadTableType extends AbstractController implements DataTableTypeInte
             $dataTable->add('acciones', TextColumn::class, ['label' => 'Acciones', 'className' => 'text-center', 'render' => function ($value, $context) {
                 return '&nbsp;&nbsp;<a href="' . $this->generateUrl('localidad_show', ['id' => $context->getId()]) . '" title="Ver"><i class="fas fa-eye"></i></a>' .
                     '&nbsp;&nbsp;<a href="' . $this->generateUrl('localidad_edit', ['id' => $context->getId()]) . '" title="Editar"><i class="fas fa-pen"></i></a>' .
-                    '&nbsp;&nbsp;<a href="' . $this->generateUrl('borraDiaAgendaTurnosbyLocalidad', ['id' => $context->getId()]) . '" title="Eliminar un día de la Agenda de todas las oficinas en ' . $context . '"><i class="far fa-calendar-minus"></i></a>';
+                    '&nbsp;&nbsp;<a href="' . $this->generateUrl('borraDiaAgendaTurnosbyLocalidad', ['id' => $context->getId()]) . '" title="Eliminar un día de la Agenda de todas las oficinas en ' . $context . '"><i class="far fa-calendar-minus"></i></a>' .
+                    '&nbsp;&nbsp;<a href="' . $this->generateUrl('habilitaDeshabilitaOficinasByLocalidad', ['id' => $context->getId(), 'accion' => 'true']) . '" title="Habilitar todas las Oficinas de ' . $context . '"><i class="far fa-calendar-check"></i></a>' .
+                    '&nbsp;&nbsp;<a href="' . $this->generateUrl('habilitaDeshabilitaOficinasByLocalidad', ['id' => $context->getId(), 'accion' => 'false']) . '" title="deshabilitar todas las Oficinas de ' . $context . '"><i class="far fa-calendar-times"></i></a>';
             }]);
         }
         $dataTable->addOrderBy('localidad', DataTable::SORT_ASCENDING);

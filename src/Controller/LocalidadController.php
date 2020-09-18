@@ -183,4 +183,48 @@ class LocalidadController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+
+    /**
+     * @Route("/{id}/habilitaDeshabilitaOficinasByLocalidad", name="habilitaDeshabilitaOficinasByLocalidad", methods={"GET", "POST"})
+     * 
+     * @IsGranted("ROLE_EDITOR")
+     */
+    public function habilitaDeshabilitaOficinasByLocalidad(Request $request, TurnoRepository $turnoRepository, OficinaRepository $oficinaRepository, Localidad $localidad, LoggerInterface $logger): Response
+    {
+       
+        if ($request->query->get('accion')) {
+
+            $accion = $request->query->get('accion') === 'true' ? true: false;
+
+            // Obtengo las Oficinas que pertenecen a la Localidad
+            $oficinas = $oficinaRepository->findBy(['localidad' => $localidad]);
+            
+            // Recorro todas las oficinas de la localidad. Sólo actualizo si el estado es diferente.
+            $conta = 0;
+            foreach ($oficinas as $oficina) {
+                if ($oficina->getHabilitada() <> $accion) {
+                    $conta++;                   
+                    $oficina->setHabilitada($accion);
+                    $this->getDoctrine()->getManager()->flush();
+                }
+            }
+
+            $logger->info(
+                'Habilitación/Desehabilitación de Oficinas por Localidad',
+                [
+                    'Localidad' => $localidad->getLocalidad(),
+                    'Acción' => $accion ? 'Habilitación' : 'Deshabilitación',
+                    'Cantidad Total de Oficinas Procesadas' => count($oficinas),
+                    'Cantidad de Oficinas' . $accion ? 'Habilitadas' : 'Deshabilitadas' => $conta,
+                    'Usuario' => $this->getUser()->getUsuario()
+                ]
+            );        
+    
+            $this->addFlash('info', 'Se han ' . ($accion ? 'habilitado' : 'deshabilitado') . ' todas las oficinas de ' . $localidad->getLocalidad() . '. ' . $conta . '/' . count($oficinas) . ' fueron afectadas.');
+                
+        }
+
+        return $this->redirectToRoute('localidad_index');
+        
+    }
 }
