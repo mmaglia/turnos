@@ -5,5 +5,6 @@ twig:
         SistemaOralidadCivil: '%env(SISTEMA_ORALIDAD_CIVIL)%'
         SistemaTurnosMPE : '%env(SISTEMA_TURNOS_MPE)%'
         GoogleAnalyticsID : '%env(GTAG_ID)%'
+        VersionGit : '@App\Service\UtilService'
     form_themes:
         ['bootstrap_4_layout.html.twig']

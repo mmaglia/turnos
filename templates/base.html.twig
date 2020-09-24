@@ -186,10 +186,11 @@
         {% endblock %}
         <footer class="footer text-center">
             <br><br>
-            <p>&copy; 2020 <a target="_blank" href="http://www.justiciasantafe.gov.ar/js/index.php"> Poder Judicial de la Provincia de Santa Fe</a> - República Argentina. Todos los derechos reservados
+            <p>&copy; 2020 <a target="_blank" href="http://www.justiciasantafe.gov.ar/js/index.php"> Poder Judicial de la Provincia de Santa Fe</a> - República Argentina. Todos los derechos reservados.
+                Release:  {{ VersionGit.getGitInformation() }}
                 {% if app.environment == 'dev' %}
                     <strong class="text-danger ml-3">TESTING</strong>
-                {% endif %}
+                {% endif %}               
             </p>
         </footer>
     </body>
