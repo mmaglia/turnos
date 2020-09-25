@@ -627,10 +627,26 @@ class OficinaController extends AbstractController
                 'IP' => $request->getClientIp()
             ]);
 
-            return new JsonResponse("Proceso Finalizado");
+            return $this->render('oficina/autoextencion.html.twig', [
+                'oficinaIdDesde' => $oficinaIdDesde,
+                'oficinaIdHasta' => $oficinaIdHasta,
+                'cantidadDias' => $cantidadDias,
+                'cantOficinas' => $cantOficinas,
+                'totalTurnosGenerados' => $totalTurnosGenerados,
+                'inicioProceso' => $inicioProceso->format('Y-m-d H:i:s'),
+                'finProceso' => $finProceso->format('Y-m-d H:i:s'),
+                'tiempo' => $inicioProceso->diff($finProceso)->format('%i minutos %s segundos'),
+                'ip' => $request->getClientIp(),
+                'exitoProceso' => true
+            ]);
+
+            //return new JsonResponse("Proceso Finalizado");
         }
 
-        return new JsonResponse("Ninguna Oficina Procesada");
+        return $this->render('oficina/autoextencion.html.twig', [            
+            'exitoProceso' => false
+        ]);
+        //return new JsonResponse("Ninguna Oficina Procesada");
     }
 
     /**

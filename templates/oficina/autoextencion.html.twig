@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Generación Automática de Turnos{% endblock %}
+
+{% block body %}
+<div class="container">
+        <div class="card">
+            <div class="card-header">
+                Generación Automática de Turnos
+            </div>
+            <div class="card-body">
+                <h5 class="card-title text-center">Se ha ejecutado el proceso con los siguientes resultados</h5>
+                <div class="row">
+                    <div class="col-1"></div>
+                    <div class="col-10 text-center">
+                        <div class="card bg-light mb-2" style="font-size: .8rem;">
+                            <div class="card-header"><strong>Datos obtenidos</strong></div>
+                            <div class="card-body">
+                                <div class="row">
+                                    {% if (exitoProceso) %}
+                                        <div class="col-6 text-right">
+                                                Oficina Id Desde <br>
+                                                Oficina Id Hasta <br>
+                                                Cant. de Días <br>
+                                                Cant. de Oficinas que Generaron <br>
+                                                Cant. de Turnos Totales <br>
+                                                Iniciado <br>
+                                                Fin <br>
+                                                Tiempo <br>
+                                                IP <br>
+                                        </div>
+                                        <div class="col-6 text-left">
+                                            <strong>
+                                                {{ oficinaIdDesde }} <br>
+                                                {{ oficinaIdHasta }} <br>
+                                                {{ cantidadDias }} <br>
+                                                {{ cantOficinas }} <br>
+                                                {{ totalTurnosGenerados }} <br>
+                                                {{ inicioProceso }} <br>
+                                                {{ finProceso }} <br>
+                                                {{ tiempo }} <br>
+                                                {{ ip }} <br>
+                                            </strong>
+                                        </div>
+                                    {% else %}
+                                        <div class="col-12 text-center">Ninguna Oficina Procesada</div>
+                                    {% endif %}
+                                </div>                
+                            </div>
+                        </div>       
+                    </div>
+                    <div class="col-1"></div>
+                </div>   
+            </div>
+        </div>          
+    </div>
+{% endblock %}
