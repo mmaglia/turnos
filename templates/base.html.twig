@@ -120,10 +120,11 @@
                         <div class="text-danger mr-5"><strong>Testing</strong></div>
                     {% endif %}
                     <div class="float-lg-right" style="font-size: .8rem; color: #EEE">
-                        v{{ app.session.get('realeaseGit') }} | {{ app.user.getApellido()}}
+                        {{ app.user.getApellido()}}
                         {% if app.user.getNombre() %}
                             {{ app.user.getNombre() }}
                         {% endif %}
+                        <div class="text-right" style="font-size: .6rem; color: #CCC">v{{ app.session.get('realeaseGit') }}</div>
                     </div>                   
                 {% endif %}
             </nav>
