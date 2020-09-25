@@ -3,9 +3,11 @@
 namespace App\Security;
 
 use App\Entity\Usuario;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Repository\UsuarioRepository;
+use App\Service\UtilService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
@@ -19,21 +21,27 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Security\Guard\Authenticator\AbstractFormLoginAuthenticator;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
 
+/**
+ * Clase encargada de la autenticación de usuario
+ */
 class AppCustomAuthenticator extends AbstractFormLoginAuthenticator
 {
     use TargetPathTrait;
 
-    private $entityManager;
-    private $urlGenerator;
-    private $csrfTokenManager;
-    private $passwordEncoder;
+    private $_urlGenerator;
+    private $_csrfTokenManager;
+    private $_passwordEncoder;
+    private $_usuarioRepository;
+    private $_utilService;
+    private $_session;
 
-    public function __construct(EntityManagerInterface $entityManager, UrlGeneratorInterface $urlGenerator, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder)
-    {
-        $this->entityManager = $entityManager;
-        $this->urlGenerator = $urlGenerator;
-        $this->csrfTokenManager = $csrfTokenManager;
-        $this->passwordEncoder = $passwordEncoder;
+    public function __construct(UrlGeneratorInterface $urlGenerator, CsrfTokenManagerInterface $csrfTokenManager,
+        UserPasswordEncoderInterface $passwordEncoder, UsuarioRepository $usuarioRepository, SessionInterface $session) {
+        $this->_urlGenerator = $urlGenerator;
+        $this->_csrfTokenManager = $csrfTokenManager;
+        $this->_passwordEncoder = $passwordEncoder;
+        $this->_usuarioRepository = $usuarioRepository;
+        $this->_session = $session;
     }
 
     public function supports(Request $request)
@@ -42,6 +50,9 @@ class AppCustomAuthenticator extends AbstractFormLoginAuthenticator
         && $request->isMethod('POST');
     }
 
+    /**
+     * Obtiene las credenciales
+     */
     public function getCredentials(Request $request)
     {
         $credentials = [
@@ -57,14 +68,17 @@ class AppCustomAuthenticator extends AbstractFormLoginAuthenticator
         return $credentials;
     }
 
+    /**
+     * Obtiene el usuario
+     */
     public function getUser($credentials, UserProviderInterface $userProvider)
     {
         $token = new CsrfToken('authenticate', $credentials['csrf_token']);
-        if (!$this->csrfTokenManager->isTokenValid($token)) {
+        if (!$this->_csrfTokenManager->isTokenValid($token)) {
             throw new InvalidCsrfTokenException();
         }
 
-        $user = $this->entityManager->getRepository(Usuario::class)->findOneBy(['username' => $credentials['username']]);
+        $user = $this->_usuarioRepository->findOneBy(['username' => $credentials['username']]);
 
         // Si no existe el usuario, muestro un cartel avisando la situación
         if (!$user) {
@@ -79,29 +93,39 @@ class AppCustomAuthenticator extends AbstractFormLoginAuthenticator
         return $user;
     }
 
+    /**
+     * Chequea la credenciales
+     */
     public function checkCredentials($credentials, UserInterface $user)
     {
-        return $this->passwordEncoder->isPasswordValid($user, $credentials['password']);
+        return $this->_passwordEncoder->isPasswordValid($user, $credentials['password']);
     }
 
+    /**
+     * Lógica luego del logueo
+     */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
         // Una vez logueado correctamente, guardo dentro del usuario logueado la fecha de último acceso y sumarizo el contador de entradas
-        $user = $this->entityManager->getRepository(Usuario::class)->findOneBy(['username' => $request->request->get('username')]);
+        $user = $this->_usuarioRepository->findOneBy(['username' => $request->request->get('username')]);
         if ($user) {
-            $this->entityManager->getRepository(Usuario::class)->actualizarLogueoUsuario($user);
+            $this->_usuarioRepository->actualizarLogueoUsuario($user);
         }
 
+        // Seteo la variable globlal en session de realease en en el twig
+        $utilService = new UtilService();
+        $this->_session->set('realeaseGit', $utilService->getRelease());
+        
         if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
             return new RedirectResponse($targetPath);
         }
 
         // Redirigo el flujo hacia el list de turnos
-        return new RedirectResponse($this->urlGenerator->generate('turno_index'));
+        return new RedirectResponse($this->_urlGenerator->generate('turno_index'));
     }
 
     protected function getLoginUrl()
     {
-        return $this->urlGenerator->generate('app_login');
+        return $this->_urlGenerator->generate('app_login');
     }
 }

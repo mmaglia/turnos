@@ -119,7 +119,7 @@
                         <div class="text-danger mr-5"><strong>Testing</strong></div>
                     {% endif %}
                     <div class="float-lg-right" style="font-size: .8rem; color: #EEE">
-                        {{ app.user.getApellido()}}
+                        v{{ app.session.get('realeaseGit') }} | {{ app.user.getApellido()}}
                         {% if app.user.getNombre() %}
                             {{ app.user.getNombre() }}
                         {% endif %}
@@ -186,8 +186,7 @@
         {% endblock %}
         <footer class="footer text-center">
             <br><br>
-            <p>&copy; 2020 <a target="_blank" href="http://www.justiciasantafe.gov.ar/js/index.php"> Poder Judicial de la Provincia de Santa Fe</a> - República Argentina. Todos los derechos reservados.
-                Release:  {{ VersionGit.getGitInformation() }}
+            <p>&copy; 2020 <a target="_blank" href="http://www.justiciasantafe.gov.ar/js/index.php"> Poder Judicial de la Provincia de Santa Fe</a> - República Argentina. Todos los derechos reservados.                
                 {% if app.environment == 'dev' %}
                     <strong class="text-danger ml-3">TESTING</strong>
                 {% endif %}               

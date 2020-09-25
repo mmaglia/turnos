@@ -2,12 +2,32 @@
 
 namespace App\Service;
 
+use Psr\Log\LoggerInterface;
+
 /**
  * Servicio utilizado para realizar acciones generales del sistema
  * @author jalarcon
  */
 class UtilService
 {
+
+    private $release;
+
+    public function __construct()
+    {
+        $this->release = $this->getGitInformation();
+    }
+
+    public function getRelease()
+    {
+        return $this->release;
+    }
+
+    public function setRelease($release)
+    {
+        $this->release = $release;
+    }
+
     /**
      * @return bool|string
      */
