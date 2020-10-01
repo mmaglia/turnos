@@ -169,11 +169,11 @@
                                 if (Array.isArray(data) && data.length) {
                                     $('#turno3_oficina').html('');
                                     $('#turno3_oficina').append(textoListaOficinaVacia);
-                                    $('#turno3_oficina').append('<option value='+data[0].id+'>'+ data[0].oficina +'</option>');
+                                    $('#turno3_oficina').append('<option value='+data[0].id+' ' + (!data[0].habilitada ? 'disabled' : '') + '>'+ data[0].oficina +'</option>');
                                     $('#turno3_oficina').append('<option value=-1>Defensorías Civiles</option>');   
                                     $.each(defensoriasCiviles,function(key, registro) {
                                         if(key > 0) {
-                                            $('#turno3_oficina').append('<option value='+registro.id+'>'+ registro.oficina +'</option>');
+                                            $('#turno3_oficina').append('<option value='+registro.id+' ' + (!registro.habilitada ? 'disabled' : '') + '>'+ registro.oficina +'</option>');
                                         }
                                     });      
                                     $('#turno3_oficina').children('option:gt(2)').hide();                     
@@ -292,7 +292,7 @@
                             let comboDef = '';
                             $.each(defensoriasCiviles,function(key, registro) {
                                 if(key > 1) {
-                                    comboDef += '<option value='+registro.id+'>'+registro.oficina+'</option>';
+                                    comboDef += '<option value='+registro.id+' ' + (!registro.habilitada ? 'disabled' : '') + '>'+registro.oficina+'</option>';
                                 }
                             });
                             
