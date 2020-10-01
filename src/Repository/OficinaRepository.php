@@ -75,6 +75,17 @@ class OficinaRepository extends ServiceEntityRepository
             ->getArrayResult();;
     }
 
+    public function findOficinasByLocalidadWithTelefono($localidad_id)
+    {
+        return $this->createQueryBuilder('o')
+            ->select('o.id, o.oficina as oficina, o.telefono, o.habilitada')
+            ->andWhere('o.localidad = :val')
+            ->setParameter('val', $localidad_id)
+            ->orderBy('o.id')
+            ->getQuery()
+            ->getArrayResult();;
+    }
+
 
     public function findAllOficinas()
     {
