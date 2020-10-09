@@ -75,7 +75,7 @@ class UsuarioTableType extends AbstractController implements DataTableTypeInterf
                 $builder
                     ->select('u')
                     ->from(Usuario::class, 'u')
-                    ->join('u.oficina', 'o');
+                    ->leftjoin('u.oficina', 'o');
             }
         ]);
     }
