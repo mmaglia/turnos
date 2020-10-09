@@ -32,7 +32,9 @@ class OficinaTableType extends AbstractController implements DataTableTypeInterf
         $dataTable->add('oficina', TextColumn::class, ['label' => 'Oficina', 'searchable' => true, 'leftExpr' => "toUpper(o.oficina)", 'rightExpr' => function ($value) {
             return '%' . strtoupper($value) . '%';
         }]);
-        $dataTable->add('localidad', TextColumn::class, ['label' => 'Localidad', 'searchable' => false,  'field' => 'o.localidad', 'orderField' => 'l.localidad']);
+        $dataTable->add('localidad', TextColumn::class, ['label' => 'Localidad', 'searchable' => true,  'field' => 'o.localidad', 'orderField' => 'l.localidad', 'leftExpr' => "toUpper(l.localidad)", 'rightExpr' => function ($value) {
+            return '%' . strtoupper($value) . '%';
+        }]);
         $dataTable->add('horaInicioAtencion', DateTimeColumn::class, ['label' => 'Inicio', 'searchable' => false, 'orderable' => false, 'className' => 'text-center', 'format' => 'H:i']);
         $dataTable->add('horaFinAtencion', DateTimeColumn::class, ['label' => 'Fin', 'searchable' => false, 'orderable' => false, 'className' => 'text-center', 'format' => 'H:i']);
         $dataTable->add('frecuenciaAtencion', TextColumn::class, ['label' => 'Frecuencia', 'searchable' => false, 'orderable' => false, 'className' => 'text-center']);

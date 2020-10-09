@@ -30,7 +30,9 @@ class LocalidadTableType extends AbstractController implements DataTableTypeInte
             return '%' . strtoupper($value) . '%';
         }]);
         $dataTable->add('feriadosLocales', TextColumn::class, ['label' => 'Feriados Locales', 'searchable' => false]);
-        $dataTable->add('circunscripcion', TextColumn::class, ['label' => 'Circunscripción', 'searchable' => false,  'field' => 'l.circunscripcion']);
+        $dataTable->add('circunscripcion', TextColumn::class, ['label' => 'Circunscripción', 'searchable' => true,  'field' => 'l.circunscripcion', 'leftExpr' => "toUpper(c.circunscripcion)", 'rightExpr' => function ($value) {
+            return '%' . strtoupper($value) . '%';
+        }]);
         if ($this->isGranted(('ROLE_EDITOR'))) {
             $dataTable->add('acciones', TextColumn::class, ['label' => 'Acciones', 'className' => 'text-center', 'render' => function ($value, $context) {
                 return '&nbsp;&nbsp;<a href="' . $this->generateUrl('localidad_show', ['id' => $context->getId()]) . '" title="Ver"><i class="fas fa-eye"></i></a>' .
@@ -46,7 +48,8 @@ class LocalidadTableType extends AbstractController implements DataTableTypeInte
             'query' => function (QueryBuilder $builder) {
                 $builder
                     ->select('l')
-                    ->from(Localidad::class, 'l');
+                    ->from(Localidad::class, 'l')
+                    ->join('l.circunscripcion', 'c');
             }
         ]);
     }

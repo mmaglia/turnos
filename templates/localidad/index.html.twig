@@ -53,7 +53,8 @@
 			}).then(function (dt) {
 				dt.on('init', function(settings, json) {
 					$('#botonera-localidad').show();
-					$('#dt_filter input').attr("placeholder", "Localidad");
+					$('#dt_filter input').attr("placeholder", "Localidad, Circunscripcion");
+					$('#dt_filter input').width(200); 
 				});
 			});
 		});
