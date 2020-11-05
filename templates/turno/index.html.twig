@@ -21,11 +21,11 @@
             <h1>Lista de Turnos</h1>    
         </div>
         <div class="col col-3 text-right">
-            <a href="{{path('turno_barcode')}}" title="Escanear Código del Turno" class="d-print-none"><i class="fas fa-barcode fa-lg"></i></a>
+            <a href="{{path('turno_barcode')}}" title="Escanear Código del Turno" class="d-print-none"><i class="fas fa-barcode fa-lg shadow"></i></a>
             &nbsp;&nbsp;&nbsp;&nbsp;
-            <a href="{{path('turno_index')}}" title="Actualizar Lista" class="d-print-none"><i class="fas fa-sync-alt"></i></a>
+            <a href="{{path('turno_index')}}" title="Actualizar Lista" class="d-print-none"><i class="fas fa-sync-alt shadow"></i></a>
             &nbsp;&nbsp;&nbsp;&nbsp;
-            <a onclick="window.print()" title="Imprimir Lista" class="d-print-none"><i class="fas fa-print fa-lg"></i></a>
+            <a onclick="window.print()" title="Imprimir Lista" class="d-print-none"><i class="fas fa-print fa-lg shadow"></i></a>
         </div>
     </div>
 
@@ -35,8 +35,8 @@
 
     {{ include('turno/_filters_form.html.twig') }}
 
-    <div class="card border-primary mb-3 align-bottom float-right" style="max-width: 18rem; font-size: .8rem; background-color: rgb(245, 245, 245);">
-        <div class="card-body border-primary text-dark float-right" style="max-width: 18rem; padding: 0.3rem; background-color: rgb(245, 245, 245);">
+    <div class="card border-primary mb-3 align-bottom float-right shadow rounded-pill" style="max-width: 18rem; font-size: .8rem; background-color: rgb(245, 245, 245);">
+        <div class="card-body border-primary text-dark float-right shadow rounded-pill" style="max-width: 18rem; padding: 0.3rem; background-color: rgb(245, 245, 245);">
             <div class="card-body text-dark" style="font-size: 1rem;">
                 Cantidad de Turnos:
                 <strong>{{ turnos.getTotalItemCount }}</strong>
@@ -50,13 +50,13 @@
                 <div class="row mt-3">
                     <div class="col-12"></div>
                     <div class="col-12 text-center">
-                        <div class="flashes-messages alert alert-{{ label }}">{{ message }}</div>
+                        <div class="flashes-messages alert alert-{{ label }} shadow">{{ message }}</div>
                     </div>
                 </div>
             {% endfor %}
         {% endfor %}
 
-    <table class="table table-hover">
+    <table class="table table-hover shadow">
         <thead>
             <tr>
                 {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') %}

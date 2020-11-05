@@ -1,5 +1,5 @@
 <form action="{{'turno'}}" method="POST">
-    <div class="card border-primary mb-3 float-left" style="max-width: 18rem; margin-right:1rem; padding: 0.3rem 0.3rem 0.3em 0.3rem; line-height: 0.5cm;">
+    <div class="card border-primary mb-3 float-left shadow" style="max-width: 18rem; margin-right:1rem; padding: 0.3rem 0.3rem 0.3em 0.3rem; line-height: 0.5cm;">
         <label id="lblMomento" class="required"><strong>Momento</strong></label>
         <div class="form-check">
             <input class="form-check-input" type="radio" name="filterMoment" id="optMomento1" value="1" onchange="this.form.submit()" {{ (filtroMomento == 1) ? 'checked' : '' }} {{ (filtroEstado == 3) ? 'disabledddd' : '' }}>
@@ -14,7 +14,7 @@
             <label class="form-check-label" for="optMomento3">Turnos Futuros</label>
         </div>
     </div>
-    <div class="card border-primary mb-3 float-left" style="max-width: 18rem; margin-right:1rem; padding: 0.3rem 0.3rem 0.3em 0.3rem; line-height: 0.5cm;">
+    <div class="card border-primary mb-3 float-left shadow" style="max-width: 18rem; margin-right:1rem; padding: 0.3rem 0.3rem 0.3em 0.3rem; line-height: 0.5cm;">
         <label id="lblTurno" class="required"><strong>Característica del Turno</strong></label>
         <div class="form-check">
             <input class="form-check-input" type="radio" name="filterState" id="optEstado1" value="1" onchange="this.form.submit()" {{ (filtroEstado == 1) ? 'checked' : '' }}>
@@ -30,7 +30,7 @@
         </div>
     </div>
     {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') %}
-        <div class="card border-primary mb-3 float-left d-print-none" style="max-width: 28rem; margin-right:1rem; padding: 0.3rem 0.3rem 0.3em 0.3rem; line-height: 0.5cm;">
+        <div class="card border-primary mb-3 float-left d-print-none shadow" style="max-width: 28rem; margin-right:1rem; padding: 0.3rem 0.3rem 0.3em 0.3rem; line-height: 0.5cm;">
             <div id="turno3">
                 <div class="form-group">
                     <div class="form-group">

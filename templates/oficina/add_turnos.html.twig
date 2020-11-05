@@ -5,7 +5,7 @@
 {% block body %}
 
     <div class="container">
-        <div class="card">
+        <div class="card shadow">
             <div class="card-header">
                 Generación Masiva de Turnos
             </div>
@@ -102,7 +102,7 @@
                         </div>
                     </div>
                 </fieldset>
-                <fieldset class="border p-2">
+                <fieldset class="border p-2 shadow bg-light">
                     <legend class="w-auto text-primary">Feriados y días no laborables</legend>
                     <div class="row">
                         <div class="col-12">
@@ -119,7 +119,7 @@
                     </div>
                 </fieldset>
                 <div class="row mt-4">
-                    <div class="col-4 float-left"><a  class="btn btn-secondary volver" href="{{ path('oficina_index') }}">Volver a la  lista</a></div>
+                    <div class="col-4 float-left"><a  class="btn btn-secondary shadow volver" href="{{ path('oficina_index') }}">Volver a la  lista</a></div>
                     <div class="col-4"></div>
                     <div class="col-4 float-right">{{ form_end(form) }}</div>
                 </div>

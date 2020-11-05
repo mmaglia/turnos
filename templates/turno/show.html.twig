@@ -43,7 +43,7 @@
         </tbody>
     </table>
 
-    <a class="btn btn-secondary float-left volver" href="{{ path('turno_index') }}">Volver a la Lista</a>
-    <a class="btn btn-secondary float-left volver" href="{{ path('turno_edit', {'id': turno.id}) }}">Editar</a>
+    <a class="btn btn-secondary float-left shadow volver" href="{{ path('turno_index') }}">Volver a la Lista</a>
+    <a class="btn btn-secondary float-left shadow volver" href="{{ path('turno_edit', {'id': turno.id}) }}">Editar</a>
     {{ include('turno/_delete_form.html.twig') }}
 {% endblock %}

@@ -22,7 +22,7 @@
             <h6 class="float-right mb-0">Paso 4/4</h6>
         </div>
     </div>
-    <div class="card border-primary mb-3">
+    <div class="card border-primary mb-3 shadow">
         <div class="card-header">Datos del Solicitante</div>
         <div class="card-body text-primary">
             {% if SistemaTurnosWeb or SistemaTurnosMPE %}
@@ -41,7 +41,7 @@
         </div>
     </div>
 
-    <div class="card border-primary mb-3">
+    <div class="card border-primary mb-3 shadow">
         <div class="card-header">Oficina</div>
         <div class="card-body text-primary">
             <p class="card-text"><strong>{{ turno.oficina.oficina }} ({{ turno.oficina.localidad.localidad }})</strong></p>
@@ -54,7 +54,7 @@
         </div>
     </div>
 
-    <div class="card border-primary mb-3">
+    <div class="card border-primary mb-3 shadow">
         <div class="card-header">Datos del Turno</div>
         <div class="card-body text-primary">
             <p class="card-text">El turno seleccionado es para el día <strong>{{ turno.fechaHora |date('d/m/Y') }}</strong> a las <strong>{{ turno.fechaHora |date('H:i')}}hs</strong>.</p>

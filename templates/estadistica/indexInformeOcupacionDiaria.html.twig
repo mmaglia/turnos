@@ -7,7 +7,7 @@
     <br>
         <div class="row">
             <div class="col-4"></div>
-            <div class="col-4 text-center form-group input-daterange input-group">
+            <div class="col-4 text-center form-group">
                 <form method="post" action="{{ path('informe_show_ocupacion_diaria') }}">
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" type="radio" name="inlineRadioOptions" id="opt1" value="1" checked>
@@ -31,7 +31,7 @@
                         </div>
                     {% endif %}
                     <br><br>
-                    <center><button class="btn btn-primary">{{ button_label|default('Generar Informe') }}</button></center>
+                    <center><button class="btn btn-primary shadow">{{ button_label|default('Generar Informe') }}</button></center>
                 </form>
             </div>
         </div>

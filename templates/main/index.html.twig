@@ -11,7 +11,7 @@
     {% set urlMPCivil = "http://turnosmpcivil.justiciasantafe.gov.ar/index.php/TurnosWeb/solicitante" %}
 {% endif %}
 <br>
-<div class="jumbotron mt-1 rounded-lg border border-secondary">
+<div class="jumbotron mt-1 rounded-lg border border-secondary shadow-lg">
     <div class="row">
         <div class="col-2">
             <img src="{{asset('images/escudo.gif')}}" class="rounded float-left" alt="Poder Judicial" height="140">
@@ -28,13 +28,13 @@
                         <a class="btn btn-primary btn-lg float-center" href={{ urlIndexMPCivil }} role="button">Turno Defensorías Generales Civiles</a>
                     </div>-->
                     <div class="col-12 text-center">
-                        <a class="btn btn-primary btn-lg float-center" href="{{ path('turno_new2') }}" role="button">Solicitar Turno</a>
+                        <a class="btn btn-primary btn-lg float-center shadow" href="{{ path('turno_new2') }}" role="button">Solicitar Turno</a>
                     </div>
                 </div>
                 <br>
                 <div class="row mt-5">
                     <div class="col-12 text-center">
-                        <p>Para solicitar turnos en Defensorías Civiles ingrese aquí: <a class="btn btn-outline-primary btn-sm float-center" href={{ urlIndexMPCivil }} role="button">Solicitar Turno Defensorías Generales Civiles</a> </p>
+                        <p>Para solicitar turnos en Defensorías Civiles ingrese aquí: <a class="btn btn-outline-primary btn-sm float-center shadow" href={{ urlIndexMPCivil }} role="button">Solicitar Turno Defensorías Generales Civiles</a> </p>
                     </div>
                 </div>                
             {% else %}

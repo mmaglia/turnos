@@ -4,7 +4,7 @@
 
 {% block body %}
     <div class="container">
-        <div class="card">
+        <div class="card shadow">
             <div class="card-header">
                 Escáner de Turno
             </div>
@@ -26,7 +26,7 @@
                 </fieldset>
 
                 <div class="row mt-4">
-                    <div class="col-6 float-left"><a  class="btn btn-secondary volver" href="{{ path('turno_index') }}" onclick="self.close()">Volver a la  lista de Turnos</a></div>
+                    <div class="col-6 float-left"><a  class="btn btn-secondary shadow volver" href="{{ path('turno_index') }}" onclick="self.close()">Volver a la  lista de Turnos</a></div>
                     <div class="col-6 float-right">{{ form_end(form) }}</div>
                 </div>
             </div>

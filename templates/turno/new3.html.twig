@@ -81,8 +81,8 @@
         {{ form_row(form.zoom) }}
     {% endif %}
   
-    <button tabindex="-1" class="btn btn-outline-secondary float-left" id="cancelar" onclick="window.location.href = '{{ '/' }}'; return false;">{{ button_label|default('Cancelar') }}</button>
-    <button class="btn btn-primary float-right" id="confirmar">{{ button_label|default('Continuar') }}</button>
+    <button tabindex="-1" class="btn btn-outline-secondary float-left shadow" id="cancelar" onclick="window.location.href = '{{ '/' }}'; return false;">{{ button_label|default('Cancelar') }}</button>
+    <button class="btn btn-primary float-right shadow" id="confirmar">{{ button_label|default('Continuar') }}</button>
 
     {{ form_end(form) }}
 

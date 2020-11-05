@@ -33,7 +33,7 @@ class AddTurnosFromDateType extends AbstractType
                 ])    
         ->add('save', SubmitType::class, [
             'label' => 'Confirmar',
-            'attr' => ['class' => 'btn btn-primary float-right']
+            'attr' => ['class' => 'btn btn-primary float-right shadow']
             ])
         ;
     }

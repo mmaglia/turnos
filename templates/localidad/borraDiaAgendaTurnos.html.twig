@@ -5,17 +5,21 @@
 {% block body %}
     <h1>Borrar Día de la Agenda de Turnos para {{ localidad }} </h1>
     <br><br><br>
-    <div class="card border-danger mb-3">
-        <div class="card-body text-danger">
-          <h5 class="card-title">Borrar Día</h5>
-          <p>Este proceso borra todos los turnos (sin asignar) de un día en particular para todas las oficinas que corresponden a la localidad de <strong>{{ localidad }}</strong></p>
-          {{ include('localidad/_form.html.twig', {'button_label': 'Grabar Cambios'}) }}
+    <div class="row">
+        <div class="col-3"></div>
+        <div class="col-6">
+            <div class="card border-danger mb-3 shadow">
+                <div class="card-body text-danger">
+                <h5 class="card-title">Borrar Día</h5>
+                <p>Este proceso borra todos los turnos (sin asignar) de un día en particular para todas las oficinas que corresponden a la localidad de <strong>{{ localidad }}</strong></p>
+                {{ include('localidad/_form.html.twig', {'button_label': 'Grabar Cambios'}) }}
+                </div>
+            </div>    
+
+            <a class="btn btn-secondary float-left shadow volver" href="#" onclick="history.back(); return false;">Volver a la Lista</a>
         </div>
-      </div>    
-
-    <a class="btn btn-secondary float-left volver" href="#" onclick="history.back(); return false;">Volver a la Lista</a>
-
-{% endblock %}
+    </div>
+    {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
