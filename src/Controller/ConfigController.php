@@ -20,7 +20,7 @@ class ConfigController extends AbstractController
      */
     public function index(ConfigRepository $configRepository): Response
     {
-        if ($this->isGranted('ROLE_ADMIN')) {
+        if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_AUDITORIA_GESTION')) {
             $parametros = $configRepository->findAllOrderedByColum('clave');
         } else {
             if ($this->isGranted('ROLE_COVER_MANAGER')) {

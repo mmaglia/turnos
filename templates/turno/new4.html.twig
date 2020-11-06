@@ -3,7 +3,7 @@
 {% block title %}Nuevo Turno{% endblock %}
 
 {% block body %}
-    <div class="row mt-3 mb-5">
+    <div class="row mt-3 mb-4">
         <div class="col-3"><img src="{{asset('images/logo.png')}}" class="rounded float-left" alt="Poder Judicial" height="85"></div>
         <div class="col-6">
             <h1>{% trans %}Solicitud de Turnos{% endtrans %}</h1>
@@ -17,9 +17,9 @@
 
     <!--<form name="selectorFechaHora" method="post"> <div class="form-group row"> <div class="col-sm-4 col-form-label col-form-label-lg"> <div id="fechaHora"> <div class="form-group"> <label for="txtFechaHora" id="lblFechaHora" class="required">Fecha hora</label> <input type="text" id="txtFechaHora" name="txtFechaHora]" required="required" class="js-datepicker form-control"/> <input type="hidden" id="turnoSeleccionado" name="turnoSeleccionado]" value="esfI4LQo3JbaRY6cDMyfQ3GXhmHGyxzJnGoKynt8Xgw"/> </div> </div> </div> <div class="col-sm-8 col-form-label col-form-label-lg"> <div class="form-group"> <label class="required" for="turno3_oficina" id="lblHorarios">Seleccione la hora</label> <select id="horarios" name="horario" required="required" class="form-control"></select> </div> </div> </div> </form>-->
     <form class="selectorFechaHora" name="selectorFechaHora" method="post">
-        <div class="row">
+        <div class="row mb-4">
             <div class="col-sm-6">
-                <div class="card shadow">
+                <div class="card h-100 shadow">
                     <div class="card-body">
                         <div id="fechaHora">
                             <div class="form-group">
@@ -45,7 +45,7 @@
                 </div>
             </div>
             <div class="col-sm-6">
-                <div class="card shadow">
+                <div class="card h-100 shadow">
                     <div class="card-body">
                         <div class="form-group">
                             <label class="required" for="horarios" id="lblHorarios">Seleccione la hora</label>

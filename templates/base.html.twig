@@ -92,8 +92,10 @@
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle text-light" href="#" id="dropdownAdministrarId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Administrar</a>
                                 <div class="dropdown-menu" aria-labelledby="dropdownAdministrarId">
-                                    {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') %}
+                                    {% if is_granted('ROLE_ADMIN') %}
                                         <a class="dropdown-item" target="_blank" href="{{ app.request.getSchemeAndHttpHost() ~ "/oficina/cronAutoExtend/1/800/1" }}">Auto Extender Turneros 1 Día</a>
+                                    {% endif %}
+                                    {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') %}
                                         <a class="dropdown-item" href="{{ path('config_index') }}">Configuración</a>
                                         <a class="dropdown-item" href="{{ path('localidad_index') }}">Localidades</a>
                                         {% if SistemaOralidadCivil %}
