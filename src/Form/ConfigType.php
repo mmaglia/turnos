@@ -7,6 +7,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use FOS\CKEditorBundle\Form\Type\CKEditorType;
 
 
@@ -38,7 +39,7 @@ class ConfigType extends AbstractType
                     'Administrador' => 'ROLE_ADMIN',
                     'Super Admin' => 'ROLE_SUPER_ADMIN'
                 ]])
-            ;
+            ->add('save', SubmitType::class, array('label' => 'Grabar Cambios', 'attr' => array('class' => 'btn btn-primary float-right shadow')));
     }
 
     public function configureOptions(OptionsResolver $resolver)

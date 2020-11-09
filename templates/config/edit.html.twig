@@ -1,13 +1,9 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Edit Config{% endblock %}
+{% block title %}Editar Valor de Configuración{% endblock %}
 
 {% block body %}
-    <h1>Edit Config</h1>
-
-    {{ include('config/_form.html.twig', {'button_label': 'Update'}) }}
-
-    <a href="{{ path('config_index') }}">back to list</a>
-
+    <h1>Edición de Configuración</h1>
+    {{ include('config/_form.html.twig') }}
     {{ include('config/_delete_form.html.twig') }}
 {% endblock %}
