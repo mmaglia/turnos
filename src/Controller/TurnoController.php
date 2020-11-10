@@ -405,35 +405,40 @@ class TurnoController extends AbstractController
 
             // Si la persona ingresó un correo, envía una notificación con los datos del turno
             if ($turno->getPersona()->getEmail()) {
-                // Establece que plantilla de correo se utilizará en función al tipo de Sistema
-                $mailTemplate = 'turno/email_confirmacion_turno_web.html.twig';
-                if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
-                    $mailTemplate = 'turno/email_confirmacion_turno_oralidad.html.twig';
+                try {
+                    // Establece que plantilla de correo se utilizará en función al tipo de Sistema
+                    $mailTemplate = 'turno/email_confirmacion_turno_web.html.twig';
+                    if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
+                        $mailTemplate = 'turno/email_confirmacion_turno_oralidad.html.twig';
+                    }
+
+                    $hash = $this->encrypt($turno->getId());
+                    $ruta = $urlGenerator->generate('cancelacionTurno', [], UrlGeneratorInterface::ABSOLUTE_URL) . '?code=' . $hash;
+
+                    $fromAdrress = $_ENV['MAIL_FROM'];
+                    $email = (new TemplatedEmail())
+                        ->from($fromAdrress)
+                        ->to($turno->getPersona()->getEmail())
+                        ->subject('Poder Judicial Santa Fe - Confirmación de Turno')
+                        ->htmlTemplate($mailTemplate)
+                        ->context([
+                            'expiration_date' => new \DateTime('+7 days'),
+                            'turno' => $turno,
+                            'urlCancelacion' => $ruta
+                        ]);
+                    $mailer->send($email);
+                    $this->addFlash('info', 'Se ha enviado un correo a la dirección ' . $turno->getPersona()->getEmail());
+                    $logger->info(
+                        'Notificación Enviada',
+                        [
+                            'Destinatario' => $turno->getPersona()->getPersona(),
+                            'Dirección' => $turno->getPersona()->getEmail()
+                        ]
+                    );
+                } catch (\Symfony\Component\Mime\Exception\RfcComplianceException $e) {
+                    $logger->info('Error en el envío de correo: ' . $e->getMessage());
+                    $this->addFlash('danger', 'No se ha podido mandar el correo de rechazo');
                 }
-
-                $hash = $this->encrypt($turno->getId());
-                $ruta = $urlGenerator->generate('cancelacionTurno', [], UrlGeneratorInterface::ABSOLUTE_URL) . '?code=' . $hash;
-
-                $fromAdrress = $_ENV['MAIL_FROM'];
-                $email = (new TemplatedEmail())
-                    ->from($fromAdrress)
-                    ->to($turno->getPersona()->getEmail())
-                    ->subject('Poder Judicial Santa Fe - Confirmación de Turno')
-                    ->htmlTemplate($mailTemplate)
-                    ->context([
-                        'expiration_date' => new \DateTime('+7 days'),
-                        'turno' => $turno,
-                        'urlCancelacion' => $ruta
-                    ]);
-                $mailer->send($email);
-                $this->addFlash('info', 'Se ha enviado un correo a la dirección ' . $turno->getPersona()->getEmail());
-                $logger->info(
-                    'Notificación Enviada',
-                    [
-                        'Destinatario' => $turno->getPersona()->getPersona(),
-                        'Dirección' => $turno->getPersona()->getEmail()
-                    ]
-                );
             }
             return $this->redirectToRoute('comprobanteTurno');
         } else {
@@ -786,13 +791,13 @@ class TurnoController extends AbstractController
                         'Usuario' => $this->getUser()->getUsuario()
                     ]
                 );
-                $entityManager->flush();                 
+                $entityManager->flush();
             } else {
                 // Mando aviso informando la situación
                 $this->addFlash('warning', 'No se pueden borrar turnos del último día disponible.');
-            }  
-            return $this->redirectToRoute('turno_index');          
-        }        
+            }
+            return $this->redirectToRoute('turno_index');
+        }
     }
 
     /**
@@ -849,32 +854,37 @@ class TurnoController extends AbstractController
                 // Envia correo notificando el Rechazo
                 if (isset($request->request->get('turno_rechazar')['enviarMail']) && $turno->getPersona() && $turno->getPersona()->getEmail()) {
 
-                    // Establece que plantilla de correo se utilizará en función al tipo de Sistema
-                    $mailTemplate = 'turno/email_rechazado_turno_web.html.twig';
-                    if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
-                        $mailTemplate = 'turno/email_rechazado_oralidad.html.twig';
-                    }
+                    try {
+                        // Establece que plantilla de correo se utilizará en función al tipo de Sistema
+                        $mailTemplate = 'turno/email_rechazado_turno_web.html.twig';
+                        if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
+                            $mailTemplate = 'turno/email_rechazado_oralidad.html.twig';
+                        }
 
-                    $fromAdrress = $_ENV['MAIL_FROM'];
-                    $email = (new TemplatedEmail())
-                        ->from($fromAdrress)
-                        ->to($turno->getPersona()->getEmail())
-                        ->subject('Poder Judicial Santa Fe - Solicitud de Turno Cancelada')
-                        ->htmlTemplate($mailTemplate)
-                        ->context([
-                            'expiration_date' => new \DateTime('+7 days'),
-                            'turno' => $turno,
-                            'motivoRechazo' => $motivoRechazo
-                        ]);
-                    $mailer->send($email);
-                    $logger->info(
-                        'Notificación de Rechazo Enviada',
-                        [
-                            'Destinatario' => $turno->getPersona()->getPersona(),
-                            'Dirección' => $turno->getPersona()->getEmail(),
-                            'Motivo Indicado' => $motivoRechazo
-                        ]
-                    );
+                        $fromAdrress = $_ENV['MAIL_FROM'];
+                        $email = (new TemplatedEmail())
+                            ->from($fromAdrress)
+                            ->to($turno->getPersona()->getEmail())
+                            ->subject('Poder Judicial Santa Fe - Solicitud de Turno Cancelada')
+                            ->htmlTemplate($mailTemplate)
+                            ->context([
+                                'expiration_date' => new \DateTime('+7 days'),
+                                'turno' => $turno,
+                                'motivoRechazo' => $motivoRechazo
+                            ]);
+                        $mailer->send($email);
+                        $logger->info(
+                            'Notificación de Rechazo Enviada',
+                            [
+                                'Destinatario' => $turno->getPersona()->getPersona(),
+                                'Dirección' => $turno->getPersona()->getEmail(),
+                                'Motivo Indicado' => $motivoRechazo
+                            ]
+                        );
+                    } catch (\Symfony\Component\Mime\Exception\RfcComplianceException $e) {
+                        $logger->info('Error en el envío de correo: ' . $e->getMessage());
+                        $this->addFlash('danger', 'No se ha podido mandar el correo de rechazo');
+                    }
                 }
 
                 $this->addFlash('warning', 'Se ha rechazado el turno');
