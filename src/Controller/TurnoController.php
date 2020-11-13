@@ -13,6 +13,7 @@ use App\Form\Turno4Type;
 use App\Form\Turno5Type;
 use App\Form\TurnoType;
 use App\Form\TurnoRechazarType;
+use App\Repository\ConfigRepository;
 use App\Repository\LocalidadRepository;
 use App\Repository\OficinaRepository;
 use App\Repository\OrganismoRepository;
@@ -260,7 +261,7 @@ class TurnoController extends AbstractController
      * 
      * @Route("/TurnosWeb/confirmacion", name="turno_new5", methods={"GET","POST"})
      */
-    public function new5(SessionInterface $session, Request $request, TurnoRepository $turnoRepository, TurnosDiariosRepository $turnosDiariosRepository, LoggerInterface $logger): Response
+    public function new5(SessionInterface $session, Request $request, TurnoRepository $turnoRepository, TurnosDiariosRepository $turnosDiariosRepository, LoggerInterface $logger, ConfigRepository $configRepository): Response
     {
         $persona = $session->get('persona');
         $turno = $session->get('turno');
@@ -293,6 +294,22 @@ class TurnoController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Si existe un máximo de turnos por días, antes de seguir limitamos la obtención de turno para un mismo DNI y Oficina en el rango establecido.
+            $maxTurnosDias = is_null($configRepository->findByClave('Un Turno Maximo Cada (Dias)')) ? null : $configRepository->findByClave('Un Turno Maximo Cada (Dias)')->getValor();
+            if (!is_null($maxTurnosDias)) {
+                if (intval($maxTurnosDias) > 0) {
+                    $turnosDados = $this->_turnoRepository->findTurnosXPersonaYPeriodo($turno->getOficina()->getId(), $persona->getDni(), $maxTurnosDias);
+                    if (count($turnosDados) > 0) {
+                        $this->addFlash('warning', 'No es posible sacar mas de un turno cada ' . $maxTurnosDias . ' días por Oficina');
+                        return $this->render('turno/new5.html.twig', [
+                            'turno' => $turno,
+                            'persona' => $persona,
+                            'localidadOrganismo' => $localidadOrganismo,
+                            'form' => $form->createView(),
+                        ]);
+                    }
+                }
+            }
 
             $turnoActualizar = $turnoRepository->findTurnoLibre($turno->getOficina()->getId(), $turno->getFechaHora());
 

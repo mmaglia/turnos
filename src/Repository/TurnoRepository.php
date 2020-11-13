@@ -586,4 +586,30 @@ class TurnoRepository extends ServiceEntityRepository
 
         return $result;
     }
+
+    /**
+     * Busca turnos para personas en un período de días hacia delante y hacia atras
+     */
+    public function findTurnosXPersonaYPeriodo($idOficina, $dniPersona, $cantDías)
+    {
+        $posteriorA = new \DateTime();
+        $posteriorA->setTime(0, 0, 0);
+        $posteriorA->sub(new \DateInterval('P' . $cantDías . 'D'));
+        $anteriorA = new \DateTime();
+        $anteriorA->setTime(23, 59, 59);
+        $anteriorA->add(new \DateInterval('P' . $cantDías . 'D'));
+        $qb = $this->createQueryBuilder('t');
+        $cantidad = $qb->select('t.fechaHora')->join('t.persona', 'p')
+            ->where('p.dni = :dni')
+            ->andWhere('t.oficina = :oficina')
+            ->andWhere('t.fechaHora BETWEEN :from AND :to')
+            ->setParameter('dni', $dniPersona)
+            ->setParameter('oficina', $idOficina)
+            ->setParameter('from', $posteriorA)
+            ->setParameter('to', $anteriorA)
+            ->getQuery()
+            ->getArrayResult();
+
+        return $cantidad;
+    }
 }
