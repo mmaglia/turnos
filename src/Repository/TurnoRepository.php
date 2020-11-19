@@ -588,14 +588,14 @@ class TurnoRepository extends ServiceEntityRepository
     }
 
     /**
-     * Busca turnos para personas en un período de días hacia delante y hacia atras
+     * Busca turnos para personas en un período de días hacia delante y hacia atras de la fecha de solicitud del turno
      */
-    public function findTurnosXPersonaYPeriodo($idOficina, $dniPersona, $cantDías)
+    public function findTurnosXPersonaYPeriodo($idOficina, $dniPersona, $cantDías, $fechaSolicitud)
     {
-        $posteriorA = new \DateTime();
+        $posteriorA = clone $fechaSolicitud;
         $posteriorA->setTime(0, 0, 0);
         $posteriorA->sub(new \DateInterval('P' . $cantDías . 'D'));
-        $anteriorA = new \DateTime();
+        $anteriorA = clone $fechaSolicitud;
         $anteriorA->setTime(23, 59, 59);
         $anteriorA->add(new \DateInterval('P' . $cantDías . 'D'));
         $qb = $this->createQueryBuilder('t');

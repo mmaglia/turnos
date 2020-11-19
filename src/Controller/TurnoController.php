@@ -314,9 +314,9 @@ class TurnoController extends AbstractController
             $maxTurnosDias = is_null($configRepository->findByClave('Un Turno Maximo Cada (Dias)')) ? null : $configRepository->findByClave('Un Turno Maximo Cada (Dias)')->getValor();
             if (!is_null($maxTurnosDias)) {
                 if (intval($maxTurnosDias) > 0) {
-                    $turnosDados = $this->_turnoRepository->findTurnosXPersonaYPeriodo($turno->getOficina()->getId(), $persona->getDni(), $maxTurnosDias);
+                    $turnosDados = $this->_turnoRepository->findTurnosXPersonaYPeriodo($turno->getOficina()->getId(), $persona->getDni(), $maxTurnosDias, $turno->getFechaHora());
                     if (count($turnosDados) > 0) {
-                        $this->addFlash('warning', 'No es posible sacar mas de un turno cada ' . $maxTurnosDias . ' días por Oficina');
+                        $this->addFlash('warning', 'Usted ya tiene un turno otorgado en esta Oficina en un plazo de ' . $maxTurnosDias . ' días.-');
                         return $this->render('turno/new5.html.twig', [
                             'turno' => $turno,
                             'persona' => $persona,
@@ -381,8 +381,7 @@ class TurnoController extends AbstractController
 
             return $this->redirectToRoute('emailConfirmacionTurno');
         }
-        $this->addFlash('success', 'Su turno ha sido otorgado satisfactoriamente');
-        $this->addFlash('info', 'Se ha enviado un correo a la dirección ' . $turno->getPersona()->getEmail());
+
         return $this->render('turno/new5.html.twig', [
             'turno' => $turno,
             'persona' => $persona,
