@@ -1,48 +1,52 @@
+{# TODO: Ver como tratar variable HTML y Roles #}
 {% extends 'base.html.twig' %}
 
 {% block title %}Gestión de Config{% endblock %}
 
 {% block body %}
     <h1>Gestión de Valores de Configuración</h1>
+    <div class="top-listas">		
+		{% if is_granted('ROLE_EDITOR') %}
+			<div id="botonera-config" class="row" style="display: none;">
+				<div class="col-12">
+					<div class="float-right boton">
+						<a class="btn btn-primary" href="{{ path('config_new') }}">Crear Nueva Configuración</a>
+					</div>
+				</div>
+			</div>
+		{% endif %}		
+	</div>
+	{{ include('components/_flashesMessages.html.twig') }}
+	<div class="row">
+		<div class="col-12">
+			<div id="configList">
+				<div class="d-flex justify-content-center">
+					<div class="spinner-border m-5" role="status">
+						<span class="sr-only">Cargando...</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Clave</th>
-                <th>Valor</th>
-                <th>Contenido HTML</th>
-                <th>Roles</th>
-                {% if is_granted('ROLE_EDITOR') %}                 
-                    <th>Accciones</th>
-                {% endif %}
-            </tr>
-        </thead>
-        <tbody>
-        {% for config in configs %}
-            <tr>
-                <td>{{ config.id }}</td>
-                <td>{{ config.clave }}</td>
-                <td>{{ config.valor }}</td>
-                <td>{{ config.html | length > 100 ? config.html | slice(0, 100) | raw : config.html}}
-                    {{ config.html | length > 100 ? '...' : '' }}
-                </td>
-                <td>{{ config.roles ? config.roles|json_encode | replace({'ROLE_': '', '[': '', ']': '', '"':'', ',': ', ', '{': '', '}': '' }) : '' }}</td>
-                {% if is_granted('ROLE_EDITOR') %} 
-                    <td class="table-bordered table-secondary text-center d-print-none" style="width : 80px; background-color: rgb(245, 245, 245);">
-                        <a href="{{ path('config_show', {'id': config.id}) }}" title="Ver"><i class="fas fa-eye"></i></a>
-                        &nbsp;&nbsp;
-                        <a href="{{ path('config_edit', {'id': config.id}) }}" title="Editar"><i class="fas fa-pen"></i></a>
-                    </td>
-                {% endif %}
-                </tr>
-        {% else %}
-            <tr>
-                <td colspan="5">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
-    <a class="btn btn-primary float-right shadow" href="{{ path('config_new') }}">Crear Nuevo Valor de Configuración</a>
+{% block javascripts %}
+	{{ parent() }}
+	<script>
+		$(function () {			
+			var grillaConfig = $('#configList').initDataTables( {{ datatable_settings(datatable) }}, {
+				dom: "B<'row' <'#busqueda.col-sm-4 text-left'f><'col-sm-8 text-right'i><'col-sm-12' tr>><'row' <'col-sm-6'l><'col-sm-6 text-right'p>>",
+				buttons: [],
+				searching: true,
+				language: {
+					"url": "{{ asset('build/static/traslation_dt_es.json') }}"
+				}
+			}).then(function (dtConfig) {
+				dtConfig.on('init', function(settings, json) {
+					$('#botonera-config').show();    
+					$('#dt_filter input').attr("placeholder", "Clave, Valor");
+				});
+			});  			         		
+        });
+	</script>
 {% endblock %}

@@ -2,13 +2,14 @@
 
 namespace App\Controller;
 
+use App\DataTables\ConfigTableType;
 use App\Entity\Config;
 use App\Form\ConfigType;
-use App\Repository\ConfigRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Omines\DataTablesBundle\DataTableFactory;
 
 /**
  * @Route("/config")
@@ -16,11 +17,28 @@ use Symfony\Component\Routing\Annotation\Route;
 class ConfigController extends AbstractController
 {
     /**
-     * @Route("/", name="config_index", methods={"GET"})
+     * Variable auxiliar para crear datatables
+     *
+     * @var [DataTableFactory]
      */
-    public function index(ConfigRepository $configRepository): Response
+    protected $datatableFactory;
+
+    public function __construct(DataTableFactory $datatableFactory)
     {
-        if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_AUDITORIA_GESTION')) {
+        $this->datatableFactory = $datatableFactory;
+    }
+
+    /**
+     * @Route("/", name="config_index")
+     */
+    public function index(Request $request): Response
+    {
+        $table = $this->datatableFactory->createFromType(ConfigTableType::class, array())->handleRequest($request);
+        if ($table->isCallback()) {
+            return $table->getResponse();
+        }
+        return $this->render('config/index.html.twig', ['datatable' => $table]);
+        /*if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_AUDITORIA_GESTION')) {
             $parametros = $configRepository->findAllOrderedByColum('clave');
         } else {
             if ($this->isGranted('ROLE_COVER_MANAGER')) {
@@ -32,7 +50,7 @@ class ConfigController extends AbstractController
 
         return $this->render('config/index.html.twig', [
             'configs' => $parametros,
-        ]);
+        ]);*/
     }
 
     /**

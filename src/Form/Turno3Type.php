@@ -20,6 +20,7 @@ class Turno3Type extends AbstractType
         $builder
             ->add('circunscripcion', EntityType::class, [
                 'class' => 'App\Entity\Circunscripcion',
+                'label'    => 'Circunscripción',
                 'placeholder' => 'Seleccione la Circunscripción',
                 'attr' => array('autofocus' => true),
                 'required' => true,
