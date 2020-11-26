@@ -19,16 +19,6 @@
             </div>
         {% endif %}
     </div>
-    {% for label, messages in app.flashes %}
-        {% for message in messages %}
-            <div class="row">
-                <div class="col-8"></div>
-                <div class="col-4 text-right">
-                    <div class="flashes-messages alert alert-{{ label }}">{{ message }}</div>
-                </div>
-            </div>
-        {% endfor %}
-    {% endfor %}
     <div class="row">
 		<div class="col-12">
 			<div id="oficinaList">

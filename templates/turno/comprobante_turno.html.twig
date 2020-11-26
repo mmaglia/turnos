@@ -13,20 +13,12 @@
             {{ barcode({code: qr, type: 'qrcode', format: 'svg', width: 3, height: 3}) }}
         </div>
     </div>
-
+    <div class="row">
+        <div class="col-3"></div>
+        <div class="col-6" id="mensaje-alerta"></div>
+        <div class="col-3"></div>
+    </div>
     <br>
-    {# Lee y muestra todos los mensajes flash #}
-    {% for label, messages in app.flashes %}
-        {% for message in messages %}
-            <div class="row">
-                <div class="col-4"></div>
-                <div class="col-8 text-right">
-                    <div class="flashes-messages alert alert-{{ label }}">{{ message }}</div>
-                </div>
-            </div>
-        {% endfor %}
-    {% endfor %}
-
     <div class="card border-primary mb-3">
         <div class="card-header">Datos del Solicitante</div>
         <div class="card-body text-primary">
@@ -87,12 +79,11 @@
             $("#confirmar").html('Imprimir Comprobante')
             $("#confirmar").click(function () {
                 window.print()
-            })
+            });
 
             $(document).ready(function(){            
-                $(document).ready(function(){
-                    $(".alert").delay(2500).slideUp(1000);
-                });
+                $(".base-flash-messages").css('position', 'static');
+                $(".base-flash-messages").appendTo('#mensaje-alerta');                
             });
         });
     </script>  

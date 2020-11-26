@@ -16,16 +16,6 @@
 			</div>
 		{% endif %}		
 	</div>
-	{% for label, messages in app.flashes %}
-        {% for message in messages %}
-            <div class="row mt-3">
-                <div class="col-12"></div>
-                <div class="col-12 text-center">
-                    <div class="flashes-messages alert alert-{{ label }} shadow">{{ message }}</div>
-                </div>
-            </div>
-        {% endfor %}
-    {% endfor %}
 	<div class="row">
 		<div class="col-12">
 			<div id="configList">
