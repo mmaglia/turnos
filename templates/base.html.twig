@@ -175,18 +175,10 @@
                     // Agrega un * a todos los campos que son requeridos
                     $('label.required').append('<sup><strong>&nbsp;*</strong></sup>');
 
-                    // Muestro el mensage que por default esta oculto
-                    $(".flashes-messages").show();
-                    // Procesa ocultamiento mensajes tipo flash
-                    $(".flashes-messages").delay(1000).slideUp(500);
-
-                    // Muestro el mensage que por default esta oculto
-                    $(".flashes-messages-slow").show();
-                    // Procesa ocultamiento mensajes tipo flash-slow
-                    $(".flashes-messages-slow").delay(10000).slideUp(2500);
-
-                    // Muestro el mensage que por default esta oculto
-                    $(".flashes-messages-closable").show();
+                    // Procesa aparición y ocultamiento mensajes tipo flash
+					$(".flashes-messages").hide().delay(1000).fadeIn(150).delay(2000).slideUp(500);
+					$(".flashes-messages-slow").hide().delay(1000).fadeIn(150).delay(10000).slideUp(1000);
+					$(".flashes-messages-closable").hide().delay(1000).fadeIn(150);
                 });
             </script>
         

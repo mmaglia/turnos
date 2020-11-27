@@ -15,7 +15,7 @@
         {% for message in messages %}
             {% if 'closable' in tipo %}
                 <div class="col-auto text-center">
-                    <div class="flashes-messages-closable alert alert-{{ tipo[0] }} alert-dismissible fade show mt-3 shadow" role="alert">
+                    <div class="flashes-messages-closable alert alert-{{ tipo[0] }} alert-dismissible fade show mt-3 shadow" role="alert" style="display:none">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&nbsp;&times;</span>
                         </button>
@@ -24,7 +24,7 @@
                 </div>
             {% else %}                        
                 <div class="col-auto">
-                    <div class="flashes-messages{{'slow' in tipo ? '-slow' : ''}} alert alert-{{ tipo[0] }} p-2 mt-3 shadow">{{ message }}</div>
+                    <div class="flashes-messages{{'slow' in tipo ? '-slow' : ''}} alert alert-{{ tipo[0] }} p-2 mt-3 shadow" style="display:none">{{ message }}</div>
                 </div> 
             {% endif %}       
         {% endfor %}
