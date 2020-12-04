@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\DataTables\TurnoTableType;
 use App\Entity\Persona;
 use App\Entity\Organismo;
 use App\Entity\Turno;
@@ -32,6 +33,7 @@ use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Routing\Annotation\Route;
+use Omines\DataTablesBundle\DataTableFactory;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -47,18 +49,26 @@ class TurnoController extends AbstractController
     protected LoggerInterface $logger;
 
     /**
+     * Variable auxiliar para crear datatables
+     *
+     * @var [DataTableFactory]
+     */
+    protected $datatableFactory;
+
+    /**
      * Constructor
      */
-    public function __construct(TurnoRepository $turnoRepository, OficinaRepository $oficinaRepository, SessionInterface $session, LoggerInterface $logger)
+    public function __construct(TurnoRepository $turnoRepository, OficinaRepository $oficinaRepository, SessionInterface $session, LoggerInterface $logger, DataTableFactory $datatableFactory)
     {
         $this->_turnoRepository = $turnoRepository;
         $this->_oficinaRepository = $oficinaRepository;
         $this->_session = $session;
         $this->_logger = $logger;
+        $this->datatableFactory = $datatableFactory;
     }
 
     /**
-     * @Route("/turno", name="turno_index", methods={"GET", "POST"})
+     * @Route("/turno", name="turno_index")
      * 
      * @IsGranted("IS_AUTHENTICATED_FULLY")
      */
@@ -100,38 +110,16 @@ class TurnoController extends AbstractController
         // Obtiene un arreglo asociativo con valores para las fechas Desde y Hasta que involucra el filtro de momento
         $rango = $this->obtieneMomento($filtroMomento);
 
-        // Procesa filtro de Estado
-        switch ($filtroEstado) {
-            case 1:
-                $estado = 1; // No atendidos
-                break;
-            case 2:
-                $estado = 2; // Atendidos
-                break;
-            case 9:
-                $estado = 9; // Todos
-                break;
-        }
-        if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_AUDITORIA_GESTION')) {
-            // Busca los turnos en función a los estados de todas las oficinas
-            if ($filtroOficina) {
-                $turnosOtorgados = $pagination = $paginator->paginate($this->_turnoRepository->findWithRoleUser($rango, $estado, $filtroOficina), $request->query->getInt('page', 1), 100);
-            } else {
-                $turnosOtorgados = $pagination = $paginator->paginate($this->_turnoRepository->findByRoleAdmin($rango, $estado, !is_null($this->getUser()->getCircunscripcion()) ? $this->getUser()->getCircunscripcion()->getId() : null), $request->query->getInt('page', 1), 100);
-            }
-        } else {
-            if ($this->isGranted('ROLE_USER')) {
-                // Busca los turnos en función a los estados de la oficina a la que pertenece el usuario
-                $oficinaUsuario = $this->getUser()->getOficina();
-                $turnosOtorgados = $pagination = $paginator->paginate($this->_turnoRepository->findWithRoleUser($rango, $estado, $oficinaUsuario), $request->query->getInt('page', 1), 100);
-            }
+        $table = $this->datatableFactory->createFromType(TurnoTableType::class, array($rango, $filtroEstado, $filtroOficina))->handleRequest($request);
+        if ($table->isCallback()) {
+            return $table->getResponse();
         }
 
         return $this->render('turno/index.html.twig', [
+            'datatable' => $table, 
             'filtroMomento' => $filtroMomento,
             'filtroEstado' => $filtroEstado,
             'filtroOficina' => $filtroOficina,
-            'turnos' => $turnosOtorgados,
         ]);
     }
 
