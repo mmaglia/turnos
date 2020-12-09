@@ -27,153 +27,141 @@
         <div class="container">
         {% endif %}
 
-        {%  set url = app.request.pathInfo|split('/') %}
-        {%  set lastStringUrl = url|last %}
-        
-        {# Muestra la barra de menu siempre que:
-                Esté logeado
-                Que no esté viendo, editando o borrando
-                Que no esté generando un alta} #}
-        {% if   is_granted('IS_AUTHENTICATED_FULLY') 
-                and not app.request.get('id') 
-        %}
+            {%  set url = app.request.pathInfo|split('/') %}
+            {%  set lastStringUrl = url|last %}
+            
+            {# Muestra la barra de menu siempre que: Esté logueado. Que no esté viendo, editando o borrando. Que no esté generando un alta} #}
+            {% if is_granted('IS_AUTHENTICATED_FULLY') and not app.request.get('id') %}
 
-{# Se eliminar estar condiciones adicionales
-                    and not lastStringUrl == 'new'
-                    and not lastStringUrl == 'open'
-#}
-
-            <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary border border-light text-white shadow" >
-                {% set current_path = app.request.get('_route') %}
-                {% if app.request.get('_route') != 'main' %}
-                        <a class="navbar-brand" href="{{ path('main') }}"><img src="{{asset('images/escudo.gif')}}" class="rounded float-left" alt="Poder Judicial" height="35" width="38"></a>
-                {% endif %}
-                <button class="navbar-toggler d-lg-none float-left" type="button" data-toggle="collapse" data-target="#collapsibleNavId" aria-controls="collapsibleNavId" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>                    
-                <div class="collapse navbar-collapse" id="collapsibleNavId">
-                    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-light" href="#" id="dropdownTurnosId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Turnos</a>
-                            <div class="dropdown-menu" aria-labelledby="dropdownTurnosId">
-                                <a class="dropdown-item" href="{{ path('turno_index') }}">Gestionar</a>
-                                <a class="dropdown-item" href="{{ path('turno_rechazado_index') }}">Rechazados</a>
-                            </div>
-                        </li>
-
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-light" href="#" id="dropdownInformesId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Informes</a>
-                            <div class="dropdown-menu" aria-labelledby="dropdownInformesId">
-                                <a class="dropdown-item" href="{{ path('estadistica_index') }}">Estadísticas</a>
-                                <a class="dropdown-item" href="{{ path('estadistica_evolucion_diaria') }}">Evolución Diaria de Ocupación</a>
-                                {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') %}
-                                    <a class="dropdown-item" href="{{ path('informe_ocupacion_agenda') }}">Ocupación de las Agendas</a>
-                                    <a class="dropdown-item" href="{{ path('informe_ocupacion_plena') }}">Fecha Máxima de Ocupación Plena por Oficina</a>
-                                    <a class="dropdown-item" href="{{ path('informe_persona_duplicada') }}">Turnos por Personas</a>
-                                    <a class="dropdown-item" href="{{ path('informe_oficinas_estado_habilitacion') }}">Oficinas Habilitadas / Deshabilitadas</a>
-                                {% endif %}
-                            </div>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-light" href="#" id="dropdownAyudaId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Ayuda</a>
-                            <div class="dropdown-menu" aria-labelledby="dropdownAyudaId">
-                                {% if SistemaTurnosWeb %}
-                                    <a class="dropdown-item" href="{{ asset('docs/Manual_de_Usuario.pdf') }}" target="_blank">Manual de Usuario</a>
-                                {% endif %}
-                                {% if SistemaOralidadCivil %}
-                                    <a class="dropdown-item" href="{{ asset('docs/Manual_de_Usuario_Oralidad.pdf') }}" target="_blank">Manual de Usuario</a>
-                                {% endif %}
-                                {% if SistemaTurnosMPE %}
-                                    <a class="dropdown-item" href="{{ asset('docs/Manual_de_Usuario_MPE.pdf') }}" target="_blank">Manual de Usuario</a>
-                                {% endif %}
-                            </div>
-                        </li>
-                        {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') or (app.user.getOficina().getAutoGestion()) %}
+                {# Se eliminar estar condiciones adicionales and not lastStringUrl == 'new' and not lastStringUrl == 'open'#}
+                <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary border border-light text-white shadow" >
+                    {% set current_path = app.request.get('_route') %}
+                    {% if app.request.get('_route') != 'main' %}
+                            <a class="navbar-brand" href="{{ path('main') }}"><img src="{{asset('images/escudo.gif')}}" class="rounded float-left" alt="Poder Judicial" height="35" width="38"></a>
+                    {% endif %}
+                    <button class="navbar-toggler d-lg-none float-left" type="button" data-toggle="collapse" data-target="#collapsibleNavId" aria-controls="collapsibleNavId" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>                    
+                    <div class="collapse navbar-collapse" id="collapsibleNavId">
+                        <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-light" href="#" id="dropdownAdministrarId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Administrar</a>
-                                <div class="dropdown-menu" aria-labelledby="dropdownAdministrarId">
-                                    {% if is_granted('ROLE_ADMIN') %}
-                                        <a class="dropdown-item" target="_blank" href="{{ app.request.getSchemeAndHttpHost() ~ "/oficina/cronAutoExtend/1/800/1" }}">Auto Extender Turneros 1 Día</a>
-                                    {% endif %}
+                                <a class="nav-link dropdown-toggle text-light" href="#" id="dropdownTurnosId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Turnos</a>
+                                <div class="dropdown-menu" aria-labelledby="dropdownTurnosId">
+                                    <a class="dropdown-item" href="{{ path('turno_index') }}">Gestionar</a>
+                                    <a class="dropdown-item" href="{{ path('turno_rechazado_index') }}">Rechazados</a>
+                                </div>
+                            </li>
+
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-light" href="#" id="dropdownInformesId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Informes</a>
+                                <div class="dropdown-menu" aria-labelledby="dropdownInformesId">
+                                    <a class="dropdown-item" href="{{ path('estadistica_index') }}">Estadísticas</a>
+                                    <a class="dropdown-item" href="{{ path('estadistica_evolucion_diaria') }}">Evolución Diaria de Ocupación</a>
                                     {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') %}
-                                        <a class="dropdown-item" href="{{ path('config_index') }}">Configuración</a>
-                                        <a class="dropdown-item" href="{{ path('localidad_index') }}">Localidades</a>
-                                        {% if SistemaOralidadCivil %}
-                                            <a class="dropdown-item" href="{{ path('organismo_index') }}">Organismos</a>
-                                        {% endif %} 
-                                    {% endif %}                                   
-                                    {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') or (app.user.getOficina().getAutoGestion()) %}
-                                        <a class="dropdown-item" href="{{ path('oficina_index') }}">Oficinas</a>
-                                    {% endif %}  
-                                    {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') %}                                 
-                                        <a class="dropdown-item" href="{{ path('usuario_index') }}">Usuarios</a>                                        
+                                        <a class="dropdown-item" href="{{ path('informe_ocupacion_agenda') }}">Ocupación de las Agendas</a>
+                                        <a class="dropdown-item" href="{{ path('informe_ocupacion_plena') }}">Fecha Máxima de Ocupación Plena por Oficina</a>
+                                        <a class="dropdown-item" href="{{ path('informe_persona_duplicada') }}">Turnos por Personas</a>
+                                        <a class="dropdown-item" href="{{ path('informe_oficinas_estado_habilitacion') }}">Oficinas Habilitadas / Deshabilitadas</a>
                                     {% endif %}
                                 </div>
                             </li>
-                        {% endif %}
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-light" href="#" id="dropdownAyudaId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Ayuda</a>
+                                <div class="dropdown-menu" aria-labelledby="dropdownAyudaId">
+                                    {% if SistemaTurnosWeb %}
+                                        <a class="dropdown-item" href="{{ asset('docs/Manual_de_Usuario.pdf') }}" target="_blank">Manual de Usuario</a>
+                                    {% endif %}
+                                    {% if SistemaOralidadCivil %}
+                                        <a class="dropdown-item" href="{{ asset('docs/Manual_de_Usuario_Oralidad.pdf') }}" target="_blank">Manual de Usuario</a>
+                                    {% endif %}
+                                    {% if SistemaTurnosMPE %}
+                                        <a class="dropdown-item" href="{{ asset('docs/Manual_de_Usuario_MPE.pdf') }}" target="_blank">Manual de Usuario</a>
+                                    {% endif %}
+                                </div>
+                            </li>
+                            {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') or (app.user.getOficina().getAutoGestion()) %}
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle text-light" href="#" id="dropdownAdministrarId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Administrar</a>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownAdministrarId">
+                                        {% if is_granted('ROLE_ADMIN') %}
+                                            <a class="dropdown-item" target="_blank" href="{{ app.request.getSchemeAndHttpHost() ~ "/oficina/cronAutoExtend/1/800/1" }}">Auto Extender Turneros 1 Día</a>
+                                        {% endif %}
+                                        {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') %}
+                                            <a class="dropdown-item" href="{{ path('config_index') }}">Configuración</a>
+                                            <a class="dropdown-item" href="{{ path('localidad_index') }}">Localidades</a>
+                                            {% if SistemaOralidadCivil %}
+                                                <a class="dropdown-item" href="{{ path('organismo_index') }}">Organismos</a>
+                                            {% endif %} 
+                                        {% endif %}                                   
+                                        {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') or (app.user.getOficina().getAutoGestion()) %}
+                                            <a class="dropdown-item" href="{{ path('oficina_index') }}">Oficinas</a>
+                                        {% endif %}  
+                                        {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') %}                                 
+                                            <a class="dropdown-item" href="{{ path('usuario_index') }}">Usuarios</a>                                        
+                                        {% endif %}
+                                    </div>
+                                </li>
+                            {% endif %}
 
-                        <li class="nav-item float-right">
-                            <a class="nav-link text-light" href="{{ path('app_logout') }}">Salir</a>
-                        </li>
-                    </ul>
-                </div>
-                {% if is_granted('IS_AUTHENTICATED_FULLY') %}
-                    {% if app.environment == 'dev' %}
-                        <div class="text-danger mr-5"><strong>Testing</strong></div>
-                    {% endif %}
-                    {% if SistemaTurnosWeb %}
-                        <div class="lead text-center mr-5" style="font-size: .8rem; color: #EEE"><strong>Sistema de<br>Turnos Web</strong></div>
-                    {% endif %}
-                    {% if SistemaOralidadCivil %}
-                        <div class="lead text-center mr-5" style="font-size: .8rem; color: #EEE"><strong>Sistema de<br>Turnos Oralidad Civil</strong></div>
-                    {% endif %}
-                    {% if SistemaTurnosMPE %}
-                        <div class="lead text-center mr-5" style="font-size: .8rem; color: #EEE"><strong>Sistema de<br>Turnos MPE</strong></div>
-                    {% endif %}                    
-                    <div class="float-lg-right" style="font-size: .8rem; color: #EEE">
-                        {{ app.user.getApellido()}}
-                        {% if app.user.getNombre() %}
-                            {{ app.user.getNombre() }}
+                            <li class="nav-item float-right">
+                                <a class="nav-link text-light" href="{{ path('app_logout') }}">Salir</a>
+                            </li>
+                        </ul>
+                    </div>
+                    {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                        {% if app.environment == 'dev' %}
+                            <div class="text-danger mr-5"><strong>Testing</strong></div>
                         {% endif %}
-                        <div class="text-right" style="font-size: .6rem; color: #CCC">v{{ app.session.get('realeaseGit') }}</div>
-                    </div>                   
-                {% endif %}
-            </nav>
-                
-            <br><br><br>
-        {% endif %}
-
-        {% if   is_granted('IS_AUTHENTICATED_FULLY') 
-                and (app.request.get('id') 
-                or lastStringUrl == 'new'
-                or lastStringUrl == 'open')
-        %}
-            <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary border border-light text-white" >
-                {% set current_path = app.request.get('_route') %}
-                {% if app.request.get('_route') != 'main' %}
-                        <a class="navbar-brand" href="{{ path('main') }}"><img src="{{asset('images/escudo.gif')}}" class="rounded float-left" alt="Poder Judicial" height="35" width="38"></a>
-                {%endif %}
-                <button class="navbar-toggler d-lg-none" type="button" data-toggle="collapse" data-target="#collapsibleNavId" aria-controls="collapsibleNavId"
-                    aria-expanded="false" aria-label="Toggle navigation"></button>
-                <div class="collapse navbar-collapse" id="collapsibleNavId">
-                    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link text-light" href="#" onclick="history.back(); return false;">Volver</a>
-                        </li>
-                    </ul>
-                </div>
-                {% if is_granted('IS_AUTHENTICATED_FULLY') %}
-                    <div class="float-lg-right" style="font-size: .8rem; color: #EEE">
-                        {{ app.user.getApellido()}}
-                        {% if app.user.getNombre() %}
-                            {{ app.user.getNombre() }}
+                        {% if SistemaTurnosWeb %}
+                            <div class="lead text-center mr-5" style="font-size: .8rem; color: #EEE"><strong>Sistema de<br>Turnos Web</strong></div>
                         {% endif %}
-                    </div>                   
-                {% endif %}
-            </nav>
-            </br></br></br>
-        {% endif %}
+                        {% if SistemaOralidadCivil %}
+                            <div class="lead text-center mr-5" style="font-size: .8rem; color: #EEE"><strong>Sistema de<br>Turnos Oralidad Civil</strong></div>
+                        {% endif %}
+                        {% if SistemaTurnosMPE %}
+                            <div class="lead text-center mr-5" style="font-size: .8rem; color: #EEE"><strong>Sistema de<br>Turnos MPE</strong></div>
+                        {% endif %}                    
+                        <div class="float-lg-right" style="font-size: .8rem; color: #EEE">
+                            {{ app.user.getApellido()}}
+                            {% if app.user.getNombre() %}
+                                {{ app.user.getNombre() }}
+                            {% endif %}
+                            <div class="text-right" style="font-size: .6rem; color: #CCC">v{{ app.session.get('realeaseGit') }}</div>
+                        </div>                   
+                    {% endif %}
+                </nav>                
+                <br><br><br>
+            {% endif %}
 
+            {# Si está creando, viendo, editando o borrando un registro armo otro header del navbar#}
+            {% if is_granted('IS_AUTHENTICATED_FULLY') and (app.request.get('id') or lastStringUrl == 'new' or lastStringUrl == 'open') %}
+                <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary border border-light text-white" >
+                    {% set current_path = app.request.get('_route') %}
+                    {% if app.request.get('_route') != 'main' %}
+                            <a class="navbar-brand" href="{{ path('main') }}"><img src="{{asset('images/escudo.gif')}}" class="rounded float-left" alt="Poder Judicial" height="35" width="38"></a>
+                    {% endif %}
+                    <button class="navbar-toggler d-lg-none" type="button" data-toggle="collapse" data-target="#collapsibleNavId" aria-controls="collapsibleNavId"
+                        aria-expanded="false" aria-label="Toggle navigation"></button>
+                    <div class="collapse navbar-collapse" id="collapsibleNavId">
+                        <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                            <li class="nav-item">
+                                <a class="nav-link text-light" href="#" onclick="history.back(); return false;">Volver</a>
+                            </li>
+                        </ul>
+                    </div>
+                    {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                        <div class="float-lg-right" style="font-size: .8rem; color: #EEE">
+                            {{ app.user.getApellido()}}
+                            {% if app.user.getNombre() %}
+                                {{ app.user.getNombre() }}
+                            {% endif %}
+                        </div>                   
+                    {% endif %}
+                </nav>
+                </br></br></br>
+            {% endif %}
+            {# Incluyo aca el template de flash messages de la aplicación #}
+            {{ include('components/_flashesMessages.html.twig') }}
             {% block body %}{% endblock %}            
         </div>
         {% block javascripts %}
@@ -187,12 +175,10 @@
                     // Agrega un * a todos los campos que son requeridos
                     $('label.required').append('<sup><strong>&nbsp;*</strong></sup>');
 
-                    // Procesa ocultamiento mensajes tipo flash
-                    $(".flashes-messages").delay(1000).slideUp(500);
-
-                    // Procesa ocultamiento mensajes tipo flash-slow
-                    $(".flashes-messages-slow").delay(10000).slideUp(2500);
-
+                    // Procesa aparición y ocultamiento mensajes tipo flash
+					$(".flashes-messages").hide().delay(1000).fadeIn(150).delay(2000).slideUp(500);
+					$(".flashes-messages-slow").hide().delay(1000).fadeIn(150).delay(10000).slideUp(1000);
+					$(".flashes-messages-closable").hide().delay(1000).fadeIn(150);
                 });
             </script>
         

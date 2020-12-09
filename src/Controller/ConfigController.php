@@ -38,19 +38,6 @@ class ConfigController extends AbstractController
             return $table->getResponse();
         }
         return $this->render('config/index.html.twig', ['datatable' => $table]);
-        /*if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_AUDITORIA_GESTION')) {
-            $parametros = $configRepository->findAllOrderedByColum('clave');
-        } else {
-            if ($this->isGranted('ROLE_COVER_MANAGER')) {
-                // Busca los parametros de configuración vinculados al rol
-//                $oficinaUsuario = $this->getUser()->getRole();
-//                $turnos_rechazados = $turnoRechazadoRepository->findAllOrderedByColum('fechaHoraTurno', null, $oficinaUsuario);
-            }
-        }
-
-        return $this->render('config/index.html.twig', [
-            'configs' => $parametros,
-        ]);*/
     }
 
     /**

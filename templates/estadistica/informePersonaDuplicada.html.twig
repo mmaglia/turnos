@@ -4,20 +4,10 @@
 
 {% block body %}
     <h1>Turnos por Personas</h1>
-    {% for label, messages in app.flashes %}
-		{% for message in messages %}
-			<div class="row">
-				<div class="col-8"></div>
-				<div class="col-4 text-right">
-					<div class="flashes-messages alert alert-{{ label }}">{{ message }}</div>
-				</div>
-			</div>
-		{% endfor %}
-	{% endfor %}
     <br>
     <div class="row">
         <div class="col-3"></div>
-        <div class="col-6 text-center form-group input-group">
+        <div class="col-6 text-center form-group input-group justify-content-center">
             <form method="post" action="{{ path('informe_show_persona_duplicada') }}">
                 <div id="fechaHora" class="selectorFechaHora" name="selectorFechaHora">
                     <label for="txtFechaDesde" id="lblDesde" class="required">Desde</label>
@@ -51,6 +41,7 @@
                 <center><button class="btn btn-primary shadow">{{ button_label|default('Generar Informe') }}</button></center>
             </form>
         </div>
+        <div class="col-3"></div>
     </div>
 {% endblock %}
 {% block javascripts %}

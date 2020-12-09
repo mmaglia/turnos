@@ -221,3 +221,9 @@ div.dataTables_wrapper div.dataTables_filter {
 .cell-breakWord {
   word-break: break-word;
 }
+
+// Contenedor de Flash Messages
+.base-flash-messages {
+  position: absolute; 
+  margin-top: -1%;
+}

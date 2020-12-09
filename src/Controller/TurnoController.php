@@ -316,7 +316,7 @@ class TurnoController extends AbstractController
                 if (intval($maxTurnosDias) > 0) {
                     $turnosDados = $this->_turnoRepository->findTurnosXPersonaYPeriodo($turno->getOficina()->getId(), $persona->getDni(), $maxTurnosDias, $turno->getFechaHora());
                     if (count($turnosDados) > 0) {
-                        $this->addFlash('warning', 'Usted ya tiene un turno otorgado en esta Oficina en un plazo de ' . $maxTurnosDias . ' días.-');
+                        $this->addFlash('warning-closable', 'Usted ya tiene un turno otorgado en esta Oficina en un plazo de ' . $maxTurnosDias . ' días.-');
                         return $this->render('turno/new5.html.twig', [
                             'turno' => $turno,
                             'persona' => $persona,
