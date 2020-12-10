@@ -26,7 +26,7 @@
                     &nbsp;&nbsp;&nbsp;&nbsp;
                     <a href="{{path('turno_index')}}" title="Actualizar Lista" class="d-print-none"><i class="fas fa-sync-alt shadow"></i></a>
                     &nbsp;&nbsp;&nbsp;&nbsp;
-                    <a onclick="window.print()" title="Imprimir Lista" class="d-print-none"><i class="fas fa-print fa-lg shadow"></i></a>
+                    <a onclick="imprimirLista()" title="Imprimir Lista" class="d-print-none"><i class="fas fa-print fa-lg shadow"></i></a>
                 </div>
             </div>
         </div>
@@ -68,14 +68,17 @@
         var isSistemaOralidad = '{{ SistemaOralidadCivil }}';
         
         function imprimirLista() {   
-            console.log(dt.page.info().pages);
-            if(dt.page.info().pages == 1)                
-                window.print();
-            else {
-                if(confirm('Usted no está visualizando la totalidad de los turnos. ¿Desea imprimir el listado de igual manera?')) {
+            if(permitirImpresion) {
+                if(dt.page.info().pages == 1)                
                     window.print();
-                }
-            }                
+                else {
+                    if(confirm('Usted no está visualizando la totalidad de los turnos. ¿Desea imprimir el listado de igual manera?')) {
+                        window.print();
+                    }
+                }                
+            } else {
+                alert('No hay turnos para imprimir');
+            }
         } 
 
         $(function() {
@@ -95,7 +98,7 @@
 					    $('#dt_filter input').attr("placeholder", "Persona, DNI, Motivo");
 					$('#dt_filter input').width(300);  
 
-                    if(dt.page.info().pages = 1) {
+                    if(dt.page.info().pages > 0) {
                         permitirImpresion = true;
                     }
 
