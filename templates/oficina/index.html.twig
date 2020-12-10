@@ -35,8 +35,7 @@
 {% block javascripts %}
     {{ parent() }}
     <script>
-        $(function() {        
-            $(".alert").delay(3500).slideUp(2000);       
+        $(function() {             
 
             var grillaOficinas = $('#oficinaList').initDataTables( {{ datatable_settings(datatable) }}, {
                 dom: "<'row' <'#busqueda.col-sm-2 text-left'f><'col-sm-2 text-left'B><'col-sm-8 text-right'i><'col-sm-12' tr>><'row' <'col-sm-6'l><'col-sm-6 text-right'p>>",                                        

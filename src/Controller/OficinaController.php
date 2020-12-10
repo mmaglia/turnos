@@ -255,7 +255,7 @@ class OficinaController extends AbstractController
                     }
                 }
 
-                $this->addFlash('info', $oficina . ': ' . $totalTurnosGenerados . ' turnos nuevos. Ultimo turno Generado: ' . ($request->request->get('add_turnos')['cantidadDias'] ? $nuevoTurno->format('d/m/Y') : $logFechaFin));
+                $this->addFlash('info-closable', $oficina . ': ' . $totalTurnosGenerados . ' turnos nuevos. Ultimo turno Generado: ' . ($request->request->get('add_turnos')['cantidadDias'] ? $nuevoTurno->format('d/m/Y') : $logFechaFin));
 
                 $logger->info('Creación de Nuevos Turnos', [
                     'Oficina' => $oficina->getOficinayLocalidad(),
@@ -369,7 +369,7 @@ class OficinaController extends AbstractController
 
             }
 
-            $this->addFlash('info', $oficina . ': ' . $totalTurnosGenerados . ' turnos nuevos.');
+            $this->addFlash('info-closable', $oficina . ': ' . $totalTurnosGenerados . ' turnos nuevos.');
 
             $logger->info('Creación de Nuevos Turnos por Réplica', [
                 'Oficina' => $oficina->getOficinayLocalidad(),
@@ -431,7 +431,7 @@ class OficinaController extends AbstractController
             // Borro todos los turnos que no se encuentren asignados. Los cuento para informarlos después.
             $cantTurnosBorrados =  $turnoRepository->deleteTurnosByDiaByOficina($oficina->getId(), $desde, $hasta);
             if ($cantTurnosBorrados) {
-                $this->addFlash('info', $oficina . ': ' . $cantTurnosBorrados . ' turnos borrados');
+                $this->addFlash('info-closable', $oficina . ': ' . $cantTurnosBorrados . ' turnos borrados');
                 $logger->info('Turnos Borrados por Oficina', [
                     'Oficina' => $oficina->getOficinayLocalidad(),
                     'Desde' => $desde->format('d/m/Y'),
@@ -467,14 +467,14 @@ class OficinaController extends AbstractController
             }
         }
         if ($cont) {
-            $this->addFlash('info', $cont . ' Turnos revertidos. Los mismos han sido eliminados.');
+            $this->addFlash('info-closable', $cont . ' Turnos revertidos. Los mismos han sido eliminados.');
 
             $logger->info('Deshacer Creación de Nuevos Turnos', [
                 'Cant. de Turnos Revertidos' => $cont,
                 'Usuario' => $this->getUser()->getUsuario()
             ]);
         } else {
-            $this->addFlash('info', ' Nada para deshacer.');
+            $this->addFlash('info-closable', ' Nada para deshacer.');
         }
 
 

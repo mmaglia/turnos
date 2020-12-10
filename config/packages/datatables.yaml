@@ -3,15 +3,14 @@ datatables:
     # Set options, as documented at https://datatables.net/reference/option/
     options:
         lengthMenu : [10, 25, 50, 100, 250, 500, 1000, 2500]
-        pageLength: 10
+        pageLength: 100
         dom: "B<'row' <'col-sm-6'><'col-sm-6 text-right'f><'col-sm-12' tr>><'row' <'col-sm-6'l><'col-sm-6 text-right'pi>>"
 
     template_parameters:
         # Example classes to integrate nicely with Bootstrap 3.x
         className: 'table table-striped table-bordered table-hover data-table'
 
-    # You can for example override this to "tables" to keep the translation domains separated nicely
-    translation_domain: 'messages'
+    # Default HTTP method to be used for callbacks
+    method: POST # One of "GET"; "POST"
 
-    # Load i18n data from DataTables CDN or locally
-    language_from_cdn: true
+    persist_state: local # One of "none"; "query"; "fragment"; "local"; "session"

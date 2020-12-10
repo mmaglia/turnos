@@ -9,7 +9,6 @@
     <div class="js-role-admin" data-is-authenticated="{{ is_granted('ROLE_ADMIN') ? true : false }}"></div>
     <div class="js-role-auditoria_gestion" data-is-authenticated="{{ is_granted('ROLE_AUDITORIA_GESTION') ? true : false }}"></div>
 
-
     <div class="row">
         <div class="col col-3"></div>
         <div class="col col-6 text-center">
@@ -32,133 +31,78 @@
             </div>
         </div>
     </div>
-
     <br>
-
     <span class="iconify" data-icon="fa-brands:symfony" data-inline="false"></span>
-
-    {{ include('turno/_filters_form.html.twig') }}
-
-    <div class="card border-primary mb-3 align-bottom float-right shadow rounded-pill" style="max-width: 18rem; font-size: .8rem; background-color: rgb(245, 245, 245);">
-        <div class="card-body border-primary text-dark float-right shadow rounded-pill" style="max-width: 18rem; padding: 0rem; background-color: rgb(245, 245, 245);">
-            <div class="card-body text-dark" style="font-size: 1rem;">
-                Cantidad de Turnos:
-                <strong>{{ turnos.getTotalItemCount }}</strong>
+    <div class="row">
+        <div class="col-8">
+            {{ include('turno/_filters_form.html.twig') }}
+        </div>
+        <div class="col-4">
+            <div class="card border-primary mb-3 align-bottom float-right shadow rounded-pill" style="max-width: 18rem; font-size: .8rem; background-color: rgb(245, 245, 245);">
+                <div class="card-body border-primary text-dark float-right shadow rounded-pill" style="max-width: 18rem; padding: 0rem; background-color: rgb(245, 245, 245);">
+                    <div class="card-body text-dark" style="font-size: 1rem;">
+                        Cantidad de Turnos:
+                        <strong id="cantidadTurnos"></strong>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    
-    {# Muestra mensajes de tipo flash #}
-    {#{{ include('components/_flashesMessages.html.twig') }}#}
-
-    <table class="table table-hover shadow">
-        <thead>
-            <tr>
-                {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') %}
-                    <th>Oficina</th>
-                {% endif %}
-                <th>Fecha y Hora</th>
-                <th>{% trans %}Persona{% endtrans %}</th>
-                <th>{% trans %}DNI{% endtrans %}</th>
-                <th>{% trans %}Motivo{% endtrans %}</th>
-                {% if SistemaOralidadCivil %}
-                    <th class="text-center">{% trans %}Notebook{% endtrans %}</th>
-                    <th class="text-center">{% trans %}Zoom{% endtrans %}</th>
-                {% endif %}                
-                <th class="text-center">Estado</th>
-                {% if is_granted('ROLE_EDITOR') %} 
-                    <th class="table-bordered table-secondary text-center d-print-none" style="background-color: rgb(245, 245, 245);">Acciones</th>
-                {% endif %}
-            </tr>
-        </thead>
-        <tbody>
-            {% set cant = 0 %}
-            {% for turno in turnos %}
-                {% set cant = cant + 1 %}
-                <tr>
-                    {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_AUDITORIA_GESTION') %}
-                        <td>{{ turno.oficina }}</td>
-                    {% endif %}
-                    <td>{{ turno.fechaHora ? turno.fechaHora|date('d/m/Y H:i') : '' }}</td>
-                    <td {# Armo el tooltip considerando si existe persona vinculada al turno y si la persona registró el teléfono #}
-                        {% if turno.persona is not null and turno.persona != '' and turno.persona.telefono is not null and turno.persona.telefono != ''%}
-                            title="Correo:  {{ turno.persona.email }}. Tel. Contacto: {{ turno.persona.telefono }}"
-                        {% elseif turno.persona is not null and turno.persona != '' and (turno.persona.telefono is null or turno.persona.telefono == '') %}
-                                title="Correo:  {{ turno.persona.email }}"
-                        {% endif %}
-                    >
-                    {% if SistemaTurnosWeb or SistemaTurnosMPE %}
-                        {{  turno.persona is null or turno.persona == '' ? '' : turno.persona.apellido ~ ', ' ~ turno.persona.nombre}}
-                        <td class="text-center">{{ turno.persona is null or turno.persona == '' ? '' : turno.persona.dni }}</td>
-                        {% endif %}
-                    {% if SistemaOralidadCivil %}
-                        {{  turno.persona is null or turno.persona == '' ? '' : turno.persona.apellido ~ ' - ' ~ turno.persona.nombre}}
-                        <td class="text-left">{{ turno.persona is null or turno.persona == '' ? '' : turno.persona.organismo  ~ ' (' ~ turno.persona.dni ~ ')' }}</td>
-                    {% endif %}
-                                
-                    </td>
-                    <td>{{ turno.motivo }}</td>
-                    {% if SistemaOralidadCivil %}
-                        <td class="text-center">{{ turno.notebook ? '<i class="fas fa-check"></i>' : '' }}</td>
-                        <td class="text-center">{{ turno.zoom ? '<i class="fas fa-check"></i>' : '' }}</td>
-                    {% endif %}
-                    <td class="text-center">{% if turno.persona is not null %}
-                            {% if turno.estado == 1 %}          {% trans %}Sin Atender{% endtrans %}
-                                {% elseif turno.estado == 2 %}  {% trans %}Atendido{% endtrans %}
-                                {% elseif turno.estado == 3 %}  {% trans %}No Asistió{% endtrans %}
-                                {% elseif turno.estado == 4 %}  {% trans %}Rechazado{% endtrans %}
-                            {% endif %}
-                        {% endif %}
-                    </td>
-                    {% if is_granted('ROLE_EDITOR') %} 
-                        <td class="text-center d-print-none" style="width:220px; background-color: rgb(245, 245, 245);">
-                            <a href="{{ path('turno_show', {'id': turno.id}) }}" title="Ver">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                            &nbsp;&nbsp;
-                            <a href="{{ path('turno_edit', {'id': turno.id}) }}" title="Editar">
-                                <i class="fas fa-pen"></i>
-                            </a>
-                            &nbsp;&nbsp;
-                            {% if turno.persona is not null %}
-                                {% if turno.estado == 1%}
-                                    <a href="{{ path('turno_atendido', {'id': turno.id}) }}" title="{% trans %}Marcar como atendido{% endtrans %}"><i class="fas fa-user-check"></i></a>
-                                    &nbsp;&nbsp;&nbsp;&nbsp;
-                                    <a href="{{ path('turno_no_asistido', {'id': turno.id}) }}" title="{% trans %}Marcar como Ausente{% endtrans %}"><i class="fas fa-user-slash text-danger"></i></a>
-                                    &nbsp;
-                                    <a href="{{ path('turno_rechazado', {'id': turno.id}) }}" title="{% trans %}Rechazar{% endtrans %}"><i class="fas fa-thumbs-down text-danger"></i></a>
-                                {% elseif turno.estado == 2 %}
-                                    <a href="{{ path('turno_atendido', {'id': turno.id}) }}" title="{% trans %}Marcar como NO atendido{% endtrans %}"><i class="fas fa-user-times"></i></a>
-                                {% endif %}
-                            {% endif %}
-                        </td>
-                    {% endif %}
-                </tr>
-            {% else %}
-                <tr>
-                    {% if SistemaOralidadCivil %}
-                        <td colspan="9">No hay turnos</td>
-                    {% else %}
-                        <td colspan="7">No hay turnos</td>
-                    {% endif %}
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-
-        <div class="float-right">
-            {{ knp_pagination_render(turnos) }}
-        </div>
-        <div class="float-left blockquote-footer">
-            Viendo {{ turnos.getTotalItemCount < 100 ? turnos.getTotalItemCount : 100 }} turnos de un total de {{ turnos.getTotalItemCount }} 
-        </div>
-
+    <div class="row">
+		<div class="col-12">
+			<div id="turnoList">
+				<div class="d-flex justify-content-center">
+					<div class="spinner-border m-5" role="status">
+						<span class="sr-only">Cargando...</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
     {% endblock %}
 
     {% block javascripts %}
     {{ parent() }}
     <script>
+        var permitirImpresion = false;
+        var isSistemaOralidad = '{{ SistemaOralidadCivil }}';
+        
+        function imprimirLista() {   
+            console.log(dt.page.info().pages);
+            if(dt.page.info().pages == 1)                
+                window.print();
+            else {
+                if(confirm('Usted no está visualizando la totalidad de los turnos. ¿Desea imprimir el listado de igual manera?')) {
+                    window.print();
+                }
+            }                
+        } 
+
         $(function() {
+            var grillaTurnos = $('#turnoList').initDataTables( {{ datatable_settings(datatable) }}, {
+				dom: "B<'row' <'#busqueda.col-sm-4 text-left'f><'col-sm-8 text-right'p><'col-sm-12' tr>><'row' <'col-sm-6'l><'col-sm-6 text-right'p>>",
+				buttons: [],
+				searching: true,
+				language: {
+					"url": "{{ asset('build/static/traslation_dt_es.json') }}"
+				}
+			}).then(function (dt) {
+				dt.on('init', function(settings, json) {     
+                                 
+                    if(isSistemaOralidad == 1)
+					    $('#dt_filter input').attr("placeholder", "Funcionarios, Datos Adicionales");
+                    else
+					    $('#dt_filter input').attr("placeholder", "Persona, DNI, Motivo");
+					$('#dt_filter input').width(300);  
+
+                    if(dt.page.info().pages = 1) {
+                        permitirImpresion = true;
+                    }
+
+                    $('#cantidadTurnos').html(dt.page.info().recordsTotal);
+				});
+			}); 
+
             $(document).ready(function () {
                 // ¿Tiene rol de Admin?
                 var roleAdmin = document.querySelector('.js-role-admin');
@@ -167,13 +111,10 @@
                 // ¿Tiene rol de Auditoría de Gestión?
                 var roleAuditoriaGestion = document.querySelector('.js-role-auditoria_gestion');
                 var isRoleAuditoriaGestion = roleAuditoriaGestion.dataset.isAuthenticated;
-
+                
                 var oficinaID = '{{ filtroOficina }}';
 
                 getNivelOcupacionAgenda(oficinaID);
-
-                // Procesa ocultamiento mensajes tipo flash
-                $(".alert").delay(1000).slideUp(500);
 
                 if (isRoleAdmin || isRoleAuditoriaGestion) {
                     // Armo lista de Oficinas para su selección por filtro
@@ -194,7 +135,7 @@
                         }
                     })
                 }                
-            })
+            });
 
             function getNivelOcupacionAgenda(idOficina)
             {
@@ -213,8 +154,7 @@
                     }
                 })
             }
-
-        });
+        }); 
     </script>  
 
 {% endblock %}     
