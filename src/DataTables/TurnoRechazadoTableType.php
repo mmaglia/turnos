@@ -36,10 +36,10 @@ class TurnoRechazadoTableType extends AbstractController implements DataTableTyp
         if ($this->isGranted(('ROLE_ADMIN')) || $this->isGranted(('ROLE_AUDITORIA_GESTION'))) {
             $dataTable->add('oficina', TextColumn::class, ['label' => 'Oficina', 'field' => 't.oficina', 'searchable' => false]);
         }
-        $dataTable->add('fechaHoraRechazo', DateTimeColumn::class, ['label' => 'Rechazado', 'format' => 'd-m-Y H:i:s', 'className' => 'text-center', 'searchable' => true, 'operator' => 'LIKE', 'leftExpr' => "toChar(t.fechaHoraRechazo, 'DD-MM-YYYY HH24:MI:SS')", 'rightExpr' => function ($value) {
+        $dataTable->add('fechaHoraRechazo', DateTimeColumn::class, ['label' => 'Rechazado', 'format' => 'd/m/y H:i:s', 'className' => 'text-center', 'searchable' => true, 'operator' => 'LIKE', 'leftExpr' => "toChar(t.fechaHoraRechazo, 'DD/MM/YY HH24:MI:SS')", 'rightExpr' => function ($value) {
             return '%' . $value . '%';
         }]);
-        $dataTable->add('fechaHoraTurno', DateTimeColumn::class, ['label' => 'Turno', 'format' => 'd-m-Y H:i:s', 'className' => 'text-center', 'searchable' => true, 'operator' => 'LIKE', 'leftExpr' => "toChar(t.fechaHoraTurno, 'DD-MM-YYYY HH24:MI:SS')", 'rightExpr' => function ($value) {
+        $dataTable->add('fechaHoraTurno', DateTimeColumn::class, ['label' => 'Turno', 'format' => 'd/m/y H:i:s', 'className' => 'text-center', 'searchable' => true, 'operator' => 'LIKE', 'leftExpr' => "toChar(t.fechaHoraTurno, 'DD/MM/YY HH24:MI:SS')", 'rightExpr' => function ($value) {
             return '%' . $value . '%';
         }]);
         $dataTable->add('persona', TextColumn::class, [

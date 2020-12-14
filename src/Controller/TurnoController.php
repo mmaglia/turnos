@@ -110,7 +110,8 @@ class TurnoController extends AbstractController
         // Obtiene un arreglo asociativo con valores para las fechas Desde y Hasta que involucra el filtro de momento
         $rango = $this->obtieneMomento($filtroMomento);
 
-        $table = $this->datatableFactory->createFromType(TurnoTableType::class, array($rango, $filtroEstado, $filtroOficina))->handleRequest($request);
+        // Para la vista de turnos pagino de a 100 registros
+        $table = $this->datatableFactory->createFromType(TurnoTableType::class, array($rango, $filtroEstado, $filtroOficina), array('pageLength' => 100))->handleRequest($request);
         if ($table->isCallback()) {
             return $table->getResponse();
         }

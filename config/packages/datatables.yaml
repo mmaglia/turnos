@@ -3,7 +3,7 @@ datatables:
     # Set options, as documented at https://datatables.net/reference/option/
     options:
         lengthMenu : [10, 25, 50, 100, 250, 500, 1000, 2500]
-        pageLength: 100
+        pageLength: 10
         dom: "B<'row' <'col-sm-6'><'col-sm-6 text-right'f><'col-sm-12' tr>><'row' <'col-sm-6'l><'col-sm-6 text-right'pi>>"
 
     template_parameters:

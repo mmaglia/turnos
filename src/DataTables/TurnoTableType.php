@@ -38,7 +38,7 @@ class TurnoTableType extends AbstractController implements DataTableTypeInterfac
         if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_AUDITORIA_GESTION')) {
             $dataTable->add('oficina', TextColumn::class, ['label' => 'Oficina', 'field' => 't.oficina', 'searchable' => false]);
         }
-        $dataTable->add('fechaHora', DateTimeColumn::class, ['label' => 'Turno', 'format' => 'd-m-y H:i', 'className' => 'text-center', 'searchable' => false]);
+        $dataTable->add('fechaHora', DateTimeColumn::class, ['label' => 'Turno', 'format' => 'd/m/y H:i', 'className' => 'text-center', 'searchable' => false]);
         $dataTable->add('persona', TextColumn::class, [
             'label' => $this->_translator->trans('Persona'), 'field' => 'p.apellido', 'searchable' => true, 'leftExpr' => "toUpper(p.apellido)",
             'render' => function ($value, $context) {
@@ -116,7 +116,9 @@ class TurnoTableType extends AbstractController implements DataTableTypeInterfac
         }]);
 
         // Orden de la grilla
-        $dataTable->addOrderBy('oficina', DataTable::SORT_ASCENDING);
+        if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_AUDITORIA_GESTION')) {
+            $dataTable->addOrderBy('oficina', DataTable::SORT_ASCENDING);
+        }
         $dataTable->addOrderBy('fechaHora', DataTable::SORT_ASCENDING);
 
         $dataTable->createAdapter(ORMAdapter::class, [

@@ -44,13 +44,13 @@ class UsuarioTableType extends AbstractController implements DataTableTypeInterf
         $dataTable->add('oficina', TextColumn::class, ['label' => 'Oficina', 'searchable' => false, 'field' => 'o.oficina', 'leftExpr' => "toUpper(o.oficina)", 'rightExpr' => function ($value) {
             return '%' . strtoupper($value) . '%';
         }]);
-        $dataTable->add('fecha_alta', DateTimeColumn::class, ['label' => 'Alta', 'format' => 'd-m-Y', 'className' => 'text-center', 'searchable' => true, 'operator' => 'LIKE', 'leftExpr' => "toChar(u.fecha_alta, 'DD-MM-YYYY HH24:MI:SS')", 'rightExpr' => function ($value) {
+        $dataTable->add('fecha_alta', DateTimeColumn::class, ['label' => 'Alta', 'format' => 'd/m/y', 'className' => 'text-center', 'searchable' => true, 'operator' => 'LIKE', 'leftExpr' => "toChar(u.fecha_alta, 'DD/MM/YY HH24:MI:SS')", 'rightExpr' => function ($value) {
             return '%' . $value . '%';
         }]);
-        $dataTable->add('fecha_baja', DateTimeColumn::class, ['label' => 'Baja', 'format' => 'd-m-Y', 'className' => 'text-center', 'searchable' => true, 'operator' => 'LIKE', 'leftExpr' => "toChar(u.fecha_baja, 'DD-MM-YYYY HH24:MI:SS')", 'rightExpr' => function ($value) {
+        $dataTable->add('fecha_baja', DateTimeColumn::class, ['label' => 'Baja', 'format' => 'd/m/y', 'className' => 'text-center', 'searchable' => true, 'operator' => 'LIKE', 'leftExpr' => "toChar(u.fecha_baja, 'DD/MM/YY HH24:MI:SS')", 'rightExpr' => function ($value) {
             return '%' . $value . '%';
         }]);
-        $dataTable->add('ultimo_acceso', DateTimeColumn::class, ['label' => 'Último Acceso', 'format' => 'd-m-Y', 'className' => 'text-center', 'searchable' => true, 'operator' => 'LIKE', 'leftExpr' => "toChar(u.ultimo_acceso, 'DD-MM-YYYY HH24:MI:SS')", 'rightExpr' => function ($value) {
+        $dataTable->add('ultimo_acceso', DateTimeColumn::class, ['label' => 'Último Acceso', 'format' => 'd/m/y', 'className' => 'text-center', 'searchable' => true, 'operator' => 'LIKE', 'leftExpr' => "toChar(u.ultimo_acceso, 'DD/MM/YY HH24:MI:SS')", 'rightExpr' => function ($value) {
             return '%' . $value . '%';
         }]);
         $dataTable->add('cantidad_accesos', TextColumn::class, ['label' => 'Accesos', 'className' => 'text-center', 'searchable' => false]);
