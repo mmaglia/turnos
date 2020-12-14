@@ -227,3 +227,35 @@ div.dataTables_wrapper div.dataTables_filter {
   position: absolute; 
   margin-top: -1%;
 }
+
+// ButtonTop
+#buttonTop {
+  display: inline-block;
+  background-color: #006600;
+  width: 50px;
+  height: 35px;
+  text-align: center;
+  border-radius: 4px;
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  transition: background-color .3s, 
+    opacity .5s, visibility .5s;
+  opacity: 0;
+  visibility: hidden;
+  z-index: 1000;
+}
+
+#buttonTop:hover {
+  cursor: pointer;
+  background-color: #333;
+}
+
+#buttonTop:active {
+  background-color: #555;
+}
+
+#buttonTop.show {
+  opacity: 1;
+  visibility: visible;
+}

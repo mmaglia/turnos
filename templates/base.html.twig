@@ -162,6 +162,8 @@
             {% endif %}
             {# Incluyo aca el template de flash messages de la aplicación #}
             {{ include('components/_flashesMessages.html.twig') }}
+            {# Incluyo Back to top button #}
+            <a id="buttonTop" title="Volver arriba"><i class="fas fa-chevron-up"></i></a>
             {% block body %}{% endblock %}            
         </div>
         {% block javascripts %}
@@ -179,6 +181,22 @@
 					$(".flashes-messages").hide().delay(1000).fadeIn(150).delay(2000).slideUp(500);
 					$(".flashes-messages-slow").hide().delay(1000).fadeIn(150).delay(10000).slideUp(1000);
 					$(".flashes-messages-closable").hide().delay(1000).fadeIn(150);
+
+                    // Button Top
+                    var btn = $('#buttonTop');
+
+                    $(window).scroll(function() {
+                        if ($(window).scrollTop() > 300) {
+                            btn.addClass('show');
+                        } else {
+                            btn.removeClass('show');
+                        }
+                    });
+
+                    btn.on('click', function(e) {
+                        e.preventDefault();
+                        $('html, body').animate({scrollTop:0}, '300');
+                    });
                 });
             </script>
         
