@@ -804,7 +804,7 @@ class TurnoController extends AbstractController
             if (strcmp($ultimoDia, $turno->getFechaHora()->format('d/m/Y')) !== 0) {
                 $entityManager = $this->getDoctrine()->getManager();
                 $entityManager->remove($turno);
-                $this->addFlash('danger', 'Se ha borrado el turno');
+                $this->addFlash('danger-closable', 'Se ha borrado el turno');
                 $this->_logger->info(
                     'Turno Borrado',
                     [
@@ -816,7 +816,7 @@ class TurnoController extends AbstractController
                 $entityManager->flush();
             } else {
                 // Mando aviso informando la situación
-                $this->addFlash('warning', 'No se pueden borrar turnos del último día disponible.');
+                $this->addFlash('warning-closable', 'No se pueden borrar turnos del último día disponible.');
             }
             return $this->redirectToRoute('turno_index');
         }
