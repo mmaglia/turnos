@@ -29,16 +29,29 @@ class OficinaTableType extends AbstractController implements DataTableTypeInterf
         // Se agrega la primera columna en blanco para poner el checkbox
         $dataTable->add('', TextColumn::class, ['label' => '']);
         $dataTable->add('id', TextColumn::class, ['label' => '#', 'searchable' => false]);
-        $dataTable->add('oficina', TextColumn::class, ['label' => 'Oficina', 'searchable' => true, 'leftExpr' => "toUpper(o.oficina)", 'rightExpr' => function ($value) {
-            return '%' . strtoupper($value) . '%';
-        }]);
+        $dataTable->add('oficina', TextColumn::class, [
+            'label' => 'Oficina', 'searchable' => true, 'leftExpr' => "toUpper(o.oficina)",
+            'rightExpr' => function ($value) {
+                                return '%' . strtoupper($value) . '%';
+                            },
+            'render' => function ($value, $context) {
+                            return '<a href="' . $this->generateUrl('turno_index', ['cboOficina' => $context->getId()]) .'" target="_blank" title="Abrir Agenda de Turnos de la Oficina">' . $value . '</a>
+                                    <a href="' . $this->generateUrl('estadistica_show', ['oficinas' => $context->getId(), 
+                                                                                    'general' => 'general', 
+                                                                                    'semanal' => '', 
+                                                                                    'detallado' => 'detallado', 
+                                                                                    'diasSinTurnos' => '', 
+                                                                                    'soloDiasSinTurnos' => '']) . 
+                                    '" target="_blank" title="Ver Estadísticas de Ocupación"><i class="float-right fas fa-chart-pie"></i></a>';
+                        }                                                                                                                                                                                            // <a href="{{ path('estadistica_show', {'start': desde, 'end':oficina['ultimoTurno']  | slice(8, 2) ~ '/' ~ oficina['ultimoTurno'] | slice(5, 2) ~ '/' ~ oficina['ultimoTurno'] | slice(0, 4), 'oficinas':oficina['id'], 'general':'general', 'semanal': '', 'detallado':'detallado', 'diasSinTurnos':'', 'soloDiasSinTurnos': ''}) }}" target="_blank" title="Estadística de la Oficina"><i class="float-right fas fa-chart-pie"></i></a>            
+        ]);
         $dataTable->add('localidad', TextColumn::class, ['label' => 'Localidad', 'searchable' => true,  'field' => 'o.localidad', 'orderField' => 'l.localidad', 'leftExpr' => "toUpper(l.localidad)", 'rightExpr' => function ($value) {
             return '%' . strtoupper($value) . '%';
         }]);
-        $dataTable->add('horaInicioAtencion', DateTimeColumn::class, ['label' => 'Inicio', 'searchable' => false, 'orderable' => false, 'className' => 'text-center', 'format' => 'H:i']);
-        $dataTable->add('horaFinAtencion', DateTimeColumn::class, ['label' => 'Fin', 'searchable' => false, 'orderable' => false, 'className' => 'text-center', 'format' => 'H:i']);
-        $dataTable->add('frecuenciaAtencion', TextColumn::class, ['label' => 'Frecuencia', 'searchable' => false, 'orderable' => false, 'className' => 'text-center']);
-        $dataTable->add('autoExtend', BoolColumn::class, ['label' => 'Extensión Automática', 'searchable' => false, 'className' => 'text-center', 'trueValue' => '<i class="fas fa-check"></i>', 'falseValue' => '<i class="fa fa-times"></i>', 'nullValue' => '']);
+        $dataTable->add('horaInicioAtencion', DateTimeColumn::class, ['label' => 'Inicio', 'searchable' => false, 'orderable' => true, 'className' => 'text-center', 'format' => 'H:i']);
+        $dataTable->add('horaFinAtencion', DateTimeColumn::class, ['label' => 'Fin', 'searchable' => false, 'orderable' => true, 'className' => 'text-center', 'format' => 'H:i']);
+        $dataTable->add('frecuenciaAtencion', TextColumn::class, ['label' => 'Frec.', 'searchable' => false, 'orderable' => true, 'className' => 'text-center']);
+        $dataTable->add('autoExtend', BoolColumn::class, ['label' => 'Auto Extensión', 'searchable' => false, 'className' => 'text-center', 'trueValue' => '<i class="fas fa-check"></i>', 'falseValue' => '<i class="fa fa-times"></i>', 'nullValue' => '']);
         $dataTable->add('autoGestion', BoolColumn::class, ['label' => 'Auto Gestión', 'searchable' => false, 'className' => 'text-center', 'trueValue' => '<i class="fas fa-check"></i>', 'falseValue' => '<i class="fa fa-times"></i>', 'nullValue' => '']);
         $dataTable->add('habilitada', BoolColumn::class, ['label' => 'Habilitada', 'searchable' => false, 'className' => 'text-center', 'trueValue' => '<i class="fas fa-check"></i>', 'falseValue' => '<i class="fa fa-times"></i>', 'nullValue' => 'unknown']);
         //$dataTable->add('ultimoTurno', DateTimeColumn::class, ['label' => 'Último Turno', 'format' => 'd-m-Y']);

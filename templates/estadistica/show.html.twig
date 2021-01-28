@@ -47,7 +47,7 @@
                                     <div class="col-sm-4 text-right" style="color:gray">
                                         &nbsp;
                                         <br>
-                                        {{ ((estadisticaGeneral['otorgados'] ) / estadisticaGeneral['total'] * 100) | number_format(2, ',', '.') }}%
+                                        {{ estadisticaGeneral['total'] > 0 ? ((estadisticaGeneral['otorgados'] ) / estadisticaGeneral['total'] * 100) | number_format(2, ',', '.') }}%
                                         <br>
                                         {{ estadisticaGeneral['noatendidos'] > 0 ? (estadisticaGeneral['noatendidos'] / estadisticaGeneral['otorgados'] * 100) | number_format(2, ',', '.') }}%
                                         <br>

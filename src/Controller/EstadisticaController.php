@@ -115,9 +115,9 @@ class EstadisticaController extends AbstractController
             $vistaSoloSinTurno = $request->request->get('soloDiasSinTurnos');
         }
 
-        if (isset($_GET['start'])) {
-            $desde = $_GET['start'];
-            $hasta = $_GET['end'];
+        if (isset($_GET['oficinas'])) {
+            $desde = $_GET['start'] ?? date("d/m/Y"); // Asume por defecto fecha del día si no recibe el parámetro
+            $hasta = $_GET['end']   ?? date("d/m/Y", strtotime(date('m/d/Y') . "+1 month")); // Asume por defecto 1 mes a futuro si no se recibe el parámetro
             $oficinaId = $_GET['oficinas'];
             $vistaGeneral = $_GET['general'];
             $vistaSemanal = $_GET['semanal'];
