@@ -550,6 +550,16 @@ class TurnoController extends AbstractController
 
         //Construyo el formulario al vuelo
         // Verifico si recibo parámetro por GET y lo traslado al formulario
+
+        $help = ' Ingrese el DNI del solicitante del turno';
+        $attr = array('autofocus' => true, 'min' => '1000000', 'max' => '99999999');
+
+        // Ajusto Formulario para Oralidad Civil (pido código de organismo y valido su rango)
+        if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
+            $help = ' Ingrese el Código del Organismo solicitante del turno';
+            $attr = array('autofocus' => true, 'min' => '100000', 'max' => '999999');
+        }
+
         $code = (($request->query->get('code')) ? $request->query->get('code') : '');
 
         $form = $this->createFormBuilder()
@@ -558,9 +568,9 @@ class TurnoController extends AbstractController
                 IntegerType::class,
                 [
                     'label' => 'DNI',
-                    'help' => ' Ingrese el DNI del solicitante del turno',
+                    'help' => $help,
                     'required' => true,
-                    'attr' => array('autofocus' => true, 'min' => '1000000', 'max' => '99999999')
+                    'attr' => $attr
                 ]
             )
             ->add('code', HiddenType::class, ['data' => $code])
@@ -607,6 +617,9 @@ class TurnoController extends AbstractController
                     $this->getDoctrine()->getManager()->flush();
                 } else {
                     $error = 'No se ha encontrado el turno para su cancelación. Verifique que el DNI sea el mismo que oportunamente se ingresó al solicitar el turno.';
+                    if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
+                        $error = 'No se ha encontrado el turno para su cancelación. Verifique el Código del Organismo.';
+                    }
                 }
             }
         }
