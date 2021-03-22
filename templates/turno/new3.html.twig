@@ -295,17 +295,14 @@
                                     comboDef += '<option value='+registro.id+' ' + (!registro.habilitada ? 'disabled' : '') + '>'+registro.oficina+'</option>';
                                 }
                             });
-                            
+                            $('#turno3_defensorias').append('<option value="" disabled selected>Seleccione una Defensoría</option>');
                             $('#turno3_defensorias').append(comboDef);
                         }
                         // Limpio el herper del combo de opciones
                         $('#turno3_tipo_causa_help').html('');
 
                         // Muestro el div de defensorías
-                        $('#defensorias').show();
-                        
-                        // Seteo el helper de defensorías con la defensoría 1 (default)
-                        $('#turno3_defensorias_help').html(textoRecordatorio + defensoriasCiviles[2].telefono); 
+                        $('#defensorias').show(); 
                         $('#turno3_defensorias option').eq(0).prop('selected', true);
                         
 
