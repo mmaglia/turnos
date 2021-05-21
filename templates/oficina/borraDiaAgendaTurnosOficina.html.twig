@@ -3,18 +3,38 @@
 {% block title %}Borrar Turnos de un Día{% endblock %}
 
 {% block body %}
-    <h1>Borrar Día de la Agenda de Turnos para {{ oficina }} </h1>
+    <h1>Borrar Turnos de la Agenda de "{{ oficina }}" </h1>
     <br><br><br>
     <div class="row">
         <div class="col-3"></div>
         <div class="col-6">
             <div class="card border-danger mb-3 shadow">
                 <div class="card-body text-danger">
-                <h5 class="card-title">Borrar Día</h5>
-                <p>Este proceso borra todos los turnos (sin asignar) de un día en particular para <strong>{{ oficina }}</strong></p>
-                {{ include('oficina/_form.html.twig', {'button_label': 'Grabar Cambios'}) }}
+                <h5 class="card-title">Borrar Turnos</h5>
+                <p>Este proceso borra todos los turnos (sin asignar) en un período de tiempo.</p>
+                <p>Oficina: <strong>{{ oficina }}</strong></p>
+                {{ form_start(form) }}
+                <div class="my-custom-class-for-errors">
+                    {{ form_errors(form) }}
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <fieldset class="border p-2">
+                            <legend class="w-auto text-danger">Desde</legend>
+                            {{ form_row(form.fechaDesde) }}
+                        </fieldset>
+                    </div>
+                    <div class="col-6">
+                        <fieldset class="border p-2">
+                            <legend class="w-auto text-danger">Hasta</legend>
+                            {{ form_row(form.fechaHasta) }}
+                        </fieldset>
+                    </div>
+                </div>
                 </div>
             </div>    
+            {{ include('oficina/_form.html.twig', {'button_label': 'Borrar Turnos'}) }}
+            {{ form_end(form) }}
 
             <a class="btn btn-secondary float-left shadow volver" href="#" onclick="history.back(); return false;">Volver a la Lista</a>
         </div>
@@ -27,16 +47,14 @@
     <script>
         $(function () {
             $(document).ready(function () {
-                jQuery(document).ready(function() {
-                    $('.js-datepicker').datepicker({
-                        format: "dd/mm/yyyy",
-                        language: "es",
-                        daysOfWeekDisabled: "0,6",
-                        daysOfWeekHighlighted: "0",
-                        todayHighlight: true,
-                        autoclose: true,
-                        todayBtn: true,
-                    });
+                $('.js-datepicker').datepicker({
+                    format: "dd/mm/yyyy",
+                    language: "es",
+                    daysOfWeekDisabled: "0,6",
+                    daysOfWeekHighlighted: "0",
+                    todayHighlight: true,
+                    autoclose: true,
+                    todayBtn: true,
                 });
             })
             $('label.required').attr('class', 'text-danger .required')

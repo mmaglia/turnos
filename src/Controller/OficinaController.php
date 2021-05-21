@@ -410,11 +410,19 @@ class OficinaController extends AbstractController
         );
 
         $form = $this->createFormBuilder($data)
-            ->add('fecha', DateType::class, [
+            ->add('fechaDesde', DateType::class, [
                 'widget' => 'single_text',
                 'html5' => false,
                 'format' => 'dd/MM/yyyy',
-                'label' => 'Seleccione Fecha a Borrar',
+                'label' => 'Seleccione Fecha Desde la cual Borrar',
+                'attr' => ['class' => 'text-danger js-datepicker'],
+                'required' => true,
+            ])
+            ->add('fechaHasta', DateType::class, [
+                'widget' => 'single_text',
+                'html5' => false,
+                'format' => 'dd/MM/yyyy',
+                'label' => 'Seleccione Fecha Hasta la cual Borrar',
                 'attr' => ['class' => 'text-danger js-datepicker'],
                 'required' => true,
             ])
@@ -422,11 +430,12 @@ class OficinaController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $fechaSeleccionada = $request->request->get('form')['fecha'];
+            $fechaDesde = $request->request->get('form')['fechaDesde'];
+            $fechaHasta = $request->request->get('form')['fechaHasta'];
 
             // Establezco valores de fecha/hora desde/hasta para el día seleccionado
-            $desde = (new \DateTime)->createFromFormat('d/m/Y H:i:s', $fechaSeleccionada . '00:00:00');
-            $hasta = (new \DateTime)->createFromFormat('d/m/Y H:i:s', $fechaSeleccionada . '23:59:59');
+            $desde = (new \DateTime)->createFromFormat('d/m/Y H:i:s', $fechaDesde . '00:00:00');
+            $hasta = (new \DateTime)->createFromFormat('d/m/Y H:i:s', $fechaHasta . '23:59:59');
 
             // Borro todos los turnos que no se encuentren asignados. Los cuento para informarlos después.
             $cantTurnosBorrados =  $turnoRepository->deleteTurnosByDiaByOficina($oficina->getId(), $desde, $hasta);
@@ -740,8 +749,8 @@ class OficinaController extends AbstractController
     }
 
     /**
-     * Retorna lista de días feriados para una localidad
-     * Si no se recibe la localidad como parámetro retorna lista de Feriados Nacionales
+     * Retorna lista de días feriados nacionales
+     * Si se recibe la localidad como parámetro retorna en la misma lista Feriados Nacionales y locales a la Localidad
      * 
      * @param   $localidadID    ID de Localidad para considerar feriados locales
      * @return  string          Lista separada con comas (,) con feriados nacionales y locales de la Localidad

@@ -134,11 +134,19 @@ class LocalidadController extends AbstractController
         );
 
         $form = $this->createFormBuilder($data)
-            ->add('fecha', DateType::class, [
+            ->add('fechaDesde', DateType::class, [
                 'widget' => 'single_text',
                 'html5' => false,
                 'format' => 'dd/MM/yyyy',
-                'label' => 'Seleccione Fecha a Borrar',
+                'label' => 'Seleccione Fecha Desde la cual Borrar',
+                'attr' => ['class' => 'text-danger js-datepicker'],
+                'required' => true,
+            ])
+            ->add('fechaHasta', DateType::class, [
+                'widget' => 'single_text',
+                'html5' => false,
+                'format' => 'dd/MM/yyyy',
+                'label' => 'Seleccione Fecha Hasta la cual Borrar',
                 'attr' => ['class' => 'text-danger js-datepicker'],
                 'required' => true,
             ])
@@ -146,14 +154,15 @@ class LocalidadController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $fechaSeleccionada = $request->request->get('form')['fecha'];
+            $fechaDesde = $request->request->get('form')['fechaDesde'];
+            $fechaHasta = $request->request->get('form')['fechaHasta'];
 
             // Obtengo las Oficinas que pertenecen a la Localidad
             $oficinas = $oficinaRepository->findOficinaByLocalidad($localidad);
 
             // Establezco valores de fecha/hora desde/hasta para el día seleccionado
-            $desde = (new \DateTime)->createFromFormat('d/m/Y H:i:s', $fechaSeleccionada . '00:00:00');
-            $hasta = (new \DateTime)->createFromFormat('d/m/Y H:i:s', $fechaSeleccionada . '23:59:59');
+            $desde = (new \DateTime)->createFromFormat('d/m/Y H:i:s', $fechaDesde . '00:00:00');
+            $hasta = (new \DateTime)->createFromFormat('d/m/Y H:i:s', $fechaHasta . '23:59:59');
 
             // Recorro cada oficina que pertenece a la localidad
             foreach ($oficinas as $oficina) {
