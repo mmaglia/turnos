@@ -6,6 +6,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\PercentType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 
@@ -39,15 +40,16 @@ class AddTurnosType extends AbstractType
             'required' => true,
             'attr' => ['max' => '30', 'min' => '0', 'size' => 2]
             ])        
-        ->add('cantTurnosSuperpuestos', NumberType::class, [
-            'label' => 'Cantidad de Turnos a generar por cada rango horario',
+        ->add('multiplicadorTurnos', PercentType::class, [
+            'label' => 'Multiplicador de Turnos (100% no multiplica)',
+            'help' => "Ej.: 50% reduce turnos a la mitad - 200% duplica turnos",
             'html5' => true,
             'required' => true,
-            'attr' => ['max' => '30', 'min' => '1', 'size' => 2]
+            'attr' => ['max' => '500', 'min' => '0', 'size' => 3]
             ])            
         ->add('cantidadDias', NumberType::class, [
             'label' => 'Cantidad de Días',
-            'help' => 'Indique por cuántos días corridos generar',
+            'help' => 'Indique cuántos días hábiles desea generar',
             'html5' => true,
             'required' => false,
             'attr' => ['max' => '90', 'size' => 2]
@@ -61,12 +63,6 @@ class AddTurnosType extends AbstractType
             'attr' => ['class' => 'text-primary js-datepicker', 'autofocus' => true],
             'required' =>false,
             ])
-        ->add('soloUnTurno', CheckboxType::class, [
-        'label' => 'Sólo un turno por rango horario.',
-        'help' => 'Si el turno ya existe en el rango horario no se creará ninguno nuevo.',
-        'required' => false,
-        'attr' => ['class' => 'text-danger']
-        ])    
         ->add('save', SubmitType::class, [
             'label' => 'Confirmar',
             'attr' => ['class' => 'btn btn-primary float-right shadow']

@@ -51,6 +51,7 @@ class OficinaTableType extends AbstractController implements DataTableTypeInterf
         $dataTable->add('horaInicioAtencion', DateTimeColumn::class, ['label' => 'Inicio', 'searchable' => false, 'orderable' => true, 'className' => 'text-center', 'format' => 'H:i']);
         $dataTable->add('horaFinAtencion', DateTimeColumn::class, ['label' => 'Fin', 'searchable' => false, 'orderable' => true, 'className' => 'text-center', 'format' => 'H:i']);
         $dataTable->add('frecuenciaAtencion', TextColumn::class, ['label' => 'Frec.', 'searchable' => false, 'orderable' => true, 'className' => 'text-center']);
+        $dataTable->add('cantidadTurnosxturno', TextColumn::class, ['label' => "Turnos x Turno", 'searchable' => false, 'orderable' => true, 'className' => 'text-center']);
         $dataTable->add('autoExtend', BoolColumn::class, ['label' => 'Auto Extensión', 'searchable' => false, 'className' => 'text-center', 'trueValue' => '<i class="fas fa-check"></i>', 'falseValue' => '<i class="fa fa-times"></i>', 'nullValue' => '']);
         $dataTable->add('autoGestion', BoolColumn::class, ['label' => 'Auto Gestión', 'searchable' => false, 'className' => 'text-center', 'trueValue' => '<i class="fas fa-check"></i>', 'falseValue' => '<i class="fa fa-times"></i>', 'nullValue' => '']);
         $dataTable->add('habilitada', BoolColumn::class, ['label' => 'Habilitada', 'searchable' => false, 'className' => 'text-center', 'trueValue' => '<i class="fas fa-check"></i>', 'falseValue' => '<i class="fa fa-times"></i>', 'nullValue' => 'unknown']);

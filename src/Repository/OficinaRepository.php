@@ -23,7 +23,7 @@ class OficinaRepository extends ServiceEntityRepository
     {
         return $this->getEntityManager()
             ->createQuery('
-                SELECT o.id, o.oficina, l.localidad as localidad, o.horaInicioAtencion, o.horaFinAtencion, o.frecuenciaAtencion, o.telefono, o.habilitada, o.autoExtend, o.autoGestion, 
+                SELECT o.id, o.oficina, l.localidad as localidad, o.horaInicioAtencion, o.horaFinAtencion, o.frecuenciaAtencion, o.cantidadTurnosxturno, o.telefono, o.habilitada, o.autoExtend, o.autoGestion, 
                         (select max(t.fechaHora) from App\Entity\Turno t where t.oficina = o) as ultimoTurno 
                 FROM App\Entity\Oficina o LEFT JOIN o.localidad l
                 ORDER BY l.localidad, o.horaInicioAtencion, o.oficina')
@@ -34,7 +34,7 @@ class OficinaRepository extends ServiceEntityRepository
     {
         return $this->getEntityManager()
             ->createQuery('
-                SELECT o.id, o.oficina, l.localidad as localidad, o.horaInicioAtencion, o.horaFinAtencion, o.frecuenciaAtencion, o.telefono, o.habilitada, o.autoExtend, o.autoGestion, 
+                SELECT o.id, o.oficina, l.localidad as localidad, o.horaInicioAtencion, o.horaFinAtencion, o.frecuenciaAtencion, o.cantidadTurnosxturno, o.telefono, o.habilitada, o.autoExtend, o.autoGestion, 
                         (select max(t.fechaHora) from App\Entity\Turno t where t.oficina = o) as ultimoTurno 
                 FROM App\Entity\Oficina o LEFT JOIN o.localidad l
                 WHERE l.circunscripcion = ' . $circunscripcion_id .

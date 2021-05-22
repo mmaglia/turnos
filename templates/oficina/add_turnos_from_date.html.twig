@@ -22,12 +22,14 @@
                                             Hora Inicio Atención <br>
                                             Hora Fin Atención <br>
                                             Frecuencia Atención <br>
+                                            Cantidad de Turnos por Turno <br>
                                             Ultimo Turno <br>
                                     </div>
                                     <div class="col-6">
                                         <strong>{{ oficina.horaInicioAtencion ? oficina.horaInicioAtencion|date('H:i') : '' }} <br>
                                                 {{ oficina.horaFinAtencion ? oficina.horaFinAtencion|date('H:i') : '' }} <br>
                                                 {{ oficina.frecuenciaAtencion }} <br>
+                                                {{ oficina.cantidadTurnosxturno }} <br>
                                                 {{ fechaHoraUltimoTurno ? fechaHoraUltimoTurno|date('d/m/Y H:i') : '<small></strong><i>No existen turnos generados</i><strong></strong><small>' }} </strong><br>
                                     </div>
                                 </div>

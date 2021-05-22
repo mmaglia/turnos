@@ -130,9 +130,8 @@ class OficinaController extends AbstractController
         $form = $this->createForm(AddTurnosType::class, [
             'fechaInicio' => $aPartirde,
             'minutosDesplazamiento' => $minutosDesplazamiento,
-            'cantTurnosSuperpuestos' => 1,
+            'multiplicadorTurnos' => 1,
             'cantidadDias' => $cantidadDias,
-            'soloUnTurno' => false,
         ]);
         $form->handleRequest($request);
 
@@ -141,8 +140,9 @@ class OficinaController extends AbstractController
             $fechasExceptuadas = $request->request->get('add_turnos')['feriados'];
             $minutosDesplazamiento = $request->request->get('add_turnos')['minutosDesplazamiento'];
 
-            // Si se opta por "Sólo un turno por rango horario" cantTurnosSuperpuestos puede no llegar como parámetro. Para ese caso se establece por defecto el valor 1.
-            $cantTurnos = (isset($request->request->get('add_turnos')['cantTurnosSuperpuestos']) ? $request->request->get('add_turnos')['cantTurnosSuperpuestos'] : 1);
+            // Obtiene el multiplicador de turnos. Si por algún motivo no llega por parámetro lo establece por defecto en 100%
+            // (no aumenta ni disminuye turnos con relación a cantidad de Turnos por Turno de la Oficina)
+            $multiplicadorTurnos = (isset($request->request->get('add_turnos')['multiplicadorTurnos']) ? $request->request->get('add_turnos')['multiplicadorTurnos'] : 100);
 
             $idTurnosGenerados = [];
 
@@ -160,11 +160,8 @@ class OficinaController extends AbstractController
                         $aPartirde = new DateTime('now');
                     }
                     $fechaInicio = $aPartirde->format('d/m/Y'); // Para auditar en el log con el formato adecuado
-
-                    $soloUnTurno = false; // Evito un control innecesario de buscar si existe el turno. Todos son turnos nuevos.
                 } else {
                     $fechaInicio = $request->request->get('add_turnos')['fechaInicio'];
-                    $soloUnTurno = isset($request->request->get('add_turnos')['soloUnTurno']);
 
                     // Establece las 0hs del día seleccionado en formato DateTime
                     $aPartirde = new \DateTime(substr($fechaInicio, -4) . '-' . substr($fechaInicio, 3, 2) . '-' . substr($fechaInicio, 0, 2));
@@ -192,10 +189,8 @@ class OficinaController extends AbstractController
                     $logCantidadDias = $cantidadDias - 1;
                 }
 
-                // Me aseguro que sólo se genere un turno por rango si no se quiere más que eso (sobre todo por si viene por generaicón múltiple)
-                if ($soloUnTurno) {
-                    $cantTurnos = 1;
-                }
+                // Establece la cantidad de turnos por rango en función a la configuración de cada oficina y el porcentual del multiplicador ingresado
+                $cantTurnosRangoHorario = $oficina->getCantidadTurnosxturno() * $multiplicadorTurnos / 100;
 
                 // Recorre cada día del intervalo indicado
                 $totalTurnosGenerados = 0;
@@ -206,11 +201,13 @@ class OficinaController extends AbstractController
 
                     // Verifico que no sea sábado (6) o domingo (7)
                     if ($nuevoTurno->format('N') >= 6) {
+                        $dia--;
                         continue; // Salteo el día
                     }
 
                     // Verifico que no esté en la lista de feriados
                     if (in_array($nuevoTurno->format('d/m/Y'), $aFeriados)) {
+                        $dia--;
                         continue; // Salteo el día
                     }
 
@@ -223,17 +220,32 @@ class OficinaController extends AbstractController
                     $nuevoTurno = $nuevoTurno->setTime($oficina->getHoraInicioAtencion()->format('H'), $oficina->getHoraInicioAtencion()->format('i'));
                     $nuevoTurno->add(new DateInterval('PT' . $minutosDesplazamiento . 'M'));
 
+                    // Verifico que no se haya pasado desde la fecha hasta en caso de haberse especificado
+                    if (isset($fechaFin)) {
+                        $fechaFin->setTime(23,59,59);
+                        if ($nuevoTurno > $fechaFin) {
+                            break;
+                        }
+                    }
+
+                    // Se calcula $cantTurnosACrearRangoHorario en función a la cantidad de turnos a crear en el rango horario y los turnos que podrían ya existir
+                    // En caso que el multiplicador de turnos genere cantidades no enteras para cada rango de turno se va guardando
+                    // en $residualAux el porcentual que no alcanzó a 0. Cuando supera el umbral de 1, se creará un turno adicional en el rango horario
+                    $cantTurnosACrearRangoHorario = 0;  // Se reestablece para cada día
+                    $residualAux = 0; // Contador auxiliar de residuales;
+
                     // Recorre intervalos para el día en proceso
                     while (true) {
-                        $existeTurno = false;
-                        if ($soloUnTurno) {
-                            $existeTurno = count($turnoRepository->findTurno($oficina, $nuevoTurno)); // Verifica si el turno existe
-                        }
+                        $cantTurnosExistentesRangoHorario = count($turnoRepository->findTurno($oficina, $nuevoTurno)); // Verifica si el turno existe
 
-                        if (!$existeTurno || !$soloUnTurno) {
-                            // Genera el alta del turno (simple por inexistencia previa o múltiples para el mismo horario)                           
-                            for ($k = 1; $k <= $cantTurnos; $k++) {
+                        $residualAux = $residualAux + $cantTurnosRangoHorario - $cantTurnosExistentesRangoHorario; // Si existe el turno procura compensar la cantidad final.
+                        $cantTurnosACrearRangoHorario = $residualAux; // $cantTurnosACrearRangoHorario se utilizará como límite de bucle de rango horario
+
+                            // Genera el alta del turno
+                            for ($k = 1; $k <= $cantTurnosACrearRangoHorario; $k++) {
                                 $totalTurnosGenerados++;
+                                $residualAux--; // Contendrá el valor decimal que se irá arrastrando de rango en rango hasta alcanzar el umbral de 1
+                                                // Cuando $cantTurnosACrearRangoHorario contenga un valor entero $residualAux saldrá del bucle con valor 0.
                                 $turno = new Turno();
                                 $turno->setFechaHora($nuevoTurno);
                                 $turno->setOficina($oficina);
@@ -245,7 +257,7 @@ class OficinaController extends AbstractController
                                 $idTurnosGenerados[] = $turno->getId(); // Guarda información para Deshacer
 
                             }
-                        }
+                        
 
                         $nuevoTurno = $aPartirde->add(new DateInterval('PT' . $frecuencia . 'M'));
 
@@ -262,10 +274,9 @@ class OficinaController extends AbstractController
                     'Desde' => $fechaInicio,
                     'Hasta' => ($request->request->get('add_turnos')['cantidadDias'] ? $nuevoTurno->format('d/m/Y') : $logFechaFin),
                     'Feriados' => $feriados,
-                    'Cant. Turnos Superpuestos' => $cantTurnos,
+                    'Cant. Turnos Superpuestos' => $cantTurnosRangoHorario,
                     'Minutos Desplazamiento' => $minutosDesplazamiento,
                     'Cant. de Días' => $logCantidadDias,
-                    'Sólo un Turno' => $soloUnTurno,
                     'Turnos Generados' => $totalTurnosGenerados,
                     'Usuario' => $this->getUser()->getUsuario()
                 ]);

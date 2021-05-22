@@ -38,6 +38,12 @@ class Oficina
      */
     private $frecuenciaAtencion;
 
+
+    /**
+     * @ORM\Column(type="smallint", nullable=true, options={"default" : 1})
+     */
+    private $cantidadTurnosxturno;
+
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Localidad", inversedBy="oficinas")
      */
@@ -128,6 +134,18 @@ class Oficina
     public function setFrecuenciaAtencion(int $frecuenciaAtencion): self
     {
         $this->frecuenciaAtencion = $frecuenciaAtencion;
+
+        return $this;
+    }
+
+    public function getCantidadTurnosxturno(): ?int
+    {
+        return $this->cantidadTurnosxturno;
+    }
+
+    public function setCantidadTurnosxturno(int $cantidadTurnosxturno): self
+    {
+        $this->cantidadTurnosxturno = $cantidadTurnosxturno;
 
         return $this;
     }

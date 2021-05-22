@@ -23,12 +23,14 @@
                                                 Hora Inicio Atención <br>
                                                 Hora Fin Atención <br>
                                                 Frecuencia Atención <br>
+                                                Cantidad de Turnos por Turno <br>
                                                 Ultimo Turno <br>
                                         </div>
                                         <div class="col-6">
                                             <strong>{{ oficina.horaInicioAtencion ? oficina.horaInicioAtencion|date('H:i') : '' }} <br>
                                                     {{ oficina.horaFinAtencion ? oficina.horaFinAtencion|date('H:i') : '' }} <br>
                                                     {{ oficina.frecuenciaAtencion }} <br>
+                                                    {{ oficina.cantidadTurnosxturno }} <br>
                                                     {{ fechaHoraUltimoTurno ? fechaHoraUltimoTurno|date('d/m/Y H:i') : '' }} </strong><br>
                                         </div>
                                     </div>
@@ -94,11 +96,8 @@
                         <div class="col-3">
                             {{ form_row(form.minutosDesplazamiento) }}
                         </div>
-                        <div class="col-6" id="cantTurnosSuperpuestos">
-                            {{ form_row(form.cantTurnosSuperpuestos) }}
-                        </div>
-                        <div class="col-3" id="soloUnTurno">
-                            {{ form_row(form.soloUnTurno) }}
+                        <div class="col-9" id="multiplicadorTurnos">
+                            {{ form_row(form.multiplicadorTurnos) }}
                         </div>
                     </div>
                 </fieldset>
@@ -172,7 +171,6 @@
                     if ( {{oficinasSeleccionadas | length}} > 0) {
                         $('#add_turnos_fechaInicio').val('');
                         $('#add_turnos_fechaInicio').attr('disabled', true);
-                        $('#soloUnTurno').hide();
                     }
 
                     $('#add_turnos_feriados').on('paste', function(e) {
@@ -181,15 +179,6 @@
         
             })
             
-            // Si elige sólo un turno se deshabilita cant. de turnos por rango horario
-            $('#soloUnTurno input').click(function() {                
-                if ($(this).prop("checked")) { 
-                    $('#cantTurnosSuperpuestos input').attr("disabled", true);
-                } else {
-                    $('#cantTurnosSuperpuestos input').removeAttr("disabled");
-                }
-            })
-
             $('#add_turnos_fechaFin').change(function() {
                 $('#add_turnos_cantidadDias').val('')
             })

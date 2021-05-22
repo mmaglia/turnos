@@ -24,6 +24,7 @@ class OficinaType extends AbstractType
             ->add('horaInicioAtencion', null, ['required' => true, 'label' => 'Hora Inicio Atención'])
             ->add('horaFinAtencion', null, ['required' => true, 'label' => 'Hora Fin Atención'])
             ->add('frecuenciaAtencion', IntegerType::class, ['label' => 'Frecuencia de Atención', 'attr' => array('max' => '9999')])
+            ->add('cantidadTurnosxturno', IntegerType::class, ['label' => 'Cantidad de Turnos por Turno', 'attr' => array('max' => '99')])
             ->add('localidad', EntityType::class, ['required' => true, 'class' => Localidad::class, 'placeholder' => 'Seleccione una Localidad', 'choice_label' => 'localidad'])
             ->add('telefono', TextType::class, ['label' => 'Teléfono de Contacto', 'required' => false, 'attr' => array('maxlength' => '200')])
             ->add('autoExtend', null, ['label' => 'Ampliar Agenda Automáticamente'])
