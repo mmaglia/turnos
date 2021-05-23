@@ -8,7 +8,7 @@
         
     Argumentos separados por guión (-). El primero debe ser una clase boostrap o css. 
 {# Mensajes flash #}
-<div class="base-flash-messages">
+<div class="base-flash-messages"  style="z-index:99;">
     {% for label, messages in app.flashes %}
     {% set tipo = label | split('-') %}
         <div class="row h-25 d-block">
