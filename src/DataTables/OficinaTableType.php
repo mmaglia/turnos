@@ -75,6 +75,8 @@ class OficinaTableType extends AbstractController implements DataTableTypeInterf
         $dataTable->createAdapter(ORMAdapter::class, [
             'entity' => Oficina::class,
             'query' => function (QueryBuilder $builder) use ($options) {
+                $circunscripcionesIds = !is_null($this->getUser()->getCircunscripcion()) ? $this->getUser()->getCircunscripcion()->getCircunscripcionesListByZona() : null;
+
                 // De deja comentado el mecanismo encarado para determinar ultimoTurno (sin resolver todavía)
                 /*$builder2 = clone $builder; 
                 $subQuery = $builder2->select('MAX(t.fechaHora) as ultimoTurno')->from(Turno::class, 't')->where('t.oficina = o.id');
@@ -90,6 +92,13 @@ class OficinaTableType extends AbstractController implements DataTableTypeInterf
                         ->select('o')
                         ->from(Oficina::class, 'o')
                         ->join('o.localidad', 'l');
+                }
+                
+                // Si el usuario activo pertenece a una Circunscripción filtra por la Zona (Norte o Sur)
+                if ($circunscripcionesIds) {
+                    $builder
+                        ->join('l.circunscripcion', 'c')
+                        ->where('c.id in (' . $circunscripcionesIds . ')');
                 }
             }
         ]);

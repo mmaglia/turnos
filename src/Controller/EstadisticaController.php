@@ -32,7 +32,7 @@ class EstadisticaController extends AbstractController
             $oficinaUsuario = $this->getUser()->getOficina();
         }
 
-        $oficinas = !is_null($this->getUser()->getCircunscripcion()) ? $oficinaRepository->findOficinasByCircunscripcion($this->getUser()->getCircunscripcion()->getId()) : $oficinaRepository->findAllOficinas();
+        $oficinas = !is_null($this->getUser()->getCircunscripcion()) ? $oficinaRepository->findOficinasByCircunscripcion($this->getUser()->getCircunscripcion()->getCircunscripcionesListByZona()) : $oficinaRepository->findAllOficinas();
 
         return $this->render('estadistica/index.html.twig', [
             'desde' => $desde->format('d/m/Y'),
@@ -58,7 +58,7 @@ class EstadisticaController extends AbstractController
             $oficinaUsuario = $this->getUser()->getOficina();
         }
 
-        $oficinas = !is_null($this->getUser()->getCircunscripcion()) ? $oficinaRepository->findOficinasByCircunscripcion($this->getUser()->getCircunscripcion()->getId()) : $oficinaRepository->findAllOficinas();
+        $oficinas = !is_null($this->getUser()->getCircunscripcion()) ? $oficinaRepository->findOficinasByCircunscripcion($this->getUser()->getCircunscripcion()->getCircunscripcionesListByZona()) : $oficinaRepository->findAllOficinas();
 
         return $this->render('estadistica/indexEvolucionDiaria.html.twig', [
             'desde' => $desde->format('d/m/Y'),
@@ -151,9 +151,9 @@ class EstadisticaController extends AbstractController
         //Obtengo Estadística General
         if ($vistaGeneral) {
             if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
-                $estadisticaGeneral = !is_null($this->getUser()->getCircunscripcion()) && $oficinaId == 0 ? $turnoRepository->findEstadisticaByCircunscripcionOralidad($desde, $hasta, $this->getUser()->getCircunscripcion()->getId()) : $turnoRepository->findEstadisticaOralidad($desde, $hasta, $oficinaId);
+                $estadisticaGeneral = !is_null($this->getUser()->getCircunscripcion()) && $oficinaId == 0 ? $turnoRepository->findEstadisticaByCircunscripcionOralidad($desde, $hasta, $this->getUser()->getCircunscripcion()->getCircunscripcionesListByZona()) : $turnoRepository->findEstadisticaOralidad($desde, $hasta, $oficinaId);
             } else {
-                $estadisticaGeneral = !is_null($this->getUser()->getCircunscripcion()) && $oficinaId == 0 ? $turnoRepository->findEstadisticaByCircunscripcion($desde, $hasta, $this->getUser()->getCircunscripcion()->getId()) : $turnoRepository->findEstadistica($desde, $hasta, $oficinaId);
+                $estadisticaGeneral = !is_null($this->getUser()->getCircunscripcion()) && $oficinaId == 0 ? $turnoRepository->findEstadisticaByCircunscripcion($desde, $hasta, $this->getUser()->getCircunscripcion()->getCircunscripcionesListByZona()) : $turnoRepository->findEstadistica($desde, $hasta, $oficinaId);
             }
         } else {
             $estadisticaGeneral = [];
@@ -180,9 +180,9 @@ class EstadisticaController extends AbstractController
                 $i++;
 
                 if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
-                    $estadisticaSemanal[] = !is_null($this->getUser()->getCircunscripcion()) ? $turnoRepository->findEstadisticaByCircunscripcionOralidad($semanaDesde, ($semanaPrimerDia < $DThasta ? $semanaHasta : $DThasta->format('d/m/Y 23:59:59')), $this->getUser()->getCircunscripcion()->getId()) : $turnoRepository->findEstadisticaOralidad($semanaDesde, ($semanaPrimerDia < $DThasta ? $semanaHasta : $DThasta->format('d/m/Y 23:59:59')), $oficinaId);
+                    $estadisticaSemanal[] = !is_null($this->getUser()->getCircunscripcion()) ? $turnoRepository->findEstadisticaByCircunscripcionOralidad($semanaDesde, ($semanaPrimerDia < $DThasta ? $semanaHasta : $DThasta->format('d/m/Y 23:59:59')), $this->getUser()->getCircunscripcion()->getCircunscripcionesListByZona()) : $turnoRepository->findEstadisticaOralidad($semanaDesde, ($semanaPrimerDia < $DThasta ? $semanaHasta : $DThasta->format('d/m/Y 23:59:59')), $oficinaId);
                 } else {
-                    $estadisticaSemanal[] = !is_null($this->getUser()->getCircunscripcion()) ? $turnoRepository->findEstadisticaByCircunscripcion($semanaDesde, ($semanaPrimerDia < $DThasta ? $semanaHasta : $DThasta->format('d/m/Y 23:59:59')), $this->getUser()->getCircunscripcion()->getId()) : $turnoRepository->findEstadistica($semanaDesde, ($semanaPrimerDia < $DThasta ? $semanaHasta : $DThasta->format('d/m/Y 23:59:59')), $oficinaId);
+                    $estadisticaSemanal[] = !is_null($this->getUser()->getCircunscripcion()) ? $turnoRepository->findEstadisticaByCircunscripcion($semanaDesde, ($semanaPrimerDia < $DThasta ? $semanaHasta : $DThasta->format('d/m/Y 23:59:59')), $this->getUser()->getCircunscripcion()->getCircunscripcionesListByZona()) : $turnoRepository->findEstadistica($semanaDesde, ($semanaPrimerDia < $DThasta ? $semanaHasta : $DThasta->format('d/m/Y 23:59:59')), $oficinaId);
                 }
 
                 if ($semanaPrimerDia > $DThasta) {
@@ -214,9 +214,9 @@ class EstadisticaController extends AbstractController
                 $i++;
 
                 if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
-                    $estadistica = !is_null($this->getUser()->getCircunscripcion()) ? $turnoRepository->findEstadisticaByCircunscripcionOralidad($diaDesde, ($diaPrimerDia < $DThasta ? $diaHasta : $DThasta->format('d/m/Y 23:59:59')), $this->getUser()->getCircunscripcion()->getId()) : $turnoRepository->findEstadisticaOralidad($diaDesde, ($diaPrimerDia < $DThasta ? $diaHasta : $DThasta->format('d/m/Y 23:59:59')), $oficinaId);
+                    $estadistica = !is_null($this->getUser()->getCircunscripcion()) ? $turnoRepository->findEstadisticaByCircunscripcionOralidad($diaDesde, ($diaPrimerDia < $DThasta ? $diaHasta : $DThasta->format('d/m/Y 23:59:59')), $this->getUser()->getCircunscripcion()->getCircunscripcionesListByZona()) : $turnoRepository->findEstadisticaOralidad($diaDesde, ($diaPrimerDia < $DThasta ? $diaHasta : $DThasta->format('d/m/Y 23:59:59')), $oficinaId);
                 } else {
-                    $estadistica = !is_null($this->getUser()->getCircunscripcion()) ? $turnoRepository->findEstadisticaByCircunscripcion($diaDesde, ($diaPrimerDia < $DThasta ? $diaHasta : $DThasta->format('d/m/Y 23:59:59')), $this->getUser()->getCircunscripcion()->getId()) : $turnoRepository->findEstadistica($diaDesde, ($diaPrimerDia < $DThasta ? $diaHasta : $DThasta->format('d/m/Y 23:59:59')), $oficinaId);
+                    $estadistica = !is_null($this->getUser()->getCircunscripcion()) ? $turnoRepository->findEstadisticaByCircunscripcion($diaDesde, ($diaPrimerDia < $DThasta ? $diaHasta : $DThasta->format('d/m/Y 23:59:59')), $this->getUser()->getCircunscripcion()->getCircunscripcionesListByZona()) : $turnoRepository->findEstadistica($diaDesde, ($diaPrimerDia < $DThasta ? $diaHasta : $DThasta->format('d/m/Y 23:59:59')), $oficinaId);
                 }
 
                 if (($estadistica['total'] || $vistaSinTurno) && !$vistaSoloSinTurno) {
@@ -314,7 +314,7 @@ class EstadisticaController extends AbstractController
         }
 
         //Obtengo Estadística Diaria
-        $estadistica = !is_null($this->getUser()->getCircunscripcion()) && $oficinaId == 0 ? $turnosDiariosRepository->findEstadisticaByCircunscripcion($desde, $hasta, $this->getUser()->getCircunscripcion()->getId()) : $turnosDiariosRepository->findEstadistica($desde, $hasta, $oficinaId);
+        $estadistica = !is_null($this->getUser()->getCircunscripcion()) && $oficinaId == 0 ? $turnosDiariosRepository->findEstadisticaByCircunscripcion($desde, $hasta, $this->getUser()->getCircunscripcion()->getCircunscripcionesListByZona()) : $turnosDiariosRepository->findEstadistica($desde, $hasta, $oficinaId);
 
 
         $datosGrafico = [['Fecha', 'Cantidad']];
@@ -376,7 +376,7 @@ class EstadisticaController extends AbstractController
         }
 
         // Obtengo oficinas
-        $oficinas = !is_null($this->getUser()->getCircunscripcion()) ? $oficinaRepository->findOficinasByCircunscripcionWithUltimoTurno($this->getUser()->getCircunscripcion()->getId()) : $oficinaRepository->findAllWithUltimoTurno();
+        $oficinas = !is_null($this->getUser()->getCircunscripcion()) ? $oficinaRepository->findOficinasByCircunscripcionWithUltimoTurno($this->getUser()->getCircunscripcion()->getCircunscripcionesListByZona()) : $oficinaRepository->findAllWithUltimoTurno();
 
         // Obtengo nivel ocupación global de la agenda
         $nivelOcupacionAgendaGlobal = $turnoRepository->findCantidadTurnosAsignados() / $turnoRepository->findCantidadTurnosExistentes();
@@ -411,7 +411,7 @@ class EstadisticaController extends AbstractController
                 if ($excluirOficinasFD && stristr($ofi['oficina'], 'firma digital con token'))
                     continue;
 
-                $estadistica = !is_null($this->getUser()->getCircunscripcion()) ? $turnoRepository->findEstadisticaByCircunscripcion($diaDesde, $diaHasta, $this->getUser()->getCircunscripcion()->getId()) : $turnoRepository->findEstadistica($diaDesde, $diaHasta, $ofi['id']);
+                $estadistica = !is_null($this->getUser()->getCircunscripcion()) ? $turnoRepository->findEstadisticaByCircunscripcion($diaDesde, $diaHasta, $this->getUser()->getCircunscripcion()->getCircunscripcionesListByZona()) : $turnoRepository->findEstadistica($diaDesde, $diaHasta, $ofi['id']);
                 $datosOcupacion[] = [
                     'id' => $ofi['id'], 'oficina' => $ofi['oficina'], 'localidad' => $ofi['localidad'], 'ultimoTurno' => $ofi['ultimoTurno'], 'habilitada' => $ofi['habilitada'],
                     'desde' => $estadistica['desde'], 'hasta' => $estadistica['hasta'], 'total' => $estadistica['total'], 'otorgados' => $estadistica['otorgados'], 'noatendidos' => $estadistica['noatendidos'], 'atendidos' => $estadistica['atendidos'], 'noasistidos' => $estadistica['noasistidos'], 'rechazados_ocupados' => $estadistica['rechazados_ocupados'], 'rechazados_libres' => $estadistica['rechazados_libres'],
@@ -549,6 +549,7 @@ class EstadisticaController extends AbstractController
         if ($circunscripcionID) {
             $circunscripcion = $circunscripcionRepository->find($circunscripcionID);
         } else {
+            $circunscripcionID = !is_null($this->getUser()->getCircunscripcion()) ? $this->getUser()->getCircunscripcion()->getCircunscripcionesListByZona() : null;
             $circunscripcion = 'TODAS';
         }
 
@@ -578,7 +579,7 @@ class EstadisticaController extends AbstractController
         $desde = new \DateTime(date("Y-m-d") . " 00:00:00");
         $hasta = new \DateTime("+1 months");
 
-        $oficinas = !is_null($this->getUser()->getCircunscripcion()) ? $oficinaRepository->findOficinasByCircunscripcion($this->getUser()->getCircunscripcion()->getId()) : $oficinaRepository->findAllOficinas();
+        $oficinas = !is_null($this->getUser()->getCircunscripcion()) ? $oficinaRepository->findOficinasByCircunscripcion($this->getUser()->getCircunscripcion()->getCircunscripcionesListByZona()) : $oficinaRepository->findAllOficinas();
 
         return $this->render('estadistica/informePersonaDuplicada.html.twig', [
             'desde' => $desde->format('d/m/Y'),
@@ -624,7 +625,7 @@ class EstadisticaController extends AbstractController
         }       
 
         // Utilizo el repository para recuperar los datos
-        $duplicados = $turnoRepository->obtenerPersonasDuplicadas($tipoInforme, $desde, $hasta, $oficinaId, is_null($this->getUser()->getCircunscripcion()) ? null : $this->getUser()->getCircunscripcion()->getId());
+        $duplicados = $turnoRepository->obtenerPersonasDuplicadas($tipoInforme, $desde, $hasta, $oficinaId, is_null($this->getUser()->getCircunscripcion()) ? null : $this->getUser()->getCircunscripcion()->getCircunscripcionesListByZona());
         //$duplicados = array();
         // Audito la acción
         $logger->info('Se emite informe de persona duplicada', [
@@ -666,8 +667,9 @@ class EstadisticaController extends AbstractController
         $excluirOficinasFD = $request->request->get('chkOficinasFD');
 
         if ($circunscripcionID) {
-            $circunscripcion = $circunscripcionRepository->find($circunscripcionID);
+            $circunscripcion = $circunscripcionRepository->find($circunscripcionID)->getId();
         } else {
+            $circunscripcionID = !is_null($this->getUser()->getCircunscripcion()) ? $this->getUser()->getCircunscripcion()->getCircunscripcionesListByZona() : null;
             $circunscripcion = 'TODAS';
         }
 

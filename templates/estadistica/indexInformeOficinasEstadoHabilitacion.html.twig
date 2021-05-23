@@ -15,10 +15,12 @@
                         {# Dependiendo si el usuario logueado tiene seteada la circunscripción o no decido que mostrar en este combo #}
                         {% if app.user.getCircunscripcion() %}
                             {% if app.user.getCircunscripcion().getId() == 1 %}
-                                <option value="1" selected>1. Santa Fe</option>
+                                <option value="0" selected>TODAS</option>
+                                <option value="1">1. Santa Fe</option>
                                 <option value="4">4. Reconquista</option>
                                 <option value="5">5. Rafaela</option>
                             {% else %}
+                                <option value="0" selected>TODAS</option>
                                 <option value="2">2. Rosario</option>
                                 <option value="3">3. Venado Tuerto</option>
                             {% endif %}

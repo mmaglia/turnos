@@ -37,7 +37,7 @@ class OficinaRepository extends ServiceEntityRepository
                 SELECT o.id, o.oficina, l.localidad as localidad, o.horaInicioAtencion, o.horaFinAtencion, o.frecuenciaAtencion, o.cantidadTurnosxturno, o.telefono, o.habilitada, o.autoExtend, o.autoGestion, 
                         (select max(t.fechaHora) from App\Entity\Turno t where t.oficina = o) as ultimoTurno 
                 FROM App\Entity\Oficina o LEFT JOIN o.localidad l
-                WHERE l.circunscripcion = ' . $circunscripcion_id .
+                WHERE l.circunscripcion in (' . $circunscripcion_id . ') ' .
                 ' ORDER BY l.localidad, o.horaInicioAtencion, o.oficina')
             ->getResult();
     }
@@ -101,7 +101,19 @@ class OficinaRepository extends ServiceEntityRepository
 
     public function findOficinasByCircunscripcion($circunscripcion_id)
     {
-        $sql = "SELECT o.id, concat(o.oficina, ' (', l.localidad, ')') as Oficina FROM oficina o INNER JOIN localidad l ON l.id = o.localidad_id WHERE l.circunscripcion_id = $circunscripcion_id ORDER BY l.localidad, 2";
+        $sql = "SELECT o.id, concat(o.oficina, ' (', l.localidad, ')') as Oficina FROM oficina o INNER JOIN localidad l ON l.id = o.localidad_id WHERE l.circunscripcion_id in ($circunscripcion_id) ORDER BY l.localidad, 2";
+
+        $em = $this->getEntityManager();
+        $statement = $em->getConnection()->prepare($sql);
+        $statement->execute();
+        $result = $statement->fetchAll();
+
+        return $result;
+    }
+
+    public function findOficinasByZona($circunscripcionesIds)
+    {
+        $sql = "SELECT o.id, concat(o.oficina, ' (', l.localidad, ')') as Oficina FROM oficina o INNER JOIN localidad l ON l.id = o.localidad_id WHERE l.circunscripcion_id in ($circunscripcionesIds) ORDER BY l.localidad, 2";
 
         $em = $this->getEntityManager();
         $statement = $em->getConnection()->prepare($sql);
@@ -137,7 +149,7 @@ class OficinaRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('o')
             ->select('l.id, l.localidad as localidad')
-            ->innerJoin('o.localidad', 'l', 'WITH', 'l.circunscripcion = :val')
+            ->innerJoin('o.localidad', 'l', 'WITH', 'l.circunscripcion in (:val)')
             ->andWhere('o.habilitada = true')
             ->setParameter('val', $circunscripcion_id)
             ->distinct()
@@ -192,7 +204,7 @@ class OficinaRepository extends ServiceEntityRepository
         // Evalúa si filtrar por Circunscripción
         $filtroCircunscripcion = '';
         if ($circunscripcionID) {
-            $filtroCircunscripcion = ' AND l.circunscripcion_id = ' . $circunscripcionID;
+            $filtroCircunscripcion = ' AND l.circunscripcion_id in (' . $circunscripcionID .')';
         }
 
         $em = $this->getEntityManager()->getConnection();
@@ -230,7 +242,7 @@ class OficinaRepository extends ServiceEntityRepository
         // Evalúa si filtrar por Circunscripción
         $filtroCircunscripcion = '';
         if ($circunscripcionID) {
-            $filtroCircunscripcion = 'and l.circunscripcion_id = ' . $circunscripcionID;
+            $filtroCircunscripcion = 'and l.circunscripcion_id in (' . $circunscripcionID .')';
         }
 
         // Evalúa si filtrar por Descripción de la Oficina

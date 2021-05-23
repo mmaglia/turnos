@@ -96,10 +96,21 @@ class TurnoRechazadoTableType extends AbstractController implements DataTableTyp
         $dataTable->createAdapter(ORMAdapter::class, [
             'entity' => TurnoRechazado::class,
             'query' => function (QueryBuilder $builder) use ($options) {
+                $circunscripcionesIds = !is_null($this->getUser()->getCircunscripcion()) ? $this->getUser()->getCircunscripcion()->getCircunscripcionesListByZona() : null;
+
                 if (count($options) > 0) {
                     $builder->select('t')->from(TurnoRechazado::class, 't')->where('t.oficina = ' . $options[0])->join('t.persona', 'p');
                 } else {
                     $builder->select('t')->from(TurnoRechazado::class, 't')->join('t.persona', 'p');
+                }
+
+                // Si el usuario activo pertenece a una Circunscripción filtra por la Zona (Norte o Sur)
+                if ($circunscripcionesIds) {
+                    $builder
+                        ->join('t.oficina', 'o')
+                        ->join('o.localidad', 'l')
+                        ->join('l.circunscripcion', 'c')
+                        ->where('c.id in (' . $circunscripcionesIds . ')');
                 }
             }
         ]);

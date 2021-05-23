@@ -1024,7 +1024,11 @@ class TurnoController extends AbstractController
         if (is_null($this->getUser()->getCircunscripcion())) {
             $oficinas = $this->_oficinaRepository->findAllOficinas();
         } else {
-            $oficinas = $this->_oficinaRepository->findOficinasByCircunscripcion($this->getUser()->getCircunscripcion()->getId());
+            if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_AUDITORIA_GESTION')) {
+                $oficinas = $this->_oficinaRepository->findOficinasByZona($this->getUser()->getCircunscripcion()->getCircunscripcionesListByZona());
+            } else {
+                $oficinas = $this->_oficinaRepository->findOficinasByCircunscripcion($this->getUser()->getCircunscripcion()->getId());
+            }
         }
 
         return new JsonResponse($oficinas);

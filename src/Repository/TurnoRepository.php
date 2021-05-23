@@ -194,7 +194,7 @@ class TurnoRepository extends ServiceEntityRepository
         $sql = "SELECT count(*) as cantidad FROM turno t WHERE t.fecha_hora > now() $filter";
 
         if (!is_null($circunscripcion_id)) {
-            $filter .= ' AND l.circunscripcion_id = :circunscripcion_id';
+            $filter .= ' AND l.circunscripcion_id in (:circunscripcion_id)';
             $sql = "SELECT count(*) as cantidad FROM turno t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE fecha_hora > now() $filter";
         }
         $em = $this->getEntityManager();
@@ -226,7 +226,7 @@ class TurnoRepository extends ServiceEntityRepository
         $sql = "SELECT count(*) as cantidad FROM turno t WHERE t.persona_id is not null $filter AND t.fecha_hora > now()";
 
         if (!is_null($circunscripcion_id)) {
-            $filter .= ' AND l.circunscripcion_id = :circunscripcion_id';
+            $filter .= ' AND l.circunscripcion_id in (:circunscripcion_id)';
             $sql = "SELECT count(*) as cantidad FROM turno t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE t.persona_id is not null $filter AND t.fecha_hora > now()";
         }
 
@@ -326,25 +326,24 @@ class TurnoRepository extends ServiceEntityRepository
     {
         //t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id
         $sql = "SELECT '$desde' as Desde, '$hasta' as Hasta,
-                        (SELECT count(*) FROM turno t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id = :circunscripcion_id AND t.fecha_hora BETWEEN :desde AND :hasta) as Total,
-                        (SELECT count(*) FROM turno t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id = :circunscripcion_id AND t.fecha_hora BETWEEN :desde AND :hasta and t.persona_id IS NOT NULL) as Otorgados,
-                        (SELECT count(*) FROM turno t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id = :circunscripcion_id AND t.fecha_hora BETWEEN :desde AND :hasta and t.persona_id IS NOT NULL and t.estado = 1) as NoAtendidos,
-                        (SELECT count(*) FROM turno t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id = :circunscripcion_id AND t.fecha_hora BETWEEN :desde AND :hasta and t.persona_id IS NOT NULL and t.estado = 2) as Atendidos,
-                        (SELECT count(*) FROM turno t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id = :circunscripcion_id AND t.fecha_hora BETWEEN :desde AND :hasta and t.persona_id IS NOT NULL and t.estado = 3) as NoAsistidos,
-                        (SELECT count(*) FROM turno_rechazado tr INNER JOIN oficina o ON tr.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id = :circunscripcion_id AND fecha_hora_turno BETWEEN :desde AND :hasta AND EXISTS (
+                        (SELECT count(*) FROM turno t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id in ($circunscripcion_id) AND t.fecha_hora BETWEEN :desde AND :hasta) as Total,
+                        (SELECT count(*) FROM turno t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id in ($circunscripcion_id) AND t.fecha_hora BETWEEN :desde AND :hasta and t.persona_id IS NOT NULL) as Otorgados,
+                        (SELECT count(*) FROM turno t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id in ($circunscripcion_id) AND t.fecha_hora BETWEEN :desde AND :hasta and t.persona_id IS NOT NULL and t.estado = 1) as NoAtendidos,
+                        (SELECT count(*) FROM turno t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id in ($circunscripcion_id) AND t.fecha_hora BETWEEN :desde AND :hasta and t.persona_id IS NOT NULL and t.estado = 2) as Atendidos,
+                        (SELECT count(*) FROM turno t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id in ($circunscripcion_id) AND t.fecha_hora BETWEEN :desde AND :hasta and t.persona_id IS NOT NULL and t.estado = 3) as NoAsistidos,
+                        (SELECT count(*) FROM turno_rechazado tr INNER JOIN oficina o ON tr.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id in ($circunscripcion_id) AND fecha_hora_turno BETWEEN :desde AND :hasta AND EXISTS (
                             SELECT 1 FROM turno t WHERE t.fecha_hora = tr.fecha_hora_turno and t.oficina_id = tr.oficina_id AND t.persona_id IS NOT NULL)
                         ) as Rechazados_Ocupados,
-                        (SELECT count(*) FROM turno_rechazado tr INNER JOIN oficina o ON tr.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id = :circunscripcion_id AND fecha_hora_turno BETWEEN :desde AND :hasta AND EXISTS (
+                        (SELECT count(*) FROM turno_rechazado tr INNER JOIN oficina o ON tr.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id in ($circunscripcion_id) AND fecha_hora_turno BETWEEN :desde AND :hasta AND EXISTS (
                             SELECT 1 FROM turno t WHERE t.fecha_hora = tr.fecha_hora_turno and t.oficina_id = tr.oficina_id AND t.persona_id IS NULL)
                         ) as Rechazados_Libres,
-                        (SELECT count(*) FROM turno_rechazado tr INNER JOIN oficina o ON tr.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id = :circunscripcion_id AND fecha_hora_turno BETWEEN :desde AND :hasta and motivo_rechazo like '%Cancelación de turno efectuada por el solicitante%') as Cancelados_Solicitante
+                        (SELECT count(*) FROM turno_rechazado tr INNER JOIN oficina o ON tr.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id in ($circunscripcion_id) AND fecha_hora_turno BETWEEN :desde AND :hasta and motivo_rechazo like '%Cancelación de turno efectuada por el solicitante%') as Cancelados_Solicitante
             ";
 
         $em = $this->getEntityManager();
         $statement = $em->getConnection()->prepare($sql);
         $statement->bindValue('desde', $desde);
         $statement->bindValue('hasta', $hasta);
-        $statement->bindValue('circunscripcion_id', $circunscripcion_id);
         $statement->execute();
         $result = $statement->fetchAll();
 
@@ -356,26 +355,24 @@ class TurnoRepository extends ServiceEntityRepository
     {
         //t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id
         $sql = "SELECT '$desde' as Desde, '$hasta' as Hasta,
-                        (SELECT count(*) FROM turno t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id = :circunscripcion_id AND t.fecha_hora BETWEEN :desde AND :hasta) as Total,
-                        (SELECT count(*) FROM turno t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id = :circunscripcion_id AND t.fecha_hora BETWEEN :desde AND :hasta and t.persona_id IS NOT NULL) as Otorgados,
-                        (SELECT count(*) FROM turno t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id = :circunscripcion_id AND t.fecha_hora BETWEEN :desde AND :hasta and t.persona_id IS NOT NULL and (notebook or zoom)) as Otorgados_Tecno,
-                        (SELECT count(*) FROM turno t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id = :circunscripcion_id AND t.fecha_hora BETWEEN :desde AND :hasta and t.persona_id IS NOT NULL and t.estado = 1) as NoAtendidos,
-                        (SELECT count(*) FROM turno t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id = :circunscripcion_id AND t.fecha_hora BETWEEN :desde AND :hasta and t.persona_id IS NOT NULL and t.estado = 2) as Atendidos,
-                        (SELECT count(*) FROM turno t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id = :circunscripcion_id AND t.fecha_hora BETWEEN :desde AND :hasta and t.persona_id IS NOT NULL and t.estado = 3) as NoAsistidos,
-                        (SELECT count(*) FROM turno_rechazado tr INNER JOIN oficina o ON tr.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id = :circunscripcion_id AND fecha_hora_turno BETWEEN :desde AND :hasta AND EXISTS (
+                        (SELECT count(*) FROM turno t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id in ($circunscripcion_id) AND t.fecha_hora BETWEEN :desde AND :hasta) as Total,
+                        (SELECT count(*) FROM turno t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id in ($circunscripcion_id) AND t.fecha_hora BETWEEN :desde AND :hasta and t.persona_id IS NOT NULL) as Otorgados,
+                        (SELECT count(*) FROM turno t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id in ($circunscripcion_id) AND t.fecha_hora BETWEEN :desde AND :hasta and t.persona_id IS NOT NULL and (notebook or zoom)) as Otorgados_Tecno,
+                        (SELECT count(*) FROM turno t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id in ($circunscripcion_id) AND t.fecha_hora BETWEEN :desde AND :hasta and t.persona_id IS NOT NULL and t.estado = 1) as NoAtendidos,
+                        (SELECT count(*) FROM turno t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id in ($circunscripcion_id) AND t.fecha_hora BETWEEN :desde AND :hasta and t.persona_id IS NOT NULL and t.estado = 2) as Atendidos,
+                        (SELECT count(*) FROM turno t INNER JOIN oficina o ON t.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id in ($circunscripcion_id) AND t.fecha_hora BETWEEN :desde AND :hasta and t.persona_id IS NOT NULL and t.estado = 3) as NoAsistidos,
+                        (SELECT count(*) FROM turno_rechazado tr INNER JOIN oficina o ON tr.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id in ($circunscripcion_id) AND fecha_hora_turno BETWEEN :desde AND :hasta AND EXISTS (
                             SELECT 1 FROM turno t WHERE t.fecha_hora = tr.fecha_hora_turno and t.oficina_id = tr.oficina_id AND t.persona_id IS NOT NULL)
                         ) as Rechazados_Ocupados,
-                        (SELECT count(*) FROM turno_rechazado tr INNER JOIN oficina o ON tr.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id = :circunscripcion_id AND fecha_hora_turno BETWEEN :desde AND :hasta AND EXISTS (
+                        (SELECT count(*) FROM turno_rechazado tr INNER JOIN oficina o ON tr.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id in ($circunscripcion_id) AND fecha_hora_turno BETWEEN :desde AND :hasta AND EXISTS (
                             SELECT 1 FROM turno t WHERE t.fecha_hora = tr.fecha_hora_turno and t.oficina_id = tr.oficina_id AND t.persona_id IS NULL)
                         ) as Rechazados_Libres,
-                        (SELECT count(*) FROM turno_rechazado tr INNER JOIN oficina o ON tr.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id = :circunscripcion_id AND fecha_hora_turno BETWEEN :desde AND :hasta and motivo_rechazo like '%Cancelación de turno efectuada por el solicitante%') as Cancelados_Solicitante
-            ";
+                        (SELECT count(*) FROM turno_rechazado tr INNER JOIN oficina o ON tr.oficina_id = o.id INNER JOIN localidad l on o.localidad_id = l.id WHERE l.circunscripcion_id in ($circunscripcion_id) AND fecha_hora_turno BETWEEN :desde AND :hasta and motivo_rechazo like '%Cancelación de turno efectuada por el solicitante%') as Cancelados_Solicitante            ";
 
         $em = $this->getEntityManager();
         $statement = $em->getConnection()->prepare($sql);
         $statement->bindValue('desde', $desde);
         $statement->bindValue('hasta', $hasta);
-        $statement->bindValue('circunscripcion_id', $circunscripcion_id);
         $statement->execute();
         $result = $statement->fetchAll();
 
@@ -451,7 +448,7 @@ class TurnoRepository extends ServiceEntityRepository
         if ($tipoInforme == 1) {
             $filtroFecha = "AND t.fecha_hora BETWEEN '" . $fechaDesde . "' AND '" . $fechaHasta . "'";
             if (!is_null($circunscripcionId)) {
-                $filtroCircuns .= "AND l.circunscripcion_id = " . $circunscripcionId;
+                $filtroCircuns .= "AND l.circunscripcion_id in (" . $circunscripcionId . ")";
             }
             if (!is_null($oficinaId) && $oficinaId != 0) {
                 $filtroOficina .= "AND o.id = " . $oficinaId;
