@@ -180,9 +180,9 @@ class EstadisticaController extends AbstractController
                 $i++;
 
                 if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
-                    $estadisticaSemanal[] = !is_null($this->getUser()->getCircunscripcion()) ? $turnoRepository->findEstadisticaByCircunscripcionOralidad($semanaDesde, ($semanaPrimerDia < $DThasta ? $semanaHasta : $DThasta->format('d/m/Y 23:59:59')), $this->getUser()->getCircunscripcion()->getCircunscripcionesListByZona()) : $turnoRepository->findEstadisticaOralidad($semanaDesde, ($semanaPrimerDia < $DThasta ? $semanaHasta : $DThasta->format('d/m/Y 23:59:59')), $oficinaId);
+                    $estadisticaSemanal[] = (!$oficinaId && !is_null($this->getUser()->getCircunscripcion())) ? $turnoRepository->findEstadisticaByCircunscripcionOralidad($semanaDesde, ($semanaPrimerDia < $DThasta ? $semanaHasta : $DThasta->format('d/m/Y 23:59:59')), $this->getUser()->getCircunscripcion()->getCircunscripcionesListByZona()) : $turnoRepository->findEstadisticaOralidad($semanaDesde, ($semanaPrimerDia < $DThasta ? $semanaHasta : $DThasta->format('d/m/Y 23:59:59')), $oficinaId);
                 } else {
-                    $estadisticaSemanal[] = !is_null($this->getUser()->getCircunscripcion()) ? $turnoRepository->findEstadisticaByCircunscripcion($semanaDesde, ($semanaPrimerDia < $DThasta ? $semanaHasta : $DThasta->format('d/m/Y 23:59:59')), $this->getUser()->getCircunscripcion()->getCircunscripcionesListByZona()) : $turnoRepository->findEstadistica($semanaDesde, ($semanaPrimerDia < $DThasta ? $semanaHasta : $DThasta->format('d/m/Y 23:59:59')), $oficinaId);
+                    $estadisticaSemanal[] = (!$oficinaId && !is_null($this->getUser()->getCircunscripcion())) ? $turnoRepository->findEstadisticaByCircunscripcion($semanaDesde, ($semanaPrimerDia < $DThasta ? $semanaHasta : $DThasta->format('d/m/Y 23:59:59')), $this->getUser()->getCircunscripcion()->getCircunscripcionesListByZona()) : $turnoRepository->findEstadistica($semanaDesde, ($semanaPrimerDia < $DThasta ? $semanaHasta : $DThasta->format('d/m/Y 23:59:59')), $oficinaId);
                 }
 
                 if ($semanaPrimerDia > $DThasta) {
@@ -214,9 +214,9 @@ class EstadisticaController extends AbstractController
                 $i++;
 
                 if ($_ENV['SISTEMA_ORALIDAD_CIVIL']) {
-                    $estadistica = !is_null($this->getUser()->getCircunscripcion()) ? $turnoRepository->findEstadisticaByCircunscripcionOralidad($diaDesde, ($diaPrimerDia < $DThasta ? $diaHasta : $DThasta->format('d/m/Y 23:59:59')), $this->getUser()->getCircunscripcion()->getCircunscripcionesListByZona()) : $turnoRepository->findEstadisticaOralidad($diaDesde, ($diaPrimerDia < $DThasta ? $diaHasta : $DThasta->format('d/m/Y 23:59:59')), $oficinaId);
+                    $estadistica = (!$oficinaId && !is_null($this->getUser()->getCircunscripcion())) ? $turnoRepository->findEstadisticaByCircunscripcionOralidad($diaDesde, ($diaPrimerDia < $DThasta ? $diaHasta : $DThasta->format('d/m/Y 23:59:59')), $this->getUser()->getCircunscripcion()->getCircunscripcionesListByZona()) : $turnoRepository->findEstadisticaOralidad($diaDesde, ($diaPrimerDia < $DThasta ? $diaHasta : $DThasta->format('d/m/Y 23:59:59')), $oficinaId);
                 } else {
-                    $estadistica = !is_null($this->getUser()->getCircunscripcion()) ? $turnoRepository->findEstadisticaByCircunscripcion($diaDesde, ($diaPrimerDia < $DThasta ? $diaHasta : $DThasta->format('d/m/Y 23:59:59')), $this->getUser()->getCircunscripcion()->getCircunscripcionesListByZona()) : $turnoRepository->findEstadistica($diaDesde, ($diaPrimerDia < $DThasta ? $diaHasta : $DThasta->format('d/m/Y 23:59:59')), $oficinaId);
+                    $estadistica = (!$oficinaId && !is_null($this->getUser()->getCircunscripcion())) ? $turnoRepository->findEstadisticaByCircunscripcion($diaDesde, ($diaPrimerDia < $DThasta ? $diaHasta : $DThasta->format('d/m/Y 23:59:59')), $this->getUser()->getCircunscripcion()->getCircunscripcionesListByZona()) : $turnoRepository->findEstadistica($diaDesde, ($diaPrimerDia < $DThasta ? $diaHasta : $DThasta->format('d/m/Y 23:59:59')), $oficinaId);
                 }
 
                 if (($estadistica['total'] || $vistaSinTurno) && !$vistaSoloSinTurno) {
