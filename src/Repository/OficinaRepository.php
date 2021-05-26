@@ -198,7 +198,7 @@ class OficinaRepository extends ServiceEntityRepository
     }
 
 
-    public function findMaximasOcupaciones($circunscripcionID, $orderBy)
+    public function findMaximasOcupaciones($circunscripcionID, $orderBy, $soloHabilitadas)
     {
 
         // Evalúa si filtrar por Circunscripción
@@ -225,7 +225,7 @@ class OficinaRepository extends ServiceEntityRepository
                             GROUP BY 1,2) AS aux3
                     WHERE aux3.tot = 0
                     GROUP BY 1) a ON o.id = a.ofi
-                WHERE  a.max IS NOT NULL AND a.max >= now()::date AND o.habilitada = true $filtroCircunscripcion
+                WHERE  a.max IS NOT NULL AND a.max >= now()::date AND o.habilitada = $soloHabilitadas $filtroCircunscripcion
                 ORDER BY $orderBy";
 
         $em = $this->getEntityManager();

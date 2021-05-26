@@ -538,6 +538,7 @@ class EstadisticaController extends AbstractController
     {
         $circunscripcionID = $request->request->get('circunscripcion');
         $orden = $request->request->get('orden');
+        $soloHabilitadas = $request->request->get('soloHabilitadas');
 
         $orderBy = 'a.max DESC, 2, 1';
         $ordenadoPor = 'Fecha Ult. 100%';
@@ -554,7 +555,7 @@ class EstadisticaController extends AbstractController
         }
 
         //Obtengo Datos para el Informe
-        $ocupacionesPlenas = $oficinaRepository->findMaximasOcupaciones($circunscripcionID, $orderBy);
+        $ocupacionesPlenas = $oficinaRepository->findMaximasOcupaciones($circunscripcionID, $orderBy, $soloHabilitadas ? 'true' : 'false');
 
         // Audito la acción
         $logger->info('Se emite informe de ocupación plena', [
