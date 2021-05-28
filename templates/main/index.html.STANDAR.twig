@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Solicitud de Turnos Poder Judicial{% endblock %}
+
+{% block body %}
+{% if app.environment == 'dev' %}
+   {% set urlIndexMPCivil = "http://turnosmpcivil-testing.justiciasantafe.gov.ar/index.php" %}
+   {% set urlMPCivil = "http://turnosmpcivil-testing.justiciasantafe.gov.ar/index.php/TurnosWeb/solicitante" %}
+{% else %}
+    {% set urlIndexMPCivil = "http://turnosmpcivil.justiciasantafe.gov.ar/index.php" %}
+    {% set urlMPCivil = "http://turnosmpcivil.justiciasantafe.gov.ar/index.php/TurnosWeb/solicitante" %}
+{% endif %}
+<br>
+<div class="jumbotron mt-1 rounded-lg border border-secondary shadow-lg">
+    <div class="row">
+        <div class="col-2">
+            <img src="{{asset('images/escudo.gif')}}" class="rounded float-left" alt="Poder Judicial" height="140">
+        </div>
+        <div class="col">
+            <h1 class="display-4">{% trans %}Solicitud de Turnos{% endtrans %}</h1>
+            <p class="lead text-center">PODER JUDICIAL DE LA PROVINCIA DE SANTA FE</p>
+            <hr class="my-4">
+            <p>{% trans %}main.parrafo1{% endtrans %}</p>            
+            {% if SistemaTurnosWeb %}                
+                <br>            
+                <div class="row">
+                    <!--<div class="col-6 text-left">
+                        <a class="btn btn-primary btn-lg float-center" href={{ urlIndexMPCivil }} role="button">Turno Defensorías Generales Civiles</a>
+                    </div>-->
+                    <div class="col-12 text-center">
+                        <a class="btn btn-primary btn-lg float-center shadow" href="{{ path('turno_new2') }}" role="button">Solicitar Turno</a>
+                    </div>
+                </div>
+                <br>
+                <div class="row mt-5">
+                    <div class="col-12 text-center">
+                        <p>Para solicitar turnos en Defensorías Civiles ingrese aquí: <a class="btn btn-outline-primary btn-sm float-center shadow" href={{ urlIndexMPCivil }} role="button">Solicitar Turno Defensorías Generales Civiles</a> </p>
+                    </div>
+                </div>                
+            {% else %}
+                {% if SistemaTurnosMPE %}
+                    <div class="row">
+                        <div class="col-12 text-right">
+                            <a class="btn btn-primary btn-lg shadow" href={{ urlMPCivil }} role="button">Solicitar Turno Defensorías Generales Civiles</a>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="row">
+                        <div class="col-12 text-right">
+                            <a class="btn btn-primary btn-lg float-center shadow" href="{{ path('turno_new2') }}" role="button">Solicitar Turno</a>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}
